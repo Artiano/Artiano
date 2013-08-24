@@ -46,6 +46,9 @@ public class Test {
 		printMatrix(q);
 		Matrix z = q.at(Range.all(), new Range(0, 2));
 		printMatrix(z);
+		Matrix y = new Matrix(2, 2);
+		z.copyTo(y);
+		printMatrix(z);
 		Matrix x = m.at(Range.all(), new Range(0, 3));
 		printMatrix(x);
 		printMatrix(m.row(2));

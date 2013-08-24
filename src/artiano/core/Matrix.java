@@ -56,6 +56,18 @@ public class Matrix{
 	}
 	
 	/**
+	 * copy the matrix to destination
+	 * @param x - destination matrix
+	 */
+	public void copyTo(Matrix x){
+		if (x.rows != rows || x.cols != cols)
+			throw new IllegalArgumentException("Matrix copy, size not match.");
+		for (int i = 0; i < rows; i++)
+			for (int j = 0; j < cols; j++)
+				x.set(i, j, at(i, j));
+	}
+	
+	/**
 	 * get columns
 	 * @return - columns
 	 */
