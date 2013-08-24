@@ -56,6 +56,18 @@ public class Matrix{
 	}
 	
 	/**
+	 * copy the matrix to destination
+	 * @param x - destination matrix
+	 */
+	public void copyTo(Matrix x){
+		if (x.rows != rows || x.cols != cols)
+			throw new IllegalArgumentException("Matrix copy, size not match.");
+		for (int i = 0; i < rows; i++)
+			for (int j = 0; j < cols; j++)
+				x.set(i, j, at(i, j));
+	}
+	
+	/**
 	 * get columns
 	 * @return - columns
 	 */
@@ -72,15 +84,46 @@ public class Matrix{
 	}
 	
 	/**
+	 * row vector at row i of the matrix
+	 * @param i - row index
+	 * @return - row vector
+	 */
+	public Matrix row(int i){
+		return at(new Range(i, i+1), Range.all());
+	}
+	
+	/**
+	 * column vector at column i of the matrix
+	 * @param i - column index
+	 * @return - column vector
+	 */
+	public Matrix col(int i){
+		return at(Range.all(), new Range(i, i+1));
+	}
+	
+	/**
+	 * reshape the matrix
+	 * @param rows - rows after reshape
+	 * @param cols - columns after reshape
+	 * @return - reshaped matrix
+	 */
+	public Matrix reshape(int rows, int cols){
+		if (rows * cols != this.rows * this.cols)
+			throw new IllegalArgumentException("Matrix reshape, size not match.");
+		
+		return this;
+	}
+	
+	/**
 	 * create an matrix like A=u*I, I is unit matrix, u is scale
 	 * @param size - matrix size
-	 * @param value - the value to set
+	 * @param scale - the value to set
 	 * @return - matrix
 	 */
-	public static Matrix unit(int size, double value){
+	public static Matrix unit(int size, double scale){
 		Matrix x = new Matrix(size, size);
 		for (int i = 0; i < size; i++)
-			x.set(i, i, value);
+			x.set(i, i, scale);
 		return x;
 	}
 	
@@ -103,11 +146,18 @@ public class Matrix{
 	 * @return - a sub-matrix of the matrix
 	 */
 	public Matrix at(Range row, Range col){
+		row = row.equals(Range.all()) ? this.rowRange:
+			new Range(row.begin() + this.rowRange.begin(), row.end() + this.rowRange.begin());
+		col = col.equals(Range.all()) ? this.colRange: 
+			new Range(col.begin() + this.colRange.begin(), col.end() + this.colRange.begin());
+		
 		if (!this.rowRange.isContain(row) || !this.colRange.isContain(col))
 			throw new IllegalArgumentException("Matrix at, out of range.");
 		Matrix x = new Matrix();
-		x.rowRange = row.equals(Range.all()) ? new Range(0, rows): row;
-		x.colRange = col.equals(Range.all()) ? new Range(0, cols): col;
+		// row range of x
+		x.rowRange = row;
+		//column range of x
+		x.colRange = col;
 		x.dCols = dCols;
 		x.d = d;
 		x.rows = x.rowRange.length();
@@ -116,7 +166,7 @@ public class Matrix{
 	}
 	
 	/**
-	 * set value to row i column j
+	 * set row i column j to value
 	 * @param i - row index
 	 * @param j - column index
 	 * @param value - value to set

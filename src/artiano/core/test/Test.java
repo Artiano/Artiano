@@ -41,8 +41,18 @@ public class Test {
 	
 	static void testMatrix(){
 		Matrix m = new Matrix(4, 5, A);
+		printMatrix(m);
+		Matrix q = m.at(new Range(1, 3), new Range(1, 4));
+		printMatrix(q);
+		Matrix z = q.at(Range.all(), new Range(0, 2));
+		printMatrix(z);
+		Matrix y = new Matrix(2, 2);
+		z.copyTo(y);
+		printMatrix(z);
 		Matrix x = m.at(Range.all(), new Range(0, 3));
 		printMatrix(x);
+		printMatrix(m.row(2));
+		printMatrix(m.col(2));
 		m.subtract(0, 0, 3);
 		printMatrix(m);
 		Matrix n = m.at(new Range(1, 3), new Range(2, 4));
