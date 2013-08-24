@@ -43,7 +43,7 @@ public class Test {
 		Matrix m = new Matrix(4, 5, A);
 		Matrix x = m.at(Range.all(), new Range(0, 3));
 		printMatrix(x);
-		/*m.subtract(0, 0, 3);
+		m.subtract(0, 0, 3);
 		printMatrix(m);
 		Matrix n = m.at(new Range(1, 3), new Range(2, 4));
 		printMatrix(n);
@@ -55,7 +55,7 @@ public class Test {
 		for (int i = 0; i < e.rows(); i++)
 			for (int j = 0; j < e.columns(); j++)
 				e.set(i, j, i + 1 + j);
-		printMatrix(e);*/
+		printMatrix(e);
 	}
 	
 	public static void main(String[] argStrings){
