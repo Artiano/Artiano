@@ -56,6 +56,7 @@ public class Test {
 			for (int j = 0; j < e.columns(); j++)
 				e.set(i, j, i + 1 + j);
 		printMatrix(e);
+		printMatrix(e);
 	}
 	
 	public static void main(String[] argStrings){
