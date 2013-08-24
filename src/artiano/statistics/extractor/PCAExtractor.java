@@ -3,6 +3,8 @@
  */
 package artiano.statistics.extractor;
 
+import artiano.core.Matrix;
+
 /**
  * <p>Description:</p>
  * @author Nano.Michael
@@ -13,20 +15,18 @@ package artiano.statistics.extractor;
  */
 public class PCAExtractor implements FeatureExtractor{
 	//samples
-	protected double[][] samples = null;
-	protected double[] mean = null;
+	protected Matrix[] samples = null;
+	protected Matrix mean = null;
 	//eigen
-	protected double[][] eigenVectors = null;
-	protected double[]   eigenValues = null;
+	protected Matrix eigenVectors = null;
+	protected Matrix eigenValues = null;
 	
 	protected int samplesNumber = 0;
-	protected int sampleLength = 0;
 	
-	public PCAExtractor(double[][] samples){
+	public PCAExtractor(Matrix[] samples){
 		this.samples = samples;
 		this.samplesNumber = samples.length;
-		this.sampleLength = samples[0].length;
-		mean = new double[samples[0].length];
+		mean = new Matrix(samples[0].rows(), samples[0].columns());
 	}
 	
 	protected void computeMean(){
@@ -69,7 +69,7 @@ public class PCAExtractor implements FeatureExtractor{
 	 * @see artiano.statistics.extractor.FeatureExtractor#getModel()
 	 */
 	@Override
-	public double[][] getModel() {
+	public Matrix getModel() {
 		return null;
 	}
 
