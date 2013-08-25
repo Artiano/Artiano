@@ -3,7 +3,7 @@
  */
 package artiano.statistics.extractor;
 
-import artiano.core.Matrix;
+import artiano.core.structure.Matrix;
 
 /**
  * <p>Description:</p>

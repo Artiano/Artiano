@@ -3,7 +3,7 @@
  */
 package artiano.math.linearalgebra;
 
-import artiano.core.Matrix;
+import artiano.core.structure.Matrix;
 
 
 /**

@@ -5,7 +5,7 @@ package artiano.math.linearalgebra;
 
 import javax.management.RuntimeErrorException;
 
-import artiano.core.Matrix;
+import artiano.core.structure.Matrix;
 
 /**
  * <p>Description: This class for singular value decomposition.</p>

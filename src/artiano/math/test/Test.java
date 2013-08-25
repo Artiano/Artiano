@@ -5,7 +5,7 @@ package artiano.math.test;
 
 import java.text.DecimalFormat;
 
-import artiano.core.Matrix;
+import artiano.core.structure.Matrix;
 import artiano.math.linearalgebra.CholeskyDecomposition;
 import artiano.math.linearalgebra.GaussJordan;
 import artiano.math.linearalgebra.LUDecomposition;

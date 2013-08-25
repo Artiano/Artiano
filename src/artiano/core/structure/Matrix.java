@@ -1,11 +1,11 @@
 /**
  * Matrix.java
  */
-package artiano.core;
+package artiano.core.structure;
 
 
 /**
- * <p>Description: operation of matrix</p>
+ * <p>Description: basic structure matrix</p>
  * @author Nano.Michael
  * @version 1.0.0
  * @date 2013-8-20
@@ -68,6 +68,14 @@ public class Matrix{
 	}
 	
 	/**
+	 * get data stored in the matrix
+	 * @return - data
+	 */
+	public double[] data(){
+		return this.d;
+	}
+	
+	/**
 	 * get columns
 	 * @return - columns
 	 */
@@ -99,19 +107,6 @@ public class Matrix{
 	 */
 	public Matrix col(int i){
 		return at(Range.all(), new Range(i, i+1));
-	}
-	
-	/**
-	 * reshape the matrix
-	 * @param rows - rows after reshape
-	 * @param cols - columns after reshape
-	 * @return - reshaped matrix
-	 */
-	public Matrix reshape(int rows, int cols){
-		if (rows * cols != this.rows * this.cols)
-			throw new IllegalArgumentException("Matrix reshape, size not match.");
-		
-		return this;
 	}
 	
 	/**
@@ -175,6 +170,49 @@ public class Matrix{
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
 			throw new IndexOutOfBoundsException("Matrix at, index out of range.");
 		d[(i + rowRange.begin()) * dCols + j + colRange.begin()] = value;
+	}
+	
+	/**
+	 * set value to the sub-matrix of the matrix
+	 * @param row - row range
+	 * @param col - column range
+	 * @param value - value to set
+	 */
+	public void set(Range row, Range col, Matrix value){
+		Matrix x = at(row, col);
+		if (value.rows != x.rows || value.cols != x.cols)
+			throw new IllegalArgumentException("Matrix set, size not match.");
+		for (int i = 0; i < x.rows; i++)
+			for (int j = 0; j < x.cols; j++)
+				x.set(i, j, value.at(i, j));
+	}
+	
+	/**
+	 * set value to row i of the matrix
+	 * @param i - row index
+	 * @param value - value to set
+	 */
+	public void setRow(int i, Matrix value){
+		if (value.rows != 1)
+			throw new IllegalArgumentException("Matrix setRow, accept row vector only.");
+		if (value.cols != cols)
+			throw new IllegalArgumentException("Matrix setRow, size not match.");
+		for (int j = 0; j < value.cols; j++)
+			set(i, j, value.at(0, j));
+	}
+	
+	/**
+	 * set value to column i of the matrix
+	 * @param i - column index
+	 * @param value - value to set
+	 */
+	public void setCol(int i, Matrix value){
+		if (value.cols != 1)
+			throw new IllegalArgumentException("Matrix setCol, accept column vector only.");
+		if (value.rows != rows)
+			throw new IllegalArgumentException("Matrix setCol, size not match.");
+		for (int j = 0; j < value.rows; j++)
+			set(j, i, value.at(j, 0));
 	}
 	
 	/**

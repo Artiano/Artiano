@@ -3,8 +3,8 @@
  */
 package artiano.core.test;
 
-import artiano.core.Matrix;
-import artiano.core.Range;
+import artiano.core.structure.Matrix;
+import artiano.core.structure.Range;
 
 /**
  * <p>Description:</p>
@@ -67,6 +67,11 @@ public class Test {
 				e.set(i, j, i + 1 + j);
 		printMatrix(e);
 		printMatrix(e);
+		double d[] = {1,2,3,4,5,6,7,8,9,0};
+		Matrix x1 = new Matrix(5, 2, d);
+		double dd[] = {-1,-2};
+		x1.setRow(4, new Matrix(1, 2, dd));
+		printMatrix(x1);
 	}
 	
 	public static void main(String[] argStrings){

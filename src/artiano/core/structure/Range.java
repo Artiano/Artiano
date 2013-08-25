@@ -1,7 +1,7 @@
 /**
  * Range.java
  */
-package artiano.core;
+package artiano.core.structure;
 
 /**
  * <p>Description: To describe an ultra-tail range.</p>
