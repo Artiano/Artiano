@@ -24,10 +24,7 @@ public interface FeatureExtractor {
 	 * @param filename - specified file
 	 */
 	public void save(String filename);
-	/**
-	 * train an extractor
-	 */
-	public void train();
+	
 	/**
 	 * extract features from sample
 	 */

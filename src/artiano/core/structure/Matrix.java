@@ -10,7 +10,6 @@ package artiano.core.structure;
  * @version 1.0.0
  * @date 2013-8-20
  * @author (latest modification by Nano.Michael)
- * @function 
  * @since 1.0.0
  */
 public class Matrix{
@@ -120,6 +119,19 @@ public class Matrix{
 		for (int i = 0; i < size; i++)
 			x.set(i, i, scale);
 		return x;
+	}
+	
+	/**
+	 * calculate the trace of the matrix
+	 * @return - trace
+	 */
+	public double trace(){
+		if (rows != cols)
+			throw new UnsupportedOperationException("Matrix trace, only squre matrix has trace.");
+		double tr = 0.;
+		for (int i = 0; i < rows; i++)
+			tr += at(i, i);
+		return tr;
 	}
 	
 	/**
@@ -439,6 +451,51 @@ public class Matrix{
 	}
 	
 	/**
+	 * calculate the mean vector of rows
+	 * @return - mean vector of rows
+	 */
+	public Matrix rowMean(){
+		Matrix mean = new Matrix(1, cols);
+		for (int i = 0; i < rows; i++)
+			mean.add(row(i));
+		mean.divide(rows);
+		return mean;
+	}
+	
+	/**
+	 * calculate the mean vector of columns
+	 * @return - mean vector of columns
+	 */
+	public Matrix colMean(){
+		Matrix mean = new Matrix(rows, 1);
+		for (int i = 0; i < cols; i++)
+			mean.add(col(i));
+		mean.divide(cols);
+		return mean;
+	}
+	
+	/**
+	 * calculate the square root of the matrix
+	 * @param reserve - indicate reserve the matrix whether or not
+	 * @return - result
+	 */
+	public Matrix sqrt(boolean reserve){
+		Matrix x = reserve? new Matrix(rows, cols): this;
+		for (int i = 0; i < rows; i++)
+			for (int j = 0; j < cols; j++)
+				x.set(i, j, Math.sqrt(at(i, j)));
+		return x;
+	}
+	
+	/**
+	 * calculate the square root of the matrix
+	 * @return - result
+	 */
+	public Matrix sqrt(){
+		return sqrt(false);
+	}
+	
+	/**
 	 * clone a matrix
 	 */
 	@Override
@@ -448,6 +505,20 @@ public class Matrix{
 			for (int j = 0; j < cols; j++)
 				x.set(i, j, at(i, j));
 		return x;
+	}
+	
+	/**
+	 * secondary function, print the matrix to console
+	 */
+	public void print(){
+		System.out.println("-------------------------");
+		java.text.DecimalFormat f = new java.text.DecimalFormat("#.##");
+		for (int i = 0; i < rows; i++){
+			for (int j = 0; j < cols; j++)
+				System.out.print(f.format(at(i, j)) + " ");
+			System.out.println();
+		}
+		System.out.println("-------------------------");
 	}
 	
 	/**
