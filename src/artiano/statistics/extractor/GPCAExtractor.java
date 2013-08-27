@@ -16,8 +16,9 @@ import artiano.math.linearalgebra.SingularValueDecomposition;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class GPCAExtractor implements FeatureExtractor, UnsupervisedExtractor, CanReconstructed{
+public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtractor, CanReconstructed{
 	
+	//the mean matrix
 	protected Matrix mean = null;
 	//eigen
 	protected Matrix eigenVectors = null;
@@ -31,6 +32,9 @@ public class GPCAExtractor implements FeatureExtractor, UnsupervisedExtractor, C
 	protected boolean covarianceByRow = false;
 	protected boolean isVectors = false;
 	
+	/**
+	 * constructor
+	 */
 	public GPCAExtractor(){ }
 	
 	/**
@@ -81,7 +85,6 @@ public class GPCAExtractor implements FeatureExtractor, UnsupervisedExtractor, C
 			if (zeroIdx == 0)
 				zeroIdx = w.columns();
 			w = w.at(Range.all(), new Range(0, zeroIdx));
-			w.print();
 			//eigen values
 			eigenValues = svd.W().at(Range.all(), new Range(0, zeroIdx)).clone();
 			Matrix v = svd.U().at(Range.all(), new Range(0, zeroIdx));
@@ -113,10 +116,8 @@ public class GPCAExtractor implements FeatureExtractor, UnsupervisedExtractor, C
 			eigenVectors = svd.U();
 			eigenValues = svd.W().sqrt();
 		}
-	}
-	
-	public Matrix getEigenValue(){
-		return eigenValues;
+		//transpose the eigen vectors to row vector
+		eigenVectors = eigenVectors.t();
 	}
 	
 	/* (non-Javadoc)
@@ -141,7 +142,7 @@ public class GPCAExtractor implements FeatureExtractor, UnsupervisedExtractor, C
 	@Override
 	public void train(Matrix[] samples) {
 		if (samples[0].columns() == 1)
-			throw new IllegalArgumentException("GPCAExtractor train, accept row vectors only while samples is vector.");
+			throw new IllegalArgumentException("GPCAExtractor train, accept row vectors only while samples is vectors.");
 		if (samples[0].rows() == 1)
 			isVectors = true;
 		else
@@ -156,8 +157,15 @@ public class GPCAExtractor implements FeatureExtractor, UnsupervisedExtractor, C
 	 * @see artiano.statistics.extractor.FeatureExtractor#extract(double[])
 	 */
 	@Override
-	public void extract(double[] sample) {
-		
+	public Matrix extract(Matrix sample) {
+		if (sample.rows() != sampleHeight || sample.columns() != sampleWidth)
+			throw new IllegalArgumentException("GPCAExtractor extract, size not match.");
+		Matrix feature;
+		if (isVectors)
+			feature = eigenVectors.multiply(sample.subtract(mean, true).t()).t();
+		else
+			feature = eigenVectors.multiply(sample.subtract(mean, true));
+		return feature;
 	}
 
 	/* (non-Javadoc)
@@ -173,7 +181,12 @@ public class GPCAExtractor implements FeatureExtractor, UnsupervisedExtractor, C
 	 */
 	@Override
 	public Matrix reconstruct(Matrix feature) {
-		return null;
+		Matrix sample = null;
+		if (isVectors)
+			sample = feature.multiply(eigenVectors).add(mean);
+		else
+			sample = eigenVectors.t().multiply(feature).add(mean);
+		return sample;
 	}
 
 }

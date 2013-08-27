@@ -3,8 +3,6 @@
  */
 package artiano.statistics.extractor.test;
 
-import java.text.DecimalFormat;
-
 import artiano.core.structure.Matrix;
 import artiano.statistics.extractor.GPCAExtractor;
 
@@ -31,29 +29,25 @@ public class Test {
 	static double[][] b = {{2.5000 ,   0.5000,    2.2000 ,   1.9000  ,  3.1000  ,  2.3000  ,  2.0000  ,  1.0000 ,   1.5000 ,   1.1000},
 	    {2.4000 ,   0.7000  ,  2.9000 ,   2.2000 ,   3.0000   , 2.7000    ,1.6000,    1.1000 ,   1.6000 ,   0.9000},
 	    {1.1000  ,  3.1000  ,  2.3000  ,  1.4000  ,  2.7000  ,  1.2000 ,   2.4000  ,  1.8000 ,   2.1000  ,  1.5000}};
-	public static void printMatrix(Matrix x){
-		System.out.println("---------------------------");
-		DecimalFormat f = new DecimalFormat("#.##");
-		for (int i = 0; i < x.rows(); i++){
-			for (int j = 0; j < x.columns(); j++)
-				System.out.print(f.format(x.at(i, j)) + " ");
-			System.out.println();
-		}
-		System.out.println("---------------------------");
-	}
 	
 	public static void testPCA(){
 		GPCAExtractor extractor = new GPCAExtractor();
-		Matrix[] m = new Matrix[3];
-		for (int i = 0; i < 3; i++)
-			m[i] = new Matrix(1,10, b[i]);
+		Matrix[] m = new Matrix[10];
+		for (int i = 0; i < 10; i++)
+			m[i] = new Matrix(1, 2, d[i]);
 		extractor.train(m);
 		Matrix model = extractor.getModel();
-		Matrix eign = extractor.getEigenValue();
 		System.out.println("Eigen Vectors:");
-		printMatrix(model);
-		System.out.println("Eigen Values:");
-		printMatrix(eign);
+		model.print();
+		System.out.println("Features:");
+		Matrix feature = extractor.extract(m[0]);
+		feature.print();
+		System.out.println("Reconstruct:");
+		Matrix x = extractor.reconstruct(feature);
+		m[0].print();
+		x.print();
+		double dif = m[0].difference(x);
+		System.out.println("Reconstruct error: " + dif);
 	}
 	
 	public static void main(String[] arg){

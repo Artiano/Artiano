@@ -496,6 +496,21 @@ public class Matrix{
 	}
 	
 	/**
+	 * calculate the difference between this and x
+	 * @param x - input matrix
+	 * @return - difference
+	 */
+	public double difference(Matrix x){
+		if (x.rows != rows || x.cols != cols)
+			throw new IllegalArgumentException("Matrix difference, size not match.");
+		double dif = 0.;
+		for (int i = 0; i < rows; i++)
+			for (int j = 0; j < cols; j++)
+				dif += Math.abs(at(i, j) - x.at(i, j));
+		return dif;
+	}
+	
+	/**
 	 * clone a matrix
 	 */
 	@Override
@@ -512,7 +527,7 @@ public class Matrix{
 	 */
 	public void print(){
 		System.out.println("-------------------------");
-		java.text.DecimalFormat f = new java.text.DecimalFormat("#.##");
+		java.text.DecimalFormat f = new java.text.DecimalFormat("#.## ");
 		for (int i = 0; i < rows; i++){
 			for (int j = 0; j < cols; j++)
 				System.out.print(f.format(at(i, j)) + " ");
