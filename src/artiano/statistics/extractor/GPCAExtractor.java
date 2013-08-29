@@ -1,12 +1,12 @@
 /**
- * PCAExtractor.java
+ * GPCAExtractor.java
  */
 package artiano.statistics.extractor;
 
 import artiano.core.operation.MatrixOpt;
 import artiano.core.structure.Matrix;
 import artiano.core.structure.Range;
-import artiano.math.linearalgebra.SingularValueDecomposition;
+import artiano.math.algebra.SingularValueDecomposition;
 
 /**
  * <p>Description:</p>
@@ -16,26 +16,78 @@ import artiano.math.linearalgebra.SingularValueDecomposition;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtractor, CanReconstructed{
+public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtractor{
 	
 	//the mean matrix
 	protected Matrix mean = null;
 	//eigen
 	protected Matrix eigenVectors = null;
 	protected Matrix eigenValues = null;
-	protected int eigens;
+	protected int eigens = 0;
 	protected int samplesNumber = 0;
 	//sample size
 	protected int sampleWidth = 0;
 	protected int sampleHeight = 0;
-	
+	//judge if the sample is vector
 	protected boolean covarianceByRow = false;
 	protected boolean isVectors = false;
+	/**
+	 * parameter of the extractor
+	 */
+	//the eigen needed to reconstruct
+	protected int eigensNeeded = 0;
+	//rate of contribution
+	protected double roc = 0.;
 	
 	/**
 	 * constructor
 	 */
 	public GPCAExtractor(){ }
+	
+	/**
+	 * set the rate of contribution
+	 * @param roc - rate of contribution
+	 */
+	public void setRoc(double roc){
+		this.roc = roc;
+	}
+	
+	/**
+	 * set the number of eigen-vectors needed to reconstruct
+	 * @param eigensNeeded - number of eigen-vectors needed to reconstruct
+	 */
+	public void setEigens(int eigensNeeded){
+		if (eigensNeeded <= 0 || eigensNeeded > eigens)
+			throw new IllegalArgumentException("GPCAExtractor setEigens, number of eigen-vectors needed out of range.");
+		this.eigensNeeded = eigensNeeded;
+	}
+	
+	/**
+	 * get eigen-values
+	 * @return - the eigen-value
+	 */
+	public Matrix getEigenValue(){
+		return this.eigenValues;
+	}
+	
+	/**
+	 * compute the rate of contribution
+	 */
+	protected void computeRoc(Matrix eigenValues){
+		double sum = 0.;
+		if (eigens == 0)
+			eigens = eigenValues.columns();
+		for (int i = 0; i < eigenValues.columns(); i++)
+			sum += eigenValues.at(0, i);
+		int i;
+		double t = sum;
+		for (i = eigenValues.columns() - 1; i >= 0; i--){
+			if ((t-eigenValues.at(0, i))/sum <= roc)
+				break;
+			t -= eigenValues.at(0, i);
+		}
+		eigens = i + 1;
+	}
 	
 	/**
 	 * compute the covariance of the samples
@@ -70,7 +122,9 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 		if (covarianceByRow){
 			SingularValueDecomposition svd = new SingularValueDecomposition(cov, false);
 			svd.sort();
-			Matrix w = svd.W().sqrt().clone();
+			Matrix t = svd.W().sqrt();
+			computeRoc(t);
+			Matrix w = t.at(Range.all(), new Range(0, eigens)).clone();
 			int zeroIdx = 0;
 			//w := w^(-1/2)
 			final double TINY = 1e-7;
@@ -104,7 +158,7 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 			{
 				/**
 				 * t_a: temporary row-vector
-				 * that t_a = column i of A
+				 * that t_a = column i of the covariance matrix
 				 */
 				for (int j = 0; j < samplesNumber; j++)
 					t_a.set(0, j, samples[j].at(0, i) - mean.at(0, i));
@@ -137,7 +191,7 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 	}
 	
 	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.UnsupervisedExtractor#train(artiano.core.structure.Matrix[])
+	 * @see artiano.statistics.extractor.UnsupervisedExtractor#train(artiano.core.structure.Matrix[], double)
 	 */
 	@Override
 	public void train(Matrix[] samples) {
@@ -177,7 +231,7 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 	}
 
 	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.CanReconstructed#reconstruct(artiano.core.structure.Matrix)
+	 * @see artiano.statistics.extractor.FeatureExtractor#reconstruct(artiano.core.structure.Matrix)
 	 */
 	@Override
 	public Matrix reconstruct(Matrix feature) {

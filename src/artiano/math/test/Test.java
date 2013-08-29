@@ -6,10 +6,10 @@ package artiano.math.test;
 import java.text.DecimalFormat;
 
 import artiano.core.structure.Matrix;
-import artiano.math.linearalgebra.CholeskyDecomposition;
-import artiano.math.linearalgebra.GaussJordan;
-import artiano.math.linearalgebra.LUDecomposition;
-import artiano.math.linearalgebra.SingularValueDecomposition;
+import artiano.math.algebra.CholeskyDecomposition;
+import artiano.math.algebra.GaussJordan;
+import artiano.math.algebra.LUDecomposition;
+import artiano.math.algebra.SingularValueDecomposition;
 
 /**
  * <p>Description:</p>

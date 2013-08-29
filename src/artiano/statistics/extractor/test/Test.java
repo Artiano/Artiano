@@ -3,6 +3,8 @@
  */
 package artiano.statistics.extractor.test;
 
+import java.text.DecimalFormat;
+
 import artiano.core.structure.Matrix;
 import artiano.statistics.extractor.GPCAExtractor;
 
@@ -32,10 +34,14 @@ public class Test {
 	
 	public static void testPCA(){
 		GPCAExtractor extractor = new GPCAExtractor();
-		Matrix[] m = new Matrix[10];
-		for (int i = 0; i < 10; i++)
-			m[i] = new Matrix(1, 2, d[i]);
+		extractor.setRoc(0.5);
+		Matrix[] m = new Matrix[3];
+		for (int i = 0; i < 3; i++)
+			m[i] = new Matrix(1, 10, b[i]);
 		extractor.train(m);
+		Matrix eigen = extractor.getEigenValue();
+		System.out.println("Eigen values:");
+		eigen.print();
 		Matrix model = extractor.getModel();
 		System.out.println("Eigen Vectors:");
 		model.print();
@@ -47,7 +53,8 @@ public class Test {
 		m[0].print();
 		x.print();
 		double dif = m[0].difference(x);
-		System.out.println("Reconstruct error: " + dif);
+		DecimalFormat f = new DecimalFormat("#.##");
+		System.out.println("Reconstruct error: " + f.format(dif));
 	}
 	
 	public static void main(String[] arg){

@@ -1,7 +1,7 @@
 /**
  * SingularValueDecomposition.java
  */
-package artiano.math.linearalgebra;
+package artiano.math.algebra;
 
 import javax.management.RuntimeErrorException;
 

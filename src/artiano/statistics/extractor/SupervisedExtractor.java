@@ -18,6 +18,7 @@ public interface SupervisedExtractor {
 	 * train an extractor with labels
 	 * @param samples - samples to train
 	 * @param labels - the labels related with samples
+	 * @param roc - rate of contribution
 	 */
 	public void train(Matrix[] samples, Matrix labels);
 }

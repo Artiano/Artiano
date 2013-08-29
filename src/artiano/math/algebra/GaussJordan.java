@@ -1,7 +1,7 @@
 /**
  * GaussJordan.java
  */
-package artiano.math.linearalgebra;
+package artiano.math.algebra;
 
 import artiano.core.structure.Matrix;
 
