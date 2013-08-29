@@ -1,11 +1,11 @@
 /**
  * SingularValueDecomposition.java
  */
-package artiano.math.linearalgebra;
+package artiano.math.algebra;
 
 import javax.management.RuntimeErrorException;
 
-import artiano.core.Matrix;
+import artiano.core.structure.Matrix;
 
 /**
  * <p>Description: This class for singular value decomposition.</p>
@@ -146,11 +146,13 @@ public class SingularValueDecomposition {
 			//sort w
 			w.set(0, maxIdx, w.at(0, i));
 			w.set(0, i, maxW);
-			//sort v
-			for (int k = 0; k < v.columns(); k++){
-				double t = v.at(k, maxIdx);
-				v.set(k,maxIdx, v.at(k, i));
-				v.set(k, i, t);
+			//sort v if needed
+			if (computeRight){
+				for (int k = 0; k < v.columns(); k++){
+					double t = v.at(k, maxIdx);
+					v.set(k,maxIdx, v.at(k, i));
+					v.set(k, i, t);
+				}
 			}
 			//sort u
 			for (int k = 0; k < u.columns(); k++){
