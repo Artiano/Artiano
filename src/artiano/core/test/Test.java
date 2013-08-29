@@ -73,6 +73,10 @@ public class Test {
 		double dd[] = {-1,-2};
 		x1.setRow(4, new Matrix(1, 2, dd));
 		printMatrix(x1);
+		Matrix x2 = new Matrix(5, 1, d);
+		System.out.println(x2.at(0));
+		x2.set(0, 100);
+		System.out.println(x2.at(0));
 	}
 	
 	public static void testMatrixOpt(){
@@ -96,7 +100,7 @@ public class Test {
 	}
 	
 	public static void main(String[] argStrings){
-		//testMatrix();
-		testMatrixOpt();
+		testMatrix();
+		//testMatrixOpt();
 	}
 }

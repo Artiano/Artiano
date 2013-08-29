@@ -28,6 +28,7 @@ public class LUDecomposition {
 	private Matrix a = null;
 	//index
 	private int[] indx = null;
+	//to record the number of swapping times
 	private double d = 0.;
 	
 	/**
@@ -62,6 +63,17 @@ public class LUDecomposition {
 		//unit matrix;
 		Matrix I = Matrix.unit(a.rows(), 1.);
 		return solve(I, false);
+	}
+	
+	/**
+	 * calculate the determinant of the matrix
+	 * @return - determinant of the matrix
+	 */
+	public double det(){
+		double detvalue = 1.;
+		for (int i = 0; i < a.rows(); i++)
+			detvalue *= a.at(i, i);
+		return detvalue;
 	}
 	
 	/**
@@ -150,6 +162,7 @@ public class LUDecomposition {
 		double sum = 0;
 		
 		int n = a.rows();
+		//walk through all column-vectors
 		for (int k = 0; k < b.columns(); k++){
 			for (i = 0; i < n; i++){
 				ip = indx[i];

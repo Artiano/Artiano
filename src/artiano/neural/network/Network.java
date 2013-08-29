@@ -5,6 +5,7 @@ package artiano.neural.network;
 
 
 
+import artiano.core.structure.Matrix;
 import artiano.neural.layer.Layer;
 import artiano.neural.randomizer.Randomizer;
 
@@ -19,7 +20,7 @@ import artiano.neural.randomizer.Randomizer;
  */
 public abstract class Network {
 	public final int version = 0x00000001;
-	public double[] outputs = null;
+	public Matrix outputs = null;
 	public int inputCount = 0;
 	public int outputCount = 0;
 	public int layerCount = 0;
@@ -39,7 +40,6 @@ public abstract class Network {
 		outputCount = outputs;
 		layerCount = layers;
 		this.layers = new Layer[layerCount];
-		this.outputs = new double[outputCount];
 	}
 	
 	/**
@@ -56,8 +56,8 @@ public abstract class Network {
 	 * @param input input vector
 	 * @return output vector
 	 */
-	public double[] compute(double[] input){
-		double[] v = input;
+	public Matrix compute(Matrix input){
+		Matrix v = input;
 		for (int i = 0; i < layers.length; i++)
 			v = layers[i].compute(v);
 		outputs = v;

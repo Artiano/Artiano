@@ -3,6 +3,7 @@
  */
 package artiano.statistics.extractor;
 
+import artiano.core.operation.MatrixOpt;
 import artiano.core.structure.Matrix;
 
 /**
@@ -22,8 +23,12 @@ public class DirectedCovariance implements CovarianceComputingMethod {
 	 */
 	@Override
 	public Matrix compute(Matrix[] matrices, Matrix mean) {
-		
-		return null;
+		Matrix cov = null;
+		if (matrices[0].columns() > matrices.length)
+			cov = MatrixOpt.computeCovarianceByRow(matrices, mean, 1.);
+		else
+			cov = MatrixOpt.computeCovarianceByCol(matrices, mean, 1.);
+		return cov;
 	}
 
 }
