@@ -3,8 +3,9 @@
  */
 package artiano.core.test;
 
-import artiano.core.Matrix;
-import artiano.core.Range;
+import artiano.core.operation.MatrixOpt;
+import artiano.core.structure.Matrix;
+import artiano.core.structure.Range;
 
 /**
  * <p>Description:</p>
@@ -41,8 +42,18 @@ public class Test {
 	
 	static void testMatrix(){
 		Matrix m = new Matrix(4, 5, A);
+		printMatrix(m);
+		Matrix q = m.at(new Range(1, 3), new Range(1, 4));
+		printMatrix(q);
+		Matrix z = q.at(Range.all(), new Range(0, 2));
+		printMatrix(z);
+		Matrix y = new Matrix(2, 2);
+		z.copyTo(y);
+		printMatrix(z);
 		Matrix x = m.at(Range.all(), new Range(0, 3));
 		printMatrix(x);
+		printMatrix(m.row(2));
+		printMatrix(m.col(2));
 		m.subtract(0, 0, 3);
 		printMatrix(m);
 		Matrix n = m.at(new Range(1, 3), new Range(2, 4));
@@ -57,9 +68,35 @@ public class Test {
 				e.set(i, j, i + 1 + j);
 		printMatrix(e);
 		printMatrix(e);
+		double d[] = {1,2,3,4,5,6,7,8,9,0};
+		Matrix x1 = new Matrix(5, 2, d);
+		double dd[] = {-1,-2};
+		x1.setRow(4, new Matrix(1, 2, dd));
+		printMatrix(x1);
+	}
+	
+	public static void testMatrixOpt(){
+		double[] d1 = {1,2,3,4};
+		double[] d2 = {5,6,7,8};
+		double[] d3 = {9,10,11,12};
+		double[] d4 = {13,14,15,16};
+		Matrix[] m = new Matrix[4];
+		m[0] = new Matrix(1, 4, d1);
+		m[1] = new Matrix(1, 4, d2);
+		m[2] = new Matrix(1, 4, d3);
+		m[3] = new Matrix(1, 4, d4);
+		Matrix mean = MatrixOpt.computeMean(m);
+		printMatrix(mean);
+		Matrix cov = MatrixOpt.computeCovarianceByRow(m, mean, 1.);
+		printMatrix(cov);
+		Matrix cav = MatrixOpt.computeCovarianceByCol(m, mean, 1.);
+		printMatrix(cav);
+		/*Matrix cov = MatrixOpt.computeGeneralizedCovariance(m, mean, 1.);
+		printMatrix(cov);*/
 	}
 	
 	public static void main(String[] argStrings){
-		testMatrix();
+		//testMatrix();
+		testMatrixOpt();
 	}
 }

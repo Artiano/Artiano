@@ -1,9 +1,9 @@
 /**
  * GaussJordan.java
  */
-package artiano.math.linearalgebra;
+package artiano.math.algebra;
 
-import artiano.core.Matrix;
+import artiano.core.structure.Matrix;
 
 /**
  * <p>Description: Solve the matrix equation like A*x = B.</p>

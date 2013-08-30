@@ -1,16 +1,15 @@
 /**
  * Matrix.java
  */
-package artiano.core;
+package artiano.core.structure;
 
 
 /**
- * <p>Description: operation of matrix</p>
+ * <p>Description: basic structure matrix</p>
  * @author Nano.Michael
  * @version 1.0.0
  * @date 2013-8-20
  * @author (latest modification by Nano.Michael)
- * @function 
  * @since 1.0.0
  */
 public class Matrix{
@@ -56,6 +55,26 @@ public class Matrix{
 	}
 	
 	/**
+	 * copy the matrix to destination
+	 * @param x - destination matrix
+	 */
+	public void copyTo(Matrix x){
+		if (x.rows != rows || x.cols != cols)
+			throw new IllegalArgumentException("Matrix copy, size not match.");
+		for (int i = 0; i < rows; i++)
+			for (int j = 0; j < cols; j++)
+				x.set(i, j, at(i, j));
+	}
+	
+	/**
+	 * get data stored in the matrix
+	 * @return - data
+	 */
+	public double[] data(){
+		return this.d;
+	}
+	
+	/**
 	 * get columns
 	 * @return - columns
 	 */
@@ -72,16 +91,47 @@ public class Matrix{
 	}
 	
 	/**
+	 * row vector at row i of the matrix
+	 * @param i - row index
+	 * @return - row vector
+	 */
+	public Matrix row(int i){
+		return at(new Range(i, i+1), Range.all());
+	}
+	
+	/**
+	 * column vector at column i of the matrix
+	 * @param i - column index
+	 * @return - column vector
+	 */
+	public Matrix col(int i){
+		return at(Range.all(), new Range(i, i+1));
+	}
+	
+	/**
 	 * create an matrix like A=u*I, I is unit matrix, u is scale
 	 * @param size - matrix size
-	 * @param value - the value to set
+	 * @param scale - the value to set
 	 * @return - matrix
 	 */
-	public static Matrix unit(int size, double value){
+	public static Matrix unit(int size, double scale){
 		Matrix x = new Matrix(size, size);
 		for (int i = 0; i < size; i++)
-			x.set(i, i, value);
+			x.set(i, i, scale);
 		return x;
+	}
+	
+	/**
+	 * calculate the trace of the matrix
+	 * @return - trace
+	 */
+	public double trace(){
+		if (rows != cols)
+			throw new UnsupportedOperationException("Matrix trace, only squre matrix has trace.");
+		double tr = 0.;
+		for (int i = 0; i < rows; i++)
+			tr += at(i, i);
+		return tr;
 	}
 	
 	/**
@@ -103,11 +153,18 @@ public class Matrix{
 	 * @return - a sub-matrix of the matrix
 	 */
 	public Matrix at(Range row, Range col){
+		row = row.equals(Range.all()) ? this.rowRange:
+			new Range(row.begin() + this.rowRange.begin(), row.end() + this.rowRange.begin());
+		col = col.equals(Range.all()) ? this.colRange: 
+			new Range(col.begin() + this.colRange.begin(), col.end() + this.colRange.begin());
+		
 		if (!this.rowRange.isContain(row) || !this.colRange.isContain(col))
 			throw new IllegalArgumentException("Matrix at, out of range.");
 		Matrix x = new Matrix();
-		x.rowRange = row.equals(Range.all()) ? new Range(0, rows): row;
-		x.colRange = col.equals(Range.all()) ? new Range(0, cols): col;
+		// row range of x
+		x.rowRange = row;
+		//column range of x
+		x.colRange = col;
 		x.dCols = dCols;
 		x.d = d;
 		x.rows = x.rowRange.length();
@@ -116,7 +173,7 @@ public class Matrix{
 	}
 	
 	/**
-	 * set value to row i column j
+	 * set row i column j to value
 	 * @param i - row index
 	 * @param j - column index
 	 * @param value - value to set
@@ -125,6 +182,49 @@ public class Matrix{
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
 			throw new IndexOutOfBoundsException("Matrix at, index out of range.");
 		d[(i + rowRange.begin()) * dCols + j + colRange.begin()] = value;
+	}
+	
+	/**
+	 * set value to the sub-matrix of the matrix
+	 * @param row - row range
+	 * @param col - column range
+	 * @param value - value to set
+	 */
+	public void set(Range row, Range col, Matrix value){
+		Matrix x = at(row, col);
+		if (value.rows != x.rows || value.cols != x.cols)
+			throw new IllegalArgumentException("Matrix set, size not match.");
+		for (int i = 0; i < x.rows; i++)
+			for (int j = 0; j < x.cols; j++)
+				x.set(i, j, value.at(i, j));
+	}
+	
+	/**
+	 * set value to row i of the matrix
+	 * @param i - row index
+	 * @param value - value to set
+	 */
+	public void setRow(int i, Matrix value){
+		if (value.rows != 1)
+			throw new IllegalArgumentException("Matrix setRow, accept row vector only.");
+		if (value.cols != cols)
+			throw new IllegalArgumentException("Matrix setRow, size not match.");
+		for (int j = 0; j < value.cols; j++)
+			set(i, j, value.at(0, j));
+	}
+	
+	/**
+	 * set value to column i of the matrix
+	 * @param i - column index
+	 * @param value - value to set
+	 */
+	public void setCol(int i, Matrix value){
+		if (value.cols != 1)
+			throw new IllegalArgumentException("Matrix setCol, accept column vector only.");
+		if (value.rows != rows)
+			throw new IllegalArgumentException("Matrix setCol, size not match.");
+		for (int j = 0; j < value.rows; j++)
+			set(j, i, value.at(j, 0));
 	}
 	
 	/**
@@ -351,6 +451,66 @@ public class Matrix{
 	}
 	
 	/**
+	 * calculate the mean vector of rows
+	 * @return - mean vector of rows
+	 */
+	public Matrix rowMean(){
+		Matrix mean = new Matrix(1, cols);
+		for (int i = 0; i < rows; i++)
+			mean.add(row(i));
+		mean.divide(rows);
+		return mean;
+	}
+	
+	/**
+	 * calculate the mean vector of columns
+	 * @return - mean vector of columns
+	 */
+	public Matrix colMean(){
+		Matrix mean = new Matrix(rows, 1);
+		for (int i = 0; i < cols; i++)
+			mean.add(col(i));
+		mean.divide(cols);
+		return mean;
+	}
+	
+	/**
+	 * calculate the square root of the matrix
+	 * @param reserve - indicate reserve the matrix whether or not
+	 * @return - result
+	 */
+	public Matrix sqrt(boolean reserve){
+		Matrix x = reserve? new Matrix(rows, cols): this;
+		for (int i = 0; i < rows; i++)
+			for (int j = 0; j < cols; j++)
+				x.set(i, j, Math.sqrt(at(i, j)));
+		return x;
+	}
+	
+	/**
+	 * calculate the square root of the matrix
+	 * @return - result
+	 */
+	public Matrix sqrt(){
+		return sqrt(false);
+	}
+	
+	/**
+	 * calculate the difference between this and x
+	 * @param x - input matrix
+	 * @return - difference
+	 */
+	public double difference(Matrix x){
+		if (x.rows != rows || x.cols != cols)
+			throw new IllegalArgumentException("Matrix difference, size not match.");
+		double dif = 0.;
+		for (int i = 0; i < rows; i++)
+			for (int j = 0; j < cols; j++)
+				dif += Math.abs(at(i, j) - x.at(i, j));
+		return dif;
+	}
+	
+	/**
 	 * clone a matrix
 	 */
 	@Override
@@ -360,6 +520,20 @@ public class Matrix{
 			for (int j = 0; j < cols; j++)
 				x.set(i, j, at(i, j));
 		return x;
+	}
+	
+	/**
+	 * secondary function, print the matrix to console
+	 */
+	public void print(){
+		System.out.println("-------------------------");
+		java.text.DecimalFormat f = new java.text.DecimalFormat("#.## ");
+		for (int i = 0; i < rows; i++){
+			for (int j = 0; j < cols; j++)
+				System.out.print(f.format(at(i, j)) + " ");
+			System.out.println();
+		}
+		System.out.println("-------------------------");
 	}
 	
 	/**

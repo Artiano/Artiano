@@ -1,9 +1,9 @@
 /**
  * LUDecomposition.java
  */
-package artiano.math.linearalgebra;
+package artiano.math.algebra;
 
-import artiano.core.Matrix;
+import artiano.core.structure.Matrix;
 
 /**
  * <p>Description: solve matrix equation like A*x=b.</p>
