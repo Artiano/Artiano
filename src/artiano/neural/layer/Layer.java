@@ -6,7 +6,7 @@ package artiano.neural.layer;
 
 import artiano.core.structure.Matrix;
 import artiano.neural.neuron.Neuron;
-import artiano.neural.randomizer.Randomizer;
+import artiano.randomizer.Randomizer;
 
 /**
  * <p>Description:</p>

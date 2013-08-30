@@ -7,7 +7,7 @@ package artiano.neural.network;
 
 import artiano.core.structure.Matrix;
 import artiano.neural.layer.Layer;
-import artiano.neural.randomizer.Randomizer;
+import artiano.randomizer.Randomizer;
 
 /**
  * <p>Description: base class of every neural network</p>

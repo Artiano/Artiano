@@ -1,7 +1,9 @@
 /**
  * 
  */
-package artiano.neural.randomizer;
+package artiano.randomizer;
+
+import artiano.core.structure.Matrix;
 
 /**
  * <p>Description:</p>
@@ -14,13 +16,19 @@ package artiano.neural.randomizer;
  */
 public interface Randomizer {
 	/**
-	 * 
+	 * next random
 	 * @return the next random
 	 */
 	public double next();
 	/**
-	 * 
+	 * write random to array
 	 * @param d data need to be randomized
 	 */
 	public void writeTo(double[] d);
+	
+	/**
+	 * write random to matrix
+	 * @param x - matrix
+	 */
+	public void writeTo(Matrix x);
 }

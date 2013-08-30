@@ -1,9 +1,11 @@
 /**
  * GuassianRandomizer.java
  */
-package artiano.neural.randomizer;
+package artiano.randomizer;
 
 import java.util.Random;
+
+import artiano.core.structure.Matrix;
 
 /**
  * <p>Description:</p>
@@ -42,4 +44,14 @@ public class GuassianRandomizer implements Randomizer {
 			d[i] = next();
 	}
 
+	/* (non-Javadoc)
+	 * @see artiano.randomizer.Randomizer#writeTo(artiano.core.structure.Matrix)
+	 */
+	@Override
+	public void writeTo(Matrix x) {
+		for (int i = 0; i < x.rows(); i++)
+			for (int j = 0; j < x.columns(); j++)
+				x.set(i, j, next());
+	}
+	
 }

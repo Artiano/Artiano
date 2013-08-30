@@ -6,7 +6,7 @@ package artiano.neural.neuron;
 
 import artiano.core.structure.Matrix;
 import artiano.neural.actfun.ActivationFunction;
-import artiano.neural.randomizer.Randomizer;
+import artiano.randomizer.Randomizer;
 
 /**
  * <p>Description: activation neuron</p>

@@ -12,10 +12,12 @@ import java.util.Scanner;
 import artiano.core.operation.MatrixOpt;
 import artiano.core.structure.Matrix;
 import artiano.neural.actfun.Sigmoid;
+import artiano.neural.initializer.NguyenWidrow;
+import artiano.neural.initializer.WeightsInitializer;
 import artiano.neural.learning.StochasticBPLearning;
 import artiano.neural.network.ActivationNetwork;
-import artiano.neural.randomizer.GuassianRandomizer;
-import artiano.neural.randomizer.Randomizer;
+import artiano.randomizer.GuassianRandomizer;
+import artiano.randomizer.Randomizer;
 
 
 
@@ -60,7 +62,9 @@ public class Test {
 	static void testActivationNetwork(){
 		int[] h = {3};
 		ActivationNetwork network = new ActivationNetwork(4, 3, h);
-		network.randomize(new GuassianRandomizer(0, 0.5));
+		//network.randomize(new GuassianRandomizer(0, 0.5));
+		WeightsInitializer initializer = new NguyenWidrow();
+		initializer.initialize(network);
 		network.setActivationFunction(new Sigmoid(2.0));
 		StochasticBPLearning teacher = new StochasticBPLearning(network);
 		double e = 0.01;
