@@ -18,8 +18,9 @@ public interface SolvingAlgorithm {
 	 * find solution
 	 * @param cov1 - the covariance matrix between the classes
 	 * @param cov2 - the covariance matrix within the classes
+	 * @param matrices - samples
 	 */
-	public void solve(Matrix cov1, Matrix cov2);
+	public void solve(Matrix cov1, Matrix cov2, Matrix[] matrices);
 	
 	/**
 	 * get the projection matrix

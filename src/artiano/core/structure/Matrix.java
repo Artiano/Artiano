@@ -46,6 +46,8 @@ public class Matrix{
 	public Matrix(int rows, int cols, double[] data){
 		if (cols <= 0 || rows <= 0)
 			throw new IllegalArgumentException("Matrix, columns and rows must be positive integer.");
+		if (cols * rows > data.length)
+			throw new IllegalArgumentException("Matrix, the size of the matrix does not match the length of the data.");
 		this.cols = cols;
 		this.rows = rows;
 		this.d = data;
@@ -122,6 +124,40 @@ public class Matrix{
 	}
 	
 	/**
+	 * create a unit matrix
+	 * @param size - matrix size
+	 * @return
+	 */
+	public static Matrix unit(int size){
+		return unit(size, 1.);
+	}
+	
+	/**
+	 * create a matrix that the all element is a number
+	 * @param rows - rows of the matrix
+	 * @param cols - columns of the matrix
+	 * @param scale - the scale want to set
+	 * @return
+	 */
+	public static Matrix ones(int rows, int cols, double scale){
+		Matrix x = new Matrix(rows, cols);
+		for (int i = 0; i < x.rows; i++)
+			for (int j = 0; j < x.cols; j++)
+				x.set(i, j, scale);
+		return x;
+	}
+	
+	/**
+	 * create a matrix that the all element is 1
+	 * @param rows - rows of the matrix
+	 * @param cols - columns of the matrix
+	 * @return
+	 */
+	public static Matrix ones(int rows, int cols){
+		return ones(rows, cols, 1.);
+	}
+	
+	/**
 	 * calculate the trace of the matrix
 	 * @return - trace
 	 */
@@ -132,6 +168,20 @@ public class Matrix{
 		for (int i = 0; i < rows; i++)
 			tr += at(i, i);
 		return tr;
+	}
+	
+	/**
+	 * get value at index i while the matrix is a vector (both row vector or column vector)
+	 * @param i - index
+	 * @return - value at the index i
+	 */
+	public double at(int i){
+		if (rows != 1 && cols != 1)
+			throw new UnsupportedOperationException("Matrix at, only vector takes one parameter.");
+		if (rows == 1)
+			return at(0, i);
+		else
+			return at(i, 0);
 	}
 	
 	/**
@@ -173,6 +223,20 @@ public class Matrix{
 	}
 	
 	/**
+	 * set the value to the index i of the matrix while it is a vector (both row vector or column vector)
+	 * @param i - index
+	 * @param value - value to set
+	 */
+	public void set(int i, double value){
+		if (rows != 1 && cols != 1)
+			throw new UnsupportedOperationException("Matrix set, only vector takes one parameter.");
+		if (rows == 1)
+			set(0, i, value);
+		else
+			set(i, 0, value);
+	}
+	
+	/**
 	 * set row i column j to value
 	 * @param i - row index
 	 * @param j - column index
@@ -180,7 +244,7 @@ public class Matrix{
 	 */
 	public void set(int i, int j, double value){
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
-			throw new IndexOutOfBoundsException("Matrix at, index out of range.");
+			throw new IndexOutOfBoundsException("Matrix set, index out of range.");
 		d[(i + rowRange.begin()) * dCols + j + colRange.begin()] = value;
 	}
 	
@@ -508,6 +572,24 @@ public class Matrix{
 			for (int j = 0; j < cols; j++)
 				dif += Math.abs(at(i, j) - x.at(i, j));
 		return dif;
+	}
+	
+	/**
+	 * calculate the l2-norm between this and x
+	 * @param x
+	 * @return - l2-norm
+	 */
+	public double l2Norm(Matrix x){
+		double norm = 0.;
+		//store the scale, avoid underflow or overflow
+		final double TINY = 1e-10;
+		for (int i = 0; i < rows; i++)
+			for (int j = 0; j < cols; j++){
+				double t = at(i, j) - x.at(i, j);
+				norm += t*t*TINY;
+			}
+		norm = Math.sqrt(norm)/TINY;
+		return norm;
 	}
 	
 	/**

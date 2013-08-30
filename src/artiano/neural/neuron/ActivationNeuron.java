@@ -4,6 +4,7 @@
 package artiano.neural.neuron;
 
 
+import artiano.core.structure.Matrix;
 import artiano.neural.actfun.ActivationFunction;
 import artiano.neural.randomizer.Randomizer;
 
@@ -47,12 +48,14 @@ public class ActivationNeuron extends Neuron {
 	 * @see artiano.neuron.Neuron#compute(double[])
 	 */
 	@Override
-	public double compute(double[] input) {
-		if (input.length != weights.length)
+	public double compute(Matrix input) {
+		if (input.rows() != 1)
+			throw new IllegalArgumentException("Accept row vector only.");
+		if (input.columns() != weights.length)
 			throw new IllegalArgumentException("Inputs size not match.");
 		double sum = 0.;
-		for (int i = 0; i < input.length; i++)
-			sum += weights[i] * input[i];
+		for (int i = 0; i < input.columns(); i++)
+			sum += weights[i] * input.at(0, i);
 		sum += bias;
 		output = actfun.calculate(sum);
 		return output;
