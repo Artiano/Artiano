@@ -3,6 +3,7 @@
  */
 package artiano.neural.neuron;
 
+import artiano.core.structure.Matrix;
 import artiano.neural.randomizer.Randomizer;
 
 /**
@@ -42,5 +43,5 @@ public abstract class Neuron {
 	 * @param input the input vector
 	 * @return the output
 	 */
-	public abstract double compute(double[] input);
+	public abstract double compute(Matrix input);
 }

@@ -16,6 +16,37 @@ import artiano.core.structure.Matrix;
 public class MatrixOpt {
 	
 	/**
+	 * normalize the matrices according to minimum value and maximum value of the matrices
+	 * @param src - matrices to normalize
+	 * @param reserve - to indicate reserve matrices whether or not
+	 * @return - matrices after normalized
+	 */
+	public static Matrix[] normalizeByMinMax(Matrix[] src, boolean reserve){
+		Matrix[] dst = reserve ? new Matrix[src.length]: src;
+		Matrix min = Matrix.ones(src[0].rows(), src[0].columns(), Double.MAX_VALUE);
+		Matrix max = Matrix.ones(src[0].rows(), src[0].columns(), Double.MIN_VALUE);
+		//find the min and max
+		for (int i = 0; i < src[0].rows(); i++){
+			for (int j = 0; j < src[0].columns(); j++){
+				for (int k = 0; k < src.length; k++){
+					if (min.at(i, j) > src[k].at(i, j))
+						min.set(i, j, src[k].at(i, j));
+					if (max.at(i, j) < src[k].at(i, j))
+						max.set(i, j, src[k].at(i, j));
+				}
+			}
+		}
+		//normalize
+		for (int k = 0; k < src.length; k++)
+			for (int i = 0; i < min.rows(); i++)
+				for (int j = 0; j < min.columns(); j++){
+					double r = 2 * (src[k].at(i, j) - min.at(i, j))/(max.at(i, j) - min.at(i, j)) - 1;
+					src[k].set(i, j, r);
+				}
+		return dst;
+	}
+	
+	/**
 	 * calculate the mean matrix of a set of matrices
 	 * @param matrices - a set of matrices to compute mean
 	 * @param start - start index of the matrices
