@@ -34,7 +34,7 @@ public class Test {
 	
 	public static void testPCA(){
 		GPCAExtractor extractor = new GPCAExtractor();
-		extractor.setRoc(0.5);
+		extractor.setRoc(0.8);
 		Matrix[] m = new Matrix[3];
 		for (int i = 0; i < 3; i++)
 			m[i] = new Matrix(1, 10, b[i]);
