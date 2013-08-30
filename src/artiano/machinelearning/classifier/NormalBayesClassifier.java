@@ -5,8 +5,8 @@ package artiano.machinelearning.classifier;
 
 import java.util.*;
 
-import artiano.core.Matrix;
-import artiano.core.Range;
+import artiano.core.structure.Matrix;
+import artiano.core.structure.Range;
 
 /**
  * <p>Description: Normal Bayes classifier</p>

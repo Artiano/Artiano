@@ -1,6 +1,6 @@
 package artiano.machinelearning.classifier.test;
 
-import artiano.core.Matrix;
+import artiano.core.structure.Matrix;
 import artiano.machinelearning.classifier.NormalBayesClassifier;
 
 /**
