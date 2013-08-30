@@ -3,6 +3,8 @@
  */
 package artiano.neural.learning;
 
+import artiano.core.structure.Matrix;
+
 /**
  * <p>Description: interface of every supervised learning algorithm</p>
  * @author Nano.Michael
@@ -19,7 +21,7 @@ public interface SupervisedLearning {
 	 * @param targetOutputs labels of target output
 	 * @return error term
 	 */
-	public double runEpoch(double[][] inputs, double[][] targetOutputs);
+	public double runEpoch(Matrix[] inputs, Matrix[] targetOutputs);
 	
 	/**
 	 * run an iteration on specified sample
@@ -27,5 +29,5 @@ public interface SupervisedLearning {
 	 * @param targetOutput target output vector
 	 * @return error term
 	 */
-	public double run(double[] input, double[] targetOutput);
+	public double run(Matrix input, Matrix targetOutput);
 }

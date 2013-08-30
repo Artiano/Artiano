@@ -4,6 +4,7 @@
 package artiano.neural.layer;
 
 
+import artiano.core.structure.Matrix;
 import artiano.neural.neuron.Neuron;
 import artiano.neural.randomizer.Randomizer;
 
@@ -17,7 +18,7 @@ import artiano.neural.randomizer.Randomizer;
  * @since 1.0
  */
 public abstract class Layer {
-	public double[] outputs = null;
+	public Matrix outputs = null;
 	public int inputsCount = 0;
 	public int neuronsCount = 0;
 	public Neuron[] neurons = null;
@@ -31,7 +32,7 @@ public abstract class Layer {
 		this.inputsCount = inputs;
 		this.neuronsCount = neuronsCount;
 		neurons = new Neuron[neuronsCount];
-		outputs = new double[neuronsCount];
+		outputs = new Matrix(1, neuronsCount);
 	}
 	
 	/**
@@ -48,9 +49,9 @@ public abstract class Layer {
 	 * @param inputs inputs of the layer
 	 * @return output
 	 */
-	public double[] compute(double[] inputs){
+	public Matrix compute(Matrix inputs){
 		for (int i = 0; i < neuronsCount; i++)
-			outputs[i] = neurons[i].compute(inputs);
+			outputs.set(0, i, neurons[i].compute(inputs));
 		return outputs;
 	}
 }

@@ -64,6 +64,7 @@
 package artiano.neural.learning;
 
 
+import artiano.core.structure.Matrix;
 import artiano.neural.actfun.ActivationFunction;
 import artiano.neural.layer.ActivationLayer;
 import artiano.neural.network.ActivationNetwork;
@@ -107,7 +108,7 @@ public class StochasticBPLearning implements SupervisedLearning {
 	 * @param input input vector
 	 * @param targetOutput target output vector
 	 */
-	protected double calculateErrorTerm(double[] input, double[] targetOutput){
+	protected double calculateErrorTerm(Matrix input, Matrix targetOutput){
 		//output layer
 		ActivationLayer layer = (ActivationLayer)network.layers[network.layerCount - 1];
 		//function of current layer
@@ -120,7 +121,7 @@ public class StochasticBPLearning implements SupervisedLearning {
 			//current neuron
 			neuron = (ActivationNeuron)layer.neurons[i];
 			double derivativeNeti = function.derivativeByY(neuron.output);
-			double e = targetOutput[i] - neuron.output;
+			double e = targetOutput.at(0, i) - neuron.output;
 			//error term of current neuron
 			neuron.e = e * derivativeNeti;
 			//output error
@@ -161,9 +162,9 @@ public class StochasticBPLearning implements SupervisedLearning {
 	 * update the network
 	 * @param input input vector
 	 */
-	protected void update(double[] input){
+	protected void update(Matrix input){
 		ActivationLayer layer;
-		double[] v = input;
+		Matrix v = input;
 		for (int i = 0; i < network.layerCount; i++)
 		{
 			//current layer
@@ -175,7 +176,7 @@ public class StochasticBPLearning implements SupervisedLearning {
 				neuron = (ActivationNeuron)layer.neurons[j];
 				//update weights
 				for (int k = 0; k < neuron.weights.length; k++){
-					neuron.weights[k] += learningRate * neuron.e * v[k];
+					neuron.weights[k] += learningRate * neuron.e * v.at(0, k);
 				}
 				//update bias
 				neuron.bias += learningRate * neuron.e;
@@ -188,7 +189,7 @@ public class StochasticBPLearning implements SupervisedLearning {
 	 * @see artiano.learning.SupervisedLearning#run(double[], double[])
 	 */
 	@Override
-	public double run(double[] input, double[] targetOutput) {
+	public double run(Matrix input, Matrix targetOutput) {
 		network.compute(input);
 		double se = calculateErrorTerm(input, targetOutput);
 		update(input);
@@ -199,7 +200,7 @@ public class StochasticBPLearning implements SupervisedLearning {
 	 * @see artiano.learning.SupervisedLearning#runEpoch(double[][], double[][])
 	 */
 	@Override
-	public double runEpoch(double[][] inputs, double[][] targetOutputs) {
+	public double runEpoch(Matrix[] inputs, Matrix[] targetOutputs) {
 		network.epochs++;
 		double e = 0.;
 		for (int i = 0; i < inputs.length; i++)
