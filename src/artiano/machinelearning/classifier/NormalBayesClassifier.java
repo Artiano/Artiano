@@ -68,11 +68,17 @@ public class NormalBayesClassifier {
 	}	
 	
 	/**
-	 *  Predict classification of the sample
+	 *  Predict classification of a sample
 	 * @param sample - sample to get its classification
 	 * @return classification of the sample
+	 * @throws Exception 
 	 */
-	public int predict(Matrix sample) {				
+	public int predict(Matrix sample) {
+		if(sample.rows() > 1) {
+			throw new IllegalArgumentException("The test sample matrix can only be one row. For" +
+					" multiple rows, please use method predict(Matrix sample, Matrix result)");
+		}
+		
 		List<Double> probabilityList = 
 				new ArrayList<Double>();
 		for(int j=0; j<countOfClasses; j++) {
@@ -81,17 +87,17 @@ public class NormalBayesClassifier {
 				double aver = 
 					trainingResult.at(j * sample.columns() + k, 1);    //Attention:j * sample.columns() + k					
 				double stdDeviation = trainingResult.at(j * sample.columns() + k, 2);
-				//System.out.println("stdDeviation: " + stdDeviation);
 				
 				double a = (1.0 / ( Math.sqrt(Math.PI * 2) * stdDeviation));
 				double b = Math.pow((sample.at(0, k)-aver) , 2);
 				double c = 2 * Math.pow(stdDeviation, 2);
-				probabilitiy *=  a * Math.pow(Math.E, -1 * b / c) ;   //高斯分布
+				probabilitiy *=  (a * Math.pow(Math.E, -1 * b / c)) ;   //高斯分布
 			}				
-			probabilitiy *= ( eachlabelCount.get(labelList.get(j)) * 1.0 
-						   / trainingData.rows() ) ; 
+			double labelAppearProba =  eachlabelCount.get(labelList.get(j)) * 1.0 
+					   / trainingData.rows();
+			probabilitiy *= labelAppearProba ; 
 			probabilityList.add(probabilitiy);		//Probability with j-th classification
-			//System.out.println("Classification " + labelList.get(j) + " : " + probabilitiy);
+	//		System.out.println("Classification " + labelList.get(j) + " : " + probabilitiy);
 		}
 		
 		/* Get the classification by searching the max probability */
@@ -107,6 +113,20 @@ public class NormalBayesClassifier {
 	}
 	
 	/**
+	 *  Predict classification of multiple samples
+	 * @param samples - sample to get its classification
+	 * @param result - predict result
+	 * @return
+	 */
+	public int predict(Matrix samples, Matrix result) {		
+		for(int i=0; i<samples.rows(); i++) {
+		   int predictResult = predict(samples.row(i));
+		   result.set(i, 0, predictResult);
+		}
+		return 0;
+	}
+	
+	/**
 	 * Compute Standard Deviation(标准差) of a number list
 	 * @param numbers - matrix to compute Standard Deviation 
 	 * @return Variance of numbers
@@ -117,7 +137,7 @@ public class NormalBayesClassifier {
 		for(int j=0; j<numbers.columns(); j++) {
 			variance += Math.pow(numbers.at(0,j) - average, 2);			
 		}		
-		return Math.sqrt(variance);
+		return Math.sqrt(variance / numbers.columns());
 	}
 	
 	/**
@@ -158,6 +178,13 @@ public class NormalBayesClassifier {
 	    		
 	    		count++;
 	    	}
+	    }
+	    
+	    for(int i=0; i<trainingResult.rows(); i++) {
+	    	for(int j=0; j<trainingResult.columns(); j++) {
+	    		System.out.print(trainingResult.at(i, j) + "  ");
+	    	}
+	    	System.out.println();
 	    }
 	}	
 	
