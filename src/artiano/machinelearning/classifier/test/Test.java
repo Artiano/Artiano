@@ -15,7 +15,7 @@ import artiano.machinelearning.classifier.NormalBayesClassifier;
 public class Test {
 	
 	public static void main(String[] args) {
-		// 10个样本特征向量维数为12的训练样本集，第一列为该样本的类别标签
+		//Training data(The first column is class label)
 		double[] inputArr = { 											
 				1,14.1,2.02,2.4,18.8,103,2.75,2.92,.32,2.38,6.2,1.07,2.75,1060,
 				1,13.94,1.73,2.27,17.4,108,2.88,3.54,.32,2.08,8.90,1.12,3.1,1260,
@@ -65,7 +65,7 @@ public class Test {
 				2,12.08,2.08,1.7,17.5,97,2.23,2.17,.26,1.4,3.3,1.27,2.96,710,				
 		};
 
-		// 一个测试样本的特征向量
+		//Classification test samples
 		double testArr[] = { 									
 				1,13.76,1.53,2.7,19.5,132,2.95,2.74,.5,1.35,5.4,1.25,3,1235,								
 				2,12.33,1.1,2.28,16,101,2.05,1.09,.63,.41,3.27,1.25,1.67,680,				
@@ -90,17 +90,32 @@ public class Test {
 				3,12.88,2.99,2.4,20,104,1.3,1.22,.24,.83,5.4,.74,1.42,530,															
 		};
 
-		int attrNum = 14; 
-		Matrix trainingData = new Matrix(inputArr.length / attrNum, attrNum, inputArr);	 //训练集
-		Matrix trainingResponse = new Matrix(trainingData.rows(), 1); // 类标记
+		int attrNum = 14;
+		
+		/* ----------------------  Train data -------------------- */
+		Matrix trainingData = 
+				new Matrix(inputArr.length / attrNum, attrNum, inputArr);	 //Training data
+		Matrix trainingResponse = new Matrix(trainingData.rows(), 1); // class labels
 		for (int i = 0; i < trainingResponse.rows(); i++) {
 			trainingResponse.set(i, 0, inputArr[i * trainingData.columns()]);
 		}		
 		Matrix samples = new Matrix(testArr.length / trainingData.columns(), 
-				trainingData.columns(), testArr); // 测试实例
+				trainingData.columns(), testArr); // test examples
 		
 		NormalBayesClassifier classifier = new NormalBayesClassifier();
-		classifier.train(trainingData, trainingResponse, 0);		//训练数据
+		boolean isTrainSucess = 
+				classifier.train(trainingData, trainingResponse, 0);		//Train data
+		if(!isTrainSucess) {
+			System.out.println("Train fails.");
+			return;
+		}
+		
+		
+		/*----------------------   Save the training model ------------- */
+		classifier.save("D:\\bayes.txt");
+		
+		
+		/*----------------------  Predict -------------------------*/
 		Matrix predictResult = new Matrix(samples.rows(), 1);
 		classifier.predict(samples.at(new Range(0,samples.rows()),
 				new Range(1, samples.columns())), predictResult); // Get the classification
@@ -113,7 +128,24 @@ public class Test {
 			}
 			System.out.println("Classification " + (int)predictResult.at(i, 0));
 		}
-		System.out.printf("Corrrect rate: %.2f%%", (count / (1.0 * samples.rows())) * 100);
+		System.out.printf("Classification corrrection rate: %.2f%%", (count / (1.0 * samples.rows())) * 100);
+		System.out.println();
+		
+		
+		//Predict classification of a sample
+		double[] sampleArr = {13.16,3.57,2.15,21,102,1.5,.55,.43,1.3,4,.6,1.68,830};
+		Matrix testSample = new Matrix(1, trainingData.columns()-1, sampleArr);
+		System.out.println("------------------------------------------");
+		System.out.println("Classification of the test sample is " +
+				classifier.predict(testSample) + ".");
+		
+		
+		/*-------------------- Load training model --------------------*/
+		NormalBayesClassifier loadClassifier = 
+				new NormalBayesClassifier();
+		loadClassifier.load("D:\\bayes.txt");
+		System.out.println("------------------------------------------");
+		System.out.println("Classification of the test sample is " +
+				loadClassifier.predict(testSample) + ".");
 	}
-
 }
