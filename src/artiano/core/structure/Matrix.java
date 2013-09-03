@@ -57,6 +57,15 @@ public class Matrix{
 	}
 	
 	/**
+	 * set the zero to the matrix
+	 */
+	public void clear(){
+		for (int i = 0; i < rows; i++)
+			for (int j = 0; j < cols; j++)
+				set(i, j, 0);
+	}
+	
+	/**
 	 * copy the matrix to destination
 	 * @param x - destination matrix
 	 */

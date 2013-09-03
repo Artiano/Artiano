@@ -44,6 +44,41 @@ public class CholeskyDecomposition {
 		this(a, false);
 	}
 	
+	protected void clearJagg(Matrix x){
+		for (int i = 0; i < x.rows() - 1; i++)
+			for (int j = i + 1; j < x.columns(); j++)
+				x.set(i, j, 0);
+	}
+	
+	/**
+	 * inversion of L of a been decomposed
+	 * @param reserveA - indicate reserve a whether or not
+	 * @return - inversion of L
+	 */
+	public Matrix inverseOfL(boolean reserveA){
+		Matrix inv = reserveA? a.clone(): a;
+		double sum = 0.;
+		for (int i = 0; i < a.rows(); i++){
+			inv.set(i, i, 1./p[i]);
+			for (int j = i+1; j < a.rows(); j++){
+				sum = 0.;
+				for (int k = i; k<j; k++)
+					sum -= inv.at(j,k)*inv.at(k,i);
+				inv.set(j, i, sum/p[j]);
+			}
+		}
+		clearJagg(inv);
+		return inv;
+	}
+	
+	/**
+	 * inversion of L of a been decomposed, will reserve a
+	 * @return - inversion of L
+	 */
+	public Matrix inverseOfL(){
+		return inverseOfL(true);
+	}
+	
 	/**
 	 * get inversion of the coefficient matrix A
 	 * @return - inversion matrix
@@ -74,7 +109,7 @@ public class CholeskyDecomposition {
 			for (j = i; j < n; j++){
 				for (sum = a.at(i,j), k = i - 1; k >= 0; k--) sum -= a.at(i,k) * a.at(j, k);
 				if (i == j){
-					//not positive-definite
+					//non-positive-definite
 					if (sum <= 0.){
 						isDef = false;
 						return;

@@ -82,18 +82,24 @@ public class Test {
 		}
 	}
 	
-	static double sym[] = {8,6,6,8};//{{14,10,-5},{10,9,1},{-5,1,14}};
+	static double sym[] = {14,10,-5,10,9,1,-5,1,14};//{8,6,6,8};
 	static double[] x = {10,20,11,22};
 	public static void testCD(){
 		System.out.println("\n-------Cholesky-decomposition------");
-		CholeskyDecomposition cd = new CholeskyDecomposition(new Matrix(2, 2, sym));
+		CholeskyDecomposition cd = new CholeskyDecomposition(new Matrix(3, 3, sym));
 		if (cd.isDefinite()){
 			Matrix inv = cd.inverse();
 			System.out.println("Inversion:");
-			printMatrix(inv);
-			Matrix y = cd.solve(new Matrix(2, 2, x));
-			System.out.println("Solution:");
-			printMatrix(y);
+			inv.print();
+			Matrix invL = cd.inverseOfL();
+			System.out.println("inversion of L:");
+			invL.print();
+			Matrix inv1 = invL.t().multiply(invL);
+			System.out.println("Inversion:");
+			inv1.print();
+//			Matrix y = cd.solve(new Matrix(2, 2, x));
+//			System.out.println("Solution:");
+//			y.print();
 		}
 		else 
 			System.out.println("Matrix is not positive-definite.");
@@ -121,9 +127,9 @@ public class Test {
 	}
 	
 	public static void main(String[] args){
-		testGJ();
-		testLU();
+		//testGJ();
+		//testLU();
 		testCD();
-		testSVD();
+		//testSVD();
 	}
 }

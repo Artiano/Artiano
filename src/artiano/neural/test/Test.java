@@ -14,8 +14,11 @@ import artiano.core.structure.Matrix;
 import artiano.neural.actfun.Sigmoid;
 import artiano.neural.initializer.NguyenWidrow;
 import artiano.neural.initializer.WeightsInitializer;
+import artiano.neural.learning.LevenbergMarquardtLearning;
+import artiano.neural.learning.SOMLearning;
 import artiano.neural.learning.StochasticBPLearning;
 import artiano.neural.network.ActivationNetwork;
+import artiano.neural.network.DistanceNetwork;
 import artiano.randomizer.GuassianRandomizer;
 import artiano.randomizer.Randomizer;
 
@@ -60,13 +63,14 @@ public class Test {
 	}
 	
 	static void testActivationNetwork(){
-		int[] h = {3};
+		int[] h = {6};
 		ActivationNetwork network = new ActivationNetwork(4, 3, h);
 		//network.randomize(new GuassianRandomizer(0, 0.5));
 		WeightsInitializer initializer = new NguyenWidrow();
 		initializer.initialize(network);
 		network.setActivationFunction(new Sigmoid(2.0));
 		StochasticBPLearning teacher = new StochasticBPLearning(network);
+		//LevenbergMarquardtLearning teacher = new LevenbergMarquardtLearning(network, 1);
 		double e = 0.01;
 		try {
 			read("f:\\trainData.txt", 75);
@@ -75,7 +79,8 @@ public class Test {
 			e1.printStackTrace();
 		}
 		while (network.squreError > e && network.epochs < 1000){
-			teacher.runEpoch(inputs, outputs);
+			double err = teacher.runEpoch(inputs, outputs);
+			System.out.println("Error: " + err);
 		}
 		
 		System.out.println("least squre error = " + network.squreError);
@@ -84,7 +89,6 @@ public class Test {
 		try {
 			read("f:\\testData.txt", 75);
 		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		int hit_num = 0;
@@ -112,7 +116,34 @@ public class Test {
 		System.out.println("accuracy = " + (double)hit_num / 75. * 100 + "%");
 	}
 	
+	public static void testSOM(){
+		DistanceNetwork network = new DistanceNetwork(4, 25);
+		network.randomize(new GuassianRandomizer(0, 0.5));
+		SOMLearning teacher = new SOMLearning(network);
+		try {
+			read("f:\\trainData.txt", 75);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		double err = 0;
+		for (int i = 0; i < 5000; i++){
+			err = teacher.runEpoch(inputs);
+		}
+		try {
+			read("f:\\testData.txt", 75);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		System.out.println("Error: " + err);
+		for (int i = 0; i < 75; i++){
+			network.compute(inputs[i]);
+			int winner = network.winner();
+			System.out.println("winner: " + winner);
+		}
+	}
+	
 	public static void main(String[] args){
 		testActivationNetwork();
+		//testSOM();
 	}
 }
