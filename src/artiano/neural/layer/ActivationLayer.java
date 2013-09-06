@@ -17,6 +17,8 @@ import artiano.neural.neuron.ActivationNeuron;
  * @since 1.0.0
  */
 public class ActivationLayer extends Layer {
+	
+	private static final long serialVersionUID = 1L;
 	public ActivationFunction actfun = null;
 	
 	/**

@@ -12,8 +12,9 @@ package artiano.neural.actfun;
  * @function 
  * @since 1.0
  */
-public class Sigmoid implements ActivationFunction {
+public class Sigmoid extends ActivationFunction {
 
+	private static final long serialVersionUID = 1L;
 	/**
 	 * parameter alpha
 	 */

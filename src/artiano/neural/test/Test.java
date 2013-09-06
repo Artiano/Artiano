@@ -6,16 +6,22 @@ package artiano.neural.test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Scanner;
 
 
 import artiano.core.operation.MatrixOpt;
 import artiano.core.structure.Matrix;
 import artiano.neural.actfun.Sigmoid;
+import artiano.neural.initializer.NguyenWidrow;
+import artiano.neural.initializer.WeightsInitializer;
+import artiano.neural.learning.LevenbergMarquardtLearning;
+import artiano.neural.learning.SOMLearning;
 import artiano.neural.learning.StochasticBPLearning;
 import artiano.neural.network.ActivationNetwork;
-import artiano.neural.randomizer.GuassianRandomizer;
-import artiano.neural.randomizer.Randomizer;
+import artiano.neural.network.DistanceNetwork;
+import artiano.randomizer.GuassianRandomizer;
+import artiano.randomizer.Randomizer;
 
 
 
@@ -58,11 +64,14 @@ public class Test {
 	}
 	
 	static void testActivationNetwork(){
-		int[] h = {3};
+		int[] h = {6};
 		ActivationNetwork network = new ActivationNetwork(4, 3, h);
-		network.randomize(new GuassianRandomizer(0, 0.5));
+		//network.randomize(new GuassianRandomizer(0, 0.5));
+		WeightsInitializer initializer = new NguyenWidrow();
+		initializer.initialize(network);
 		network.setActivationFunction(new Sigmoid(2.0));
 		StochasticBPLearning teacher = new StochasticBPLearning(network);
+		//LevenbergMarquardtLearning teacher = new LevenbergMarquardtLearning(network, 1);
 		double e = 0.01;
 		try {
 			read("f:\\trainData.txt", 75);
@@ -71,44 +80,87 @@ public class Test {
 			e1.printStackTrace();
 		}
 		while (network.squreError > e && network.epochs < 1000){
-			teacher.runEpoch(inputs, outputs);
+			double err = teacher.runEpoch(inputs, outputs);
+			System.out.println("Error: " + err);
 		}
 		
 		System.out.println("least squre error = " + network.squreError);
 		System.out.println("epochs = " + network.epochs);
 		
+		//save
+		try {
+			network.save("F:\\Artiano\\Activation-Network.net");
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
 		try {
 			read("f:\\testData.txt", 75);
 		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		}
+		
+		//load
+		try {
+			ActivationNetwork network2 = (ActivationNetwork) ActivationNetwork.load("F:\\Artiano\\Activation-Network.net");
+			int hit_num = 0;
+			for (int i = 0; i < inputs.length; i++)
+			{
+				Matrix xxx = network2.compute(inputs[i]);
+				double max_1 = 0., max_2 = 0.;
+				int x_1 = 0, x_2 = 0;
+				for (int j = 0; j < xxx.columns(); j++)
+				{
+					if (max_1 < xxx.at(j))
+					{
+						max_1 = xxx.at(j);
+						x_1 = j;
+					}
+					if (max_2 < outputs[i].at(j))
+					{
+						max_2 = outputs[i].at(j);
+						x_2 = j;
+					}
+				}
+				if (x_1 == x_2)
+					hit_num++;
+			}
+			System.out.println("accuracy = " + (double)hit_num / 75. * 100 + "%");
+		} catch (ClassNotFoundException | IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		int hit_num = 0;
-		for (int i = 0; i < inputs.length; i++)
-		{
-			Matrix xxx = network.compute(inputs[i]);
-			double max_1 = 0., max_2 = 0.;
-			int x_1 = 0, x_2 = 0;
-			for (int j = 0; j < xxx.columns(); j++)
-			{
-				if (max_1 < xxx.at(j))
-				{
-					max_1 = xxx.at(j);
-					x_1 = j;
-				}
-				if (max_2 < outputs[i].at(j))
-				{
-					max_2 = outputs[i].at(j);
-					x_2 = j;
-				}
-			}
-			if (x_1 == x_2)
-				hit_num++;
+	}
+	
+	public static void testSOM(){
+		DistanceNetwork network = new DistanceNetwork(4, 25);
+		network.randomize(new GuassianRandomizer(0, 0.5));
+		SOMLearning teacher = new SOMLearning(network);
+		try {
+			read("f:\\trainData.txt", 75);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 		}
-		System.out.println("accuracy = " + (double)hit_num / 75. * 100 + "%");
+		double err = 0;
+		for (int i = 0; i < 5000; i++){
+			err = teacher.runEpoch(inputs);
+		}
+		try {
+			read("f:\\testData.txt", 75);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		System.out.println("Error: " + err);
+		for (int i = 0; i < 75; i++){
+			network.compute(inputs[i]);
+			int winner = network.winner();
+			System.out.println("winner: " + winner);
+		}
 	}
 	
 	public static void main(String[] args){
 		testActivationNetwork();
+		//testSOM();
 	}
 }

@@ -1,7 +1,7 @@
-/**
- * 
- */
+
 package artiano.neural.actfun;
+
+import java.io.Serializable;
 
 /**
  * <p>Description: interface of every activation function</p>
@@ -12,23 +12,25 @@ package artiano.neural.actfun;
  * @function offer an common interface for every activation function
  * @since 1.0
  */
-public interface ActivationFunction {
+public abstract class ActivationFunction implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 	/**
 	 * 
 	 * @param x the input value
 	 * @return the function value of x
 	 */
-	public double calculate(double x);
+	public abstract double calculate(double x);
 	/**
 	 * 
 	 * @param x the input value
 	 * @return the function's derivative value of x
 	 */
-	public double derivativeByX(double x);
+	public abstract double derivativeByX(double x);
 	/**
 	 * 
 	 * @param y the function value calculated by the method calculate
 	 * @return the function's derivative value of function value y
 	 */
-	public double derivativeByY(double y);
+	public abstract double derivativeByY(double y);
 }

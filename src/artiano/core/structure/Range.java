@@ -3,6 +3,8 @@
  */
 package artiano.core.structure;
 
+import java.io.Serializable;
+
 /**
  * <p>Description: To describe an ultra-tail range.</p>
  * @author Nano.Michael
@@ -11,7 +13,9 @@ package artiano.core.structure;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class Range {
+public class Range implements Serializable{
+	
+	private static final long serialVersionUID = 1L;
 	//range start
 	protected int start = 0;
 	//range end

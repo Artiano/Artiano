@@ -17,6 +17,7 @@ import artiano.neural.layer.ActivationLayer;
  * @since 1.0
  */
 public class ActivationNetwork extends Network {
+	private static final long serialVersionUID = 1L;
 	public int hiddenLayersCount = 0;
 	public int[] neuronsPerHiddenLayer = null;
 	public double squreError = 1e10;

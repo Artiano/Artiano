@@ -27,6 +27,10 @@ public class SOMLearning implements UnsupervisedLearning {
 	int width;
 	DistanceNetwork network;
 	
+	/**
+	 * constructor
+	 * @param network - distance network
+	 */
 	public SOMLearning(DistanceNetwork network){
 		int neurons = network.layers[0].neuronsCount;
 		int w = (int)Math.sqrt((double)neurons);
@@ -36,6 +40,16 @@ public class SOMLearning implements UnsupervisedLearning {
 		radius = w / 2;
 		eta1 = eta2 / Math.log(radius);
 		this.network = network;
+	}
+	
+	/**
+	 * set learning parameter
+	 * @param learningRate - learning rate
+	 * @param learningRadius - learning radius
+	 */
+	public void setParameter(double learningRate, double learningRadius){
+		this.learningRate = learningRate < 0 || learningRate >= 1? 0.1: learningRate;
+		this.radius = learningRadius > width/2 || learningRadius < 0? width/2: learningRadius;
 	}
 	
 	/* (non-Javadoc)
@@ -69,7 +83,8 @@ public class SOMLearning implements UnsupervisedLearning {
 		//update learning rate
 		double lr = learningRate * Math.exp(-(double)network.epochs / eta2);
 
-		if (0 == r || lr <= 0.01)
+		final double TINY = 1e-10;
+		if (TINY == r || lr <= 0.01)
 		{
 			//update the weights of the winner only
 			for (int i = 0; i < neuron.weights.length; i++)

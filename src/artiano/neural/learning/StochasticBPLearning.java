@@ -63,7 +63,6 @@
  */
 package artiano.neural.learning;
 
-
 import artiano.core.structure.Matrix;
 import artiano.neural.actfun.ActivationFunction;
 import artiano.neural.layer.ActivationLayer;
