@@ -15,6 +15,8 @@ import artiano.core.structure.Matrix;
  */
 public class DistanceNeuron extends Neuron {
 
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * @param inputs
 	 */

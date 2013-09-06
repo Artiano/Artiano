@@ -3,6 +3,8 @@
  */
 package artiano.neural.neuron;
 
+import java.io.Serializable;
+
 import artiano.core.structure.Matrix;
 import artiano.randomizer.Randomizer;
 
@@ -15,11 +17,13 @@ import artiano.randomizer.Randomizer;
  * @function 
  * @since 1.0
  */
-public abstract class Neuron {
+public abstract class Neuron implements Serializable{
+	
+	private static final long serialVersionUID = 1L;
 	public double[] weights = null;
 	public int inputNum = 0;
-	public double output = 0;
-	public double e = 0;
+	transient public double output = 0;
+	transient public double e = 0;
 	
 	/**
 	 * constructor

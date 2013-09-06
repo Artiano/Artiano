@@ -6,6 +6,7 @@ package artiano.neural.test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Scanner;
 
 
@@ -86,34 +87,50 @@ public class Test {
 		System.out.println("least squre error = " + network.squreError);
 		System.out.println("epochs = " + network.epochs);
 		
+		//save
+		try {
+			network.save("F:\\Artiano\\Activation-Network.net");
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
 		try {
 			read("f:\\testData.txt", 75);
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
 		}
-		int hit_num = 0;
-		for (int i = 0; i < inputs.length; i++)
-		{
-			Matrix xxx = network.compute(inputs[i]);
-			double max_1 = 0., max_2 = 0.;
-			int x_1 = 0, x_2 = 0;
-			for (int j = 0; j < xxx.columns(); j++)
+		
+		//load
+		try {
+			ActivationNetwork network2 = (ActivationNetwork) ActivationNetwork.load("F:\\Artiano\\Activation-Network.net");
+			int hit_num = 0;
+			for (int i = 0; i < inputs.length; i++)
 			{
-				if (max_1 < xxx.at(j))
+				Matrix xxx = network2.compute(inputs[i]);
+				double max_1 = 0., max_2 = 0.;
+				int x_1 = 0, x_2 = 0;
+				for (int j = 0; j < xxx.columns(); j++)
 				{
-					max_1 = xxx.at(j);
-					x_1 = j;
+					if (max_1 < xxx.at(j))
+					{
+						max_1 = xxx.at(j);
+						x_1 = j;
+					}
+					if (max_2 < outputs[i].at(j))
+					{
+						max_2 = outputs[i].at(j);
+						x_2 = j;
+					}
 				}
-				if (max_2 < outputs[i].at(j))
-				{
-					max_2 = outputs[i].at(j);
-					x_2 = j;
-				}
+				if (x_1 == x_2)
+					hit_num++;
 			}
-			if (x_1 == x_2)
-				hit_num++;
+			System.out.println("accuracy = " + (double)hit_num / 75. * 100 + "%");
+		} catch (ClassNotFoundException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
-		System.out.println("accuracy = " + (double)hit_num / 75. * 100 + "%");
 	}
 	
 	public static void testSOM(){

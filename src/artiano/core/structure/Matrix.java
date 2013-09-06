@@ -3,6 +3,8 @@
  */
 package artiano.core.structure;
 
+import java.io.Serializable;
+
 
 /**
  * <p>Description: basic structure matrix</p>
@@ -12,7 +14,9 @@ package artiano.core.structure;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class Matrix{
+public class Matrix implements Serializable{
+	
+	private static final long serialVersionUID = 1L;
 	//columns of the matrix
 	protected int cols = 0;
 	//rows of the matrix

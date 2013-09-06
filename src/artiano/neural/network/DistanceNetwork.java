@@ -15,6 +15,8 @@ import artiano.neural.layer.DistanceLayer;
  */
 public class DistanceNetwork extends Network {
 
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * @param inputs
 	 * @param neuronsCount

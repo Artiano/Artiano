@@ -19,6 +19,7 @@ import artiano.randomizer.Randomizer;
  */
 public class ActivationNeuron extends Neuron {
 	
+	private static final long serialVersionUID = 1L;
 	public double bias = 0;
 	public ActivationFunction actfun = null;
 	

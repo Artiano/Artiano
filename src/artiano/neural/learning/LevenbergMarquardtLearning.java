@@ -289,7 +289,6 @@ public class LevenbergMarquardtLearning implements SupervisedLearning {
 		}
 		network.epochs++;
 		network.squreError = sumSquaredError;
-		regularizationFactor += 0.01;
 		return sumSquaredError;
 	}
 

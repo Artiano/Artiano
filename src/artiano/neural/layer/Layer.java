@@ -4,6 +4,8 @@
 package artiano.neural.layer;
 
 
+import java.io.Serializable;
+
 import artiano.core.structure.Matrix;
 import artiano.neural.neuron.Neuron;
 import artiano.randomizer.Randomizer;
@@ -17,7 +19,9 @@ import artiano.randomizer.Randomizer;
  * @function 
  * @since 1.0
  */
-public abstract class Layer {
+public abstract class Layer implements Serializable{
+	
+	private static final long serialVersionUID = 1L;
 	public Matrix outputs = null;
 	public int inputsCount = 0;
 	public int neuronsCount = 0;
