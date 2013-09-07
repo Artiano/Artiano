@@ -3,6 +3,7 @@
  */
 package artiano.statistics.extractor;
 
+import artiano.core.operation.Preservable;
 import artiano.core.structure.Matrix;
 
 /**
@@ -13,18 +14,10 @@ import artiano.core.structure.Matrix;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public abstract class FeatureExtractor {
-	/**
-	 * load extractor from file
-	 * @param filename - specified file
-	 */
-	public abstract void load(String filename);
-	/**
-	 * save extractor to file
-	 * @param filename - specified file
-	 */
-	public abstract void save(String filename);
+public abstract class FeatureExtractor extends Preservable{
 	
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * extract features from sample
 	 * @param sample - input sample

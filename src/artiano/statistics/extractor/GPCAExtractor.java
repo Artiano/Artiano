@@ -3,6 +3,8 @@
  */
 package artiano.statistics.extractor;
 
+import java.io.Serializable;
+
 import artiano.core.operation.MatrixOpt;
 import artiano.core.structure.Matrix;
 import artiano.core.structure.Range;
@@ -16,8 +18,9 @@ import artiano.math.algebra.SingularValueDecomposition;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtractor{
+public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtractor, Serializable{
 	
+	private static final long serialVersionUID = 1L;
 	//the mean matrix
 	protected Matrix mean = null;
 	//eigen
@@ -175,22 +178,6 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 	}
 	
 	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.FeatureExtractor#load(java.lang.String)
-	 */
-	@Override
-	public void load(String filename) {
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.FeatureExtractor#save(java.lang.String)
-	 */
-	@Override
-	public void save(String filename) {
-		
-	}
-	
-	/* (non-Javadoc)
 	 * @see artiano.statistics.extractor.UnsupervisedExtractor#train(artiano.core.structure.Matrix[], double)
 	 */
 	@Override
@@ -242,5 +229,5 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 			sample = eigenVectors.t().multiply(feature).add(mean);
 		return sample;
 	}
-
+	
 }

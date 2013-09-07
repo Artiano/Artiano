@@ -23,25 +23,7 @@ public class LDAExtractor extends FeatureExtractor implements SupervisedExtracto
 		// TODO Auto-generated method stub
 		
 	}
-
-	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.FeatureExtractor#load(java.lang.String)
-	 */
-	@Override
-	public void load(String filename) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.FeatureExtractor#save(java.lang.String)
-	 */
-	@Override
-	public void save(String filename) {
-		// TODO Auto-generated method stub
-		
-	}
-
+	
 	/* (non-Javadoc)
 	 * @see artiano.statistics.extractor.FeatureExtractor#extract(artiano.core.structure.Matrix)
 	 */
