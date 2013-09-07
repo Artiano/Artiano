@@ -14,7 +14,9 @@ import artiano.core.structure.Matrix;
  * @since 1.0.0
  */
 public class LDAExtractor extends FeatureExtractor implements SupervisedExtractor {
-
+	
+	private static final long serialVersionUID = 1L;
+	
 	/* (non-Javadoc)
 	 * @see artiano.statistics.extractor.SupervisedExtractor#train(artiano.core.structure.Matrix[], artiano.core.structure.Matrix)
 	 */

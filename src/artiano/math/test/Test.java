@@ -7,8 +7,10 @@ import java.text.DecimalFormat;
 
 import artiano.core.structure.Matrix;
 import artiano.math.algebra.CholeskyDecomposition;
+import artiano.math.algebra.EigenValueDecomposition;
 import artiano.math.algebra.GaussJordan;
 import artiano.math.algebra.LUDecomposition;
+import artiano.math.algebra.QRDecomposition;
 import artiano.math.algebra.SingularValueDecomposition;
 
 /**
@@ -106,10 +108,12 @@ public class Test {
 		System.out.println("------------------------------------");
 	}
 	
-	static double[] A = {14,10,-5,10,9,1,-5,1,14};
+	static double[] A = {14,10,-5,
+						10,9,1,
+						-5,1,14};
 	public static void testSVD(){
 		System.out.println("\n------Singular Value Decomposition------");
-		SingularValueDecomposition svd = new SingularValueDecomposition(new Matrix(3, 3, A));
+		SingularValueDecomposition svd = new SingularValueDecomposition(new Matrix(3, 3, A), true);
 		svd.sort();
 		System.out.println("U");
 		Matrix u = svd.U();
@@ -126,10 +130,33 @@ public class Test {
 		System.out.println("----------------------------------------");
 	}
 	
+	public static void testQR(){
+		System.out.println("\n---------QR-decomposition----------------");
+		QRDecomposition qr = new QRDecomposition(new Matrix(3, 3, GA));
+		Matrix b = new Matrix(3, 2, GB);
+		Matrix x = qr.solve(b);
+		System.out.println("\n----------solve----------------");
+		x.print();
+	}
+	
+	public static void testED(){
+		System.out.println("\n---------Eigen value decomposition--------");
+		EigenValueDecomposition ed = new EigenValueDecomposition(new Matrix(3, 3, A));
+		ed.sort();
+		Matrix v = ed.V();
+		Matrix w = ed.W();
+		System.out.println("\nEigen-Vectors");
+		v.print();
+		System.out.println("\nEigen-Values");
+		w.print();
+	}
+	
 	public static void main(String[] args){
 		//testGJ();
 		//testLU();
-		testCD();
-		//testSVD();
+		//testCD();
+		testSVD();
+		//testQR();
+		//testED();
 	}
 }

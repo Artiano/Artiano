@@ -3,6 +3,7 @@
  */
 package artiano.statistics.extractor.test;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 
 import artiano.core.structure.Matrix;
@@ -39,22 +40,40 @@ public class Test {
 		for (int i = 0; i < 3; i++)
 			m[i] = new Matrix(1, 10, b[i]);
 		extractor.train(m);
-		Matrix eigen = extractor.getEigenValue();
-		System.out.println("Eigen values:");
-		eigen.print();
-		Matrix model = extractor.getModel();
-		System.out.println("Eigen Vectors:");
-		model.print();
-		System.out.println("Features:");
-		Matrix feature = extractor.extract(m[0]);
-		feature.print();
-		System.out.println("Reconstruct:");
-		Matrix x = extractor.reconstruct(feature);
-		m[0].print();
-		x.print();
-		double dif = m[0].difference(x);
-		DecimalFormat f = new DecimalFormat("#.##");
-		System.out.println("Reconstruct error: " + f.format(dif));
+		//save
+		try {
+			extractor.save("F:\\Artiano\\pca-extractor.ext");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//load
+		GPCAExtractor extractor2;
+		try {
+			extractor2 = (GPCAExtractor) GPCAExtractor.load("F:\\Artiano\\pca-extractor.ext");
+			Matrix eigen = extractor2.getEigenValue();
+			System.out.println("Eigen values:");
+			eigen.print();
+			Matrix model = extractor2.getModel();
+			System.out.println("Eigen Vectors:");
+			model.print();
+			System.out.println("Features:");
+			Matrix feature = extractor2.extract(m[0]);
+			feature.print();
+			System.out.println("Reconstruct:");
+			Matrix x = extractor2.reconstruct(feature);
+			m[0].print();
+			x.print();
+			double dif = m[0].difference(x);
+			DecimalFormat f = new DecimalFormat("#.##");
+			System.out.println("Reconstruct error: " + f.format(dif));
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public static void main(String[] arg){

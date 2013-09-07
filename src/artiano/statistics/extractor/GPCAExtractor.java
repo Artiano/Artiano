@@ -3,8 +3,6 @@
  */
 package artiano.statistics.extractor;
 
-import java.io.Serializable;
-
 import artiano.core.operation.MatrixOpt;
 import artiano.core.structure.Matrix;
 import artiano.core.structure.Range;
@@ -18,7 +16,7 @@ import artiano.math.algebra.SingularValueDecomposition;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtractor, Serializable{
+public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtractor{
 	
 	private static final long serialVersionUID = 1L;
 	//the mean matrix
