@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 
 /**
- * <p>Description: basic structure matrix</p>
+ * <p>Description: Basic structure matrix, contains amount of operation on matrices.</p>
  * @author Nano.Michael
  * @version 1.0.0
  * @date 2013-8-20
@@ -70,7 +70,7 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * copy the matrix to destination
+	 * copy current matrix to destination
 	 * @param x - destination matrix
 	 */
 	public void copyTo(Matrix x){
@@ -127,7 +127,7 @@ public class Matrix implements Serializable{
 	 * create an matrix like A=u*I, I is unit matrix, u is scale
 	 * @param size - matrix size
 	 * @param scale - the value to set
-	 * @return - matrix
+	 * @return - diagonal matrix
 	 */
 	public static Matrix unit(int size, double scale){
 		Matrix x = new Matrix(size, size);
@@ -139,18 +139,18 @@ public class Matrix implements Serializable{
 	/**
 	 * create a unit matrix
 	 * @param size - matrix size
-	 * @return
+	 * @return - unit matrix
 	 */
 	public static Matrix unit(int size){
 		return unit(size, 1.);
 	}
 	
 	/**
-	 * create a matrix that the all element is a number
+	 * create a matrix that all the element hold the same number
 	 * @param rows - rows of the matrix
 	 * @param cols - columns of the matrix
 	 * @param scale - the scale want to set
-	 * @return
+	 * @return - a matrix that all the element hold the same number
 	 */
 	public static Matrix ones(int rows, int cols, double scale){
 		Matrix x = new Matrix(rows, cols);
@@ -161,7 +161,7 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * create a matrix that the all element is 1
+	 * create a matrix that all the element is 1
 	 * @param rows - rows of the matrix
 	 * @param cols - columns of the matrix
 	 * @return
@@ -172,7 +172,7 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * calculate the trace of the matrix
-	 * @return - trace
+	 * @return - trace of the matrix
 	 */
 	public double trace(){
 		if (rows != cols)
@@ -184,7 +184,7 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * get value at index i while the matrix is a vector (both row vector or column vector)
+	 * get value at index i while the matrix is a vector (both row vector and column vector)
 	 * @param i - index
 	 * @return - value at the index i
 	 */
@@ -210,7 +210,7 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * get the sub-matrix, data will not be copied
+	 * get the sub-matrix determined by the row range and column range, and data will not be copied
 	 * @param row - row range
 	 * @param col - column range
 	 * @return - a sub-matrix of the matrix
@@ -236,7 +236,7 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * set the value to the index i of the matrix while it is a vector (both row vector or column vector)
+	 * set the value to the index i of the matrix while it is a vector (both row vector and column vector)
 	 * @param i - index
 	 * @param value - value to set
 	 */
@@ -250,7 +250,7 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * set row i column j to value
+	 * set a value to row i column j
 	 * @param i - row index
 	 * @param j - column index
 	 * @param value - value to set
@@ -265,7 +265,7 @@ public class Matrix implements Serializable{
 	 * set value to the sub-matrix of the matrix
 	 * @param row - row range
 	 * @param col - column range
-	 * @param value - value to set
+	 * @param value - matrix to set
 	 */
 	public void set(Range row, Range col, Matrix value){
 		Matrix x = at(row, col);
@@ -279,7 +279,7 @@ public class Matrix implements Serializable{
 	/**
 	 * set value to row i of the matrix
 	 * @param i - row index
-	 * @param value - value to set
+	 * @param value - row vector to set
 	 */
 	public void setRow(int i, Matrix value){
 		if (value.rows != 1)
@@ -293,7 +293,7 @@ public class Matrix implements Serializable{
 	/**
 	 * set value to column i of the matrix
 	 * @param i - column index
-	 * @param value - value to set
+	 * @param value - column vector to set
 	 */
 	public void setCol(int i, Matrix value){
 		if (value.cols != 1)
@@ -305,7 +305,7 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * transpose
+	 * transpose the matrix
 	 * @return - transpose of the matrix
 	 */
 	public Matrix t(){
@@ -318,7 +318,7 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * matrix addition (z = x + y)
-	 * @param x 
+	 * @param x - matrix to add
 	 * @return - result
 	 */
 	public Matrix add(Matrix x){
@@ -327,7 +327,7 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * matrix addition
-	 * @param x
+	 * @param x - matrix to add
 	 * @param reserve - indicate reserve the matrix whether or not
 	 * @return - result
 	 */
@@ -343,7 +343,7 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * matrix addition (z=x+y, x is a scale)
-	 * @param x
+	 * @param x - number to add
 	 * @param reserve - indicate reserve the matrix whether or not
 	 * @return - result
 	 */
@@ -357,7 +357,7 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * matrix addition (z=x+y, x is scale)
-	 * @param x
+	 * @param x - number to add
 	 * @return - result
 	 */
 	public Matrix add(Number x){
@@ -377,7 +377,7 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * value of row i column j subtract a value
+	 * value of row i column j subtract a number
 	 * @param i - row index
 	 * @param j - column index
 	 * @param value - value to subtract
@@ -390,7 +390,7 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * matrix subtraction (z=x-y)
-	 * @param x
+	 * @param x - matrix to subtract
 	 * @return - result
 	 */
 	public Matrix subtract(Matrix x){
@@ -399,7 +399,7 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * matrix subtraction (z=x-y)
-	 * @param x
+	 * @param x - matrix to subtract
 	 * @param reserve - indicate reserve the matrix whether or not
 	 * @return - result
 	 */
@@ -415,7 +415,7 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * matrix subtraction (z=x-y, x is a scale)
-	 * @param x
+	 * @param x - number to subtract
 	 * @return - result
 	 */
 	public Matrix subtract(Number x){
@@ -424,7 +424,7 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * matrix subtraction (z=x-y, x is a scale)
-	 * @param x
+	 * @param x - number to subtract
 	 * @param reserve - indicate reserve the matrix whether or not
 	 * @return - result
 	 */
@@ -438,7 +438,7 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * matrix multiplication (z=x*y)
-	 * @param x
+	 * @param x - right side matrix, y
 	 * @return - result
 	 */
 	public Matrix multiply(Matrix x){
@@ -479,7 +479,7 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * matrix value at row i column j multiply a number
+	 * value at row i column j multiply a number
 	 * @param i - row index
 	 * @param j - column index
 	 * @param x - number to multiply
@@ -528,8 +528,8 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * calculate the mean vector of rows
-	 * @return - mean vector of rows
+	 * calculate the mean vector of every row vector
+	 * @return - mean vector
 	 */
 	public Matrix rowMean(){
 		Matrix mean = new Matrix(1, cols);
@@ -540,8 +540,8 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * calculate the mean vector of columns
-	 * @return - mean vector of columns
+	 * calculate the mean vector of every column vector
+	 * @return - mean vector
 	 */
 	public Matrix colMean(){
 		Matrix mean = new Matrix(rows, 1);
@@ -573,7 +573,7 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * calculate the difference between this and x
+	 * calculate the difference between this and matrix x
 	 * @param x - input matrix
 	 * @return - difference
 	 */
@@ -606,7 +606,7 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * clone a matrix
+	 * clone a matrix, data will copied
 	 */
 	@Override
 	public Matrix clone(){

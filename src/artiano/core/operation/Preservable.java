@@ -14,7 +14,8 @@ import java.io.OutputStream;
 import java.io.Serializable;
 
 /**
- * <p>Description:</p>
+ * <p>Description: Abstract class of every preservable class. Every preservable class should extends this
+ * class.</p>
  * @author Nano.Michael
  * @version 1.0.0
  * @date 2013-9-7

@@ -78,6 +78,15 @@ public class QRDecomposition {
 	}
 	
 	/**
+	 * inversion of the matrix
+	 * @return - inversion
+	 */
+	public Matrix inverse(){
+		Matrix I = Matrix.unit(a.rows());
+		return solve(I);
+	}
+	
+	/**
 	 * solve the matrix equation like A*x=B.
 	 * @param B - constant matrix
 	 * @return - result
