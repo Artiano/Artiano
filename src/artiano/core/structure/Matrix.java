@@ -732,4 +732,27 @@ public class Matrix implements Serializable{
 		}
 		return t;
 	}
-}
+	
+	/**
+	* merge two matrices and store it to this
+	* @param otherMx - matrix to merge
+	*/
+	public void mergeAfterRow(Matrix otherMx){
+		if (otherMx.cols != cols)
+			throw new IllegalArgumentException("Matrix merge, size not match.");
+		
+		//create a new matrix
+		Matrix x = new Matrix(otherMx.rows+this.rows, this.cols);
+		//copy this to x
+		this.copyTo(x.at(new Range(0, rows), Range.all()));
+		//copy otherMx to x
+		otherMx.copyTo(x.at(new Range(rows, x.rows), Range.all()));
+		
+		this.rows = x.rows;
+		this.cols = x.cols;
+		this.dCols = x.dCols;
+		this.d = x.d;
+		this.rowRange = x.rowRange;
+		this.colRange = x.colRange;
+		}
+	}
