@@ -112,7 +112,7 @@ public class Test {
 		
 		
 		/*----------------------   Save the training model ------------- */
-		classifier.save("D:\\bayes.txt");
+		classifier.save("f:\\bayes.txt");
 		
 		
 		/*----------------------  Predict -------------------------*/
@@ -143,7 +143,7 @@ public class Test {
 		/*-------------------- Load training model --------------------*/
 		NormalBayesClassifier loadClassifier = 
 				new NormalBayesClassifier();
-		loadClassifier.load("D:\\bayes.txt");
+		loadClassifier.load("f:\\bayes.txt");
 		System.out.println("------------------------------------------");
 		System.out.println("Classification of the test sample is " +
 				loadClassifier.predict(testSample) + ".");
