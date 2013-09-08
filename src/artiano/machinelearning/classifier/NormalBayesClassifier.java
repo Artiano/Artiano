@@ -328,39 +328,42 @@ public class NormalBayesClassifier {
 			Map<Integer, Matrix> labelMap) {		
 		for(int i=0; i<trainingData.rows(); i++) {		
 			int label = (int)trainingResponse.at(i, 0);		//label of a class
+			// get feature vector
+			Matrix matrix = new Matrix(1, trainingData.columns() - 1);
+			for(int m=0; m<matrix.columns(); m++) {
+				if(m < labeAttrlndex) {
+					matrix.set(0, m, trainingData.at(i, m));
+				} else if(m >= labeAttrlndex) {
+					matrix.set(0, m, trainingData.at(i, m + 1));
+				}
+			}
+			
 			if(!labelMap.containsKey(label)) {		//A new class
-				Matrix matrix = new Matrix(1, trainingData.columns() - 1);
-				for(int m=0; m<matrix.columns(); m++) {
-					if(m < labeAttrlndex) {
-						matrix.set(0, m, trainingData.at(i, m));
-					} else if(m >= labeAttrlndex) {
-						matrix.set(0, m, trainingData.at(i, m + 1));
-					}
-				}				
 				labelMap.put(label, matrix);
-				
 				countOfClasses++;		//A new class appears;
 				labelList.add(label);
 				
 			} else {
-				Matrix oldMatrix = labelMap.get(label).clone();
-				Matrix newMatrix = 
-						new Matrix(oldMatrix.rows() + 1, oldMatrix.columns());
-				for(int m=0; m<oldMatrix.rows(); m++) {
-					for(int n=0; n<oldMatrix.columns(); n++) {
-						newMatrix.set(m, n, oldMatrix.at(m, n));
-					}
-				}
-				
-				for(int m=0; m<newMatrix.columns(); m++) {
-					if(m < labeAttrlndex) {
-						newMatrix.set(newMatrix.rows() - 1, m, trainingData.at(i, m));
-					} else if(m >= labeAttrlndex) {
-						newMatrix.set(newMatrix.rows() - 1, m, trainingData.at(i, m + 1));
-					}
-				}		
-				labelMap.remove(label);
-				labelMap.put(label, newMatrix);		//Remove the old matrix and put the new one							
+				Matrix oldMatrix = labelMap.get(label);
+				oldMatrix.mergeAfterRow(matrix);
+//				Matrix oldMatrix = labelMap.get(label).clone();
+//				Matrix newMatrix = 
+//						new Matrix(oldMatrix.rows() + 1, oldMatrix.columns());
+//				for(int m=0; m<oldMatrix.rows(); m++) {
+//					for(int n=0; n<oldMatrix.columns(); n++) {
+//						newMatrix.set(m, n, oldMatrix.at(m, n));
+//					}
+//				}
+//				
+//				for(int m=0; m<newMatrix.columns(); m++) {
+//					if(m < labeAttrlndex) {
+//						newMatrix.set(newMatrix.rows() - 1, m, trainingData.at(i, m));
+//					} else if(m >= labeAttrlndex) {
+//						newMatrix.set(newMatrix.rows() - 1, m, trainingData.at(i, m + 1));
+//					}
+//				}		
+//				labelMap.remove(label);
+				//labelMap.put(label, newMatrix);		//Remove the old matrix and put the new one							
 			}				
 		}
 	}
