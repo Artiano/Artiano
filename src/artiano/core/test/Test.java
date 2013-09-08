@@ -79,6 +79,17 @@ public class Test {
 		System.out.println(x2.at(0));
 	}
 	
+	public static void testMerge(){
+		Matrix a = new Matrix(4, 4, A);
+		Matrix b = new Matrix(4, 4, B);
+		a.print();
+		b.print();
+		a.mergeAfterRow(b);
+		a.print();
+		Matrix y = a.at(Range.all(), new Range(0, 3));
+		y.print();
+	}
+	
 	public static void testMatrixOpt(){
 		double[] d1 = {1,2,3,4};
 		double[] d2 = {5,6,7,8};
@@ -100,7 +111,8 @@ public class Test {
 	}
 	
 	public static void main(String[] argStrings){
-		testMatrix();
+		//testMatrix();
 		//testMatrixOpt();
+		testMerge();
 	}
 }

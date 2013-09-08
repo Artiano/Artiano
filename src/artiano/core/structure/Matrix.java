@@ -732,45 +732,25 @@ public class Matrix implements Serializable{
 		}
 		return t;
 	}
-	/***
-	 * merger a equal cols Matrix after this Matrix
-	 * @param otherMX other Matrix 
+	
+	/**
+	 * merge two matrices and store it to this
+	 * @param otherMx - matrix to merge
 	 */
-	public void mergeAfterRow(Matrix otherMX){
-		if(otherMX.cols!=this.cols)
+	public void mergeAfterRow(Matrix otherMx){
+		if (otherMx.cols != cols)
 			throw new IllegalArgumentException("Matrix merge, size not match.");
-		int newRows=this.rows+otherMX.rows;
-		double[] newData=new double[this.cols*newRows];
-		//copy old d[]
-		for(int i=0;i<this.rows();i++){
-			for(int j=0;j<this.cols;j++){
-				newData[i*this.cols+j]=this.d[i*this.cols+j];
-			}
-		}
-		// merge the other Matrix
-		for(int i=0;i<otherMX.rows;i++){
-			for(int j=0;j<this.cols;j++){
-				newData[(i+this.rows)*this.cols+j]=otherMX.d[i*this.cols+j];
-			}
-		}
-		this.d=newData;
-		this.rows=newRows;
-	}
-	/***
-	 * 从当前的矩阵得到资矩阵
-	 * @param startRow 从第几行开始
-	 * @param countRows 获得几行
-	 * @return
-	 */
-	public Matrix getSubMatrix(int rowIndex,int countRows){
-		if(!(rowIndex>=0 && countRows>0 && rowIndex<this.rows && (rowIndex+countRows-1)<this.rows))
-			throw new IndexOutOfBoundsException("Matrix getSubMatrix, index over flow.");
-		Matrix newMatrix=new Matrix(countRows,this.cols);
-		for(int i=0;i<countRows;i++){
-			for(int j=0;j<this.cols;j++){
-				newMatrix.set(i, j, this.at(rowIndex+i,j));
-			}
-		}
-		return newMatrix;	
+		//create a new matrix
+		Matrix x = new Matrix(otherMx.rows+this.rows, this.cols);
+		//copy this to x
+		this.copyTo(x.at(new Range(0, rows), Range.all()));
+		//copy otherMx to x
+		otherMx.copyTo(x.at(new Range(rows, x.rows), Range.all()));
+		this.rows = x.rows;
+		this.cols = x.cols;
+		this.dCols = x.dCols;
+		this.d = x.d;
+		this.rowRange = x.rowRange;
+		this.colRange = x.colRange;
 	}
 }
