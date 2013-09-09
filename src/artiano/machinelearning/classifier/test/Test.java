@@ -95,16 +95,16 @@ public class Test {
 		/* ----------------------  Train data -------------------- */
 		Matrix trainingData = 
 				new Matrix(inputArr.length / attrNum, attrNum, inputArr);	 //Training data
-		Matrix trainingResponse = new Matrix(trainingData.rows(), 1); // class labels
-		for (int i = 0; i < trainingResponse.rows(); i++) {
-			trainingResponse.set(i, 0, inputArr[i * trainingData.columns()]);
+		Matrix trainingLable = new Matrix(trainingData.rows(), 1); // class labels
+		for (int i = 0; i < trainingLable.rows(); i++) {
+			trainingLable.set(i, 0, inputArr[i * trainingData.columns()]);
 		}		
 		Matrix samples = new Matrix(testArr.length / trainingData.columns(), 
 				trainingData.columns(), testArr); // test examples
 		
 		NormalBayesClassifier classifier = new NormalBayesClassifier();
 		boolean isTrainSucess = 
-				classifier.train(trainingData, trainingResponse, 0);		//Train data
+				classifier.train(trainingData, trainingLable, 0);		//Train data
 		if(!isTrainSucess) {
 			System.out.println("Train fails.");
 			return;

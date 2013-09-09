@@ -21,7 +21,7 @@ public class NormalBayesClassifier {
 	//Training data
 	private Matrix trainingData;
 	//class label to train data
-	private Matrix trainingResponse;
+	private Matrix trainingLable;
 	//Training result
 	private Matrix trainingResult;
 	//Count of all labels
@@ -47,28 +47,28 @@ public class NormalBayesClassifier {
 	 */
 	public NormalBayesClassifier(Matrix trainingData, Matrix trainResponse) {		
 		this.trainingData = trainingData;
-		this.trainingResponse = trainResponse;
+		this.trainingLable = trainResponse;
 	}
 	
 	/**
 	 * Train data
 	 * @param trainingData	-	training data
-	 * @param trainingResponse - labels for training data
+	 * @param trainingLable - labels for training data
 	 * @param var_idx - starting index of feature to train
 	 * @param labelAttrIndex - column index of label for each training data 
 	 * @return whether the training success.
 	 */
-	public boolean train(Matrix trainingData, Matrix trainingResponse,
+	public boolean train(Matrix trainingData, Matrix trainingLable,
 			int labelAttrIndex) {		
 		try {
 			//Check whether train data is valid
-			isTrainingDataValid(trainingData, trainingResponse, labelAttrIndex);
+			isTrainingDataValid(trainingData, trainingLable, labelAttrIndex);
 		} catch(Exception e) {
 			return false;			//The data training fails
 		}
 		
 		this.trainingData = trainingData;
-		this.trainingResponse = trainingResponse;		
+		this.trainingLable = trainingLable;		
 		this.trainingDataRowCount = trainingData.rows();
 		
 		Map<Integer, Matrix> labelMap = 
@@ -327,7 +327,7 @@ public class NormalBayesClassifier {
 	private void groupTraningDataByClass(int labeAttrlndex,
 			Map<Integer, Matrix> labelMap) {		
 		for(int i=0; i<trainingData.rows(); i++) {		
-			int label = (int)trainingResponse.at(i, 0);		//label of a class
+			int label = (int)trainingLable.at(i, 0);		//label of a class
 			// get feature vector
 			Matrix matrix = new Matrix(1, trainingData.columns() - 1);
 			for(int m=0; m<matrix.columns(); m++) {
@@ -337,7 +337,6 @@ public class NormalBayesClassifier {
 					matrix.set(0, m, trainingData.at(i, m + 1));
 				}
 			}
-			
 			if(!labelMap.containsKey(label)) {		//A new class
 				labelMap.put(label, matrix);
 				countOfClasses++;		//A new class appears;
