@@ -1,4 +1,4 @@
-package artiano.machinelearning.classifier;
+package artiano.ml.classifier;
 
 import java.io.*;
 import java.util.*;

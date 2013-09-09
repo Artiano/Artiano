@@ -1,7 +1,7 @@
 /**
  * 	NormalBayesClassifier.java
  */
-package artiano.machinelearning.classifier;
+package artiano.ml.classifier;
 
 import java.util.*;
 
