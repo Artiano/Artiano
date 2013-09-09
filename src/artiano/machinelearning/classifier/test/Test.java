@@ -282,23 +282,23 @@ public class Test {
 		Matrix traingingData = 
 				new Matrix(trainingDataArr.length / dimension, dimension, trainingDataArr);
 		KDTree tree = new KDTree(traingingData);
-		System.out.println("bfs: ");
-		tree.bfs();
+//		System.out.println("bfs: ");
+//		tree.bfs();
 		
 		/*------------- Insert a data point to the kd-tree -------------*/
-		double[] newPointArr = {35, 35};
+/*		double[] newPointArr = {35, 35};
 		Matrix newPoint = new Matrix(1, dimension, newPointArr);
 		tree.insert(newPoint);
 		System.out.println("After inserting a point, bfs:");
 		tree.bfs();		
-	
+*/	
 		/*------------- Delete a data point -------------------------*/
-		double[] pointDeletedArr = {55, 40};		
+/*		double[] pointDeletedArr = {55, 40};		
 		Matrix point1 = new Matrix(1, dimension, pointDeletedArr);
 		tree.delete(point1);
 		System.out.println("After deleting a point, bfs:");
 		tree.bfs();		
-		
+*/		
 		/*------------------  Find nearest of a specified data point -----*/
 		double[] point = {45, 32};
 		Matrix target = new Matrix(1, dimension, point);

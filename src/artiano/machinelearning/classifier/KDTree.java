@@ -201,8 +201,8 @@ public class KDTree {
 			}
 		}						
 		
-		//Matrix newTreeData = removeRow(data);  //Remove the row with data
-		root = buildKDTree(data);	//Re-build the tree.		
+		Matrix newTreeData = removeRow(data);  //Remove the row with data
+		root = buildKDTree(newTreeData);	//Re-build the tree.		
 		
 		return true;
 	}
@@ -212,7 +212,7 @@ public class KDTree {
 	 * @param data - a row in matrix
 	 * @return matrix after removing a specified row
 	 */
-/*	private Matrix removeRow(Matrix data) {
+	private Matrix removeRow(Matrix data) {
 		Matrix newTreeData = new Matrix(root.treeData.rows()-1, root.treeData.columns());
 		Matrix oldTreeData = root.treeData;
 		int count = 0;
@@ -235,7 +235,7 @@ public class KDTree {
 		}
 		return newTreeData;
 	}	
-*/
+
 	
 	/**
 	 * Search nearest of target

@@ -6,9 +6,13 @@ import artiano.core.structure.Matrix;
 public class KNearest extends Preservable {
 	private static final long serialVersionUID = 1L;
 
+	@SuppressWarnings("unused")
 	private Matrix trainData;		//Train data
+	@SuppressWarnings("unused")
 	private Matrix trainLabel;		//Train label
+	@SuppressWarnings("unused")
 	private boolean isRegression;	//The class used for classifier or regression
+	@SuppressWarnings("unused")
 	private KDTree kdTree;			//kd-tree
 	private int labelIndex;			//column index of label in train data matrix
 	
