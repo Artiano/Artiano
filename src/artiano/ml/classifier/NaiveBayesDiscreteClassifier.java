@@ -1,4 +1,4 @@
-package artiano.machinelearning.classifier;
+package artiano.ml.classifier;
 /***
  * 
  * @author BreezeDust

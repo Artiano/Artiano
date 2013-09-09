@@ -1,4 +1,4 @@
-package artiano.machinelearning.classifier;
+package artiano.ml.classifier;
 
 import artiano.core.operation.Preservable;
 import artiano.core.structure.Matrix;

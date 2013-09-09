@@ -1,4 +1,4 @@
-package artiano.machinelearning.classifier.test;
+package artiano.ml.classifier.test;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -7,9 +7,9 @@ import java.util.List;
 
 import artiano.core.structure.Matrix;
 import artiano.core.structure.Range;
-import artiano.machinelearning.classifier.DTreeClassifier;
-import artiano.machinelearning.classifier.KDTree;
-import artiano.machinelearning.classifier.NaiveBayesClassifier;
+import artiano.ml.classifier.DTreeClassifier;
+import artiano.ml.classifier.KDTree;
+import artiano.ml.classifier.NaiveBayesClassifier;
 
 /**
  * <p>Description: Classifiers Test</p>
