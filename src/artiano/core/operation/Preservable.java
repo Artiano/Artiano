@@ -28,7 +28,7 @@ public abstract class Preservable implements Serializable {
 
 	/**
 	 * save object to specified file
-	 * @param filename - specified file name
+	 * @param filename Specified file name
 	 * @throws IOException 
 	 */
 	public void save(String filename) throws IOException{
@@ -38,8 +38,8 @@ public abstract class Preservable implements Serializable {
 	
 	/**
 	 * save object to output stream
-	 * @param os - specified output stream
-	 * @throws IOException 
+	 * @param os Specified output stream
+	 * @throws IOException
 	 */
 	public void save(OutputStream os) throws IOException{
 		ObjectOutputStream oos = new ObjectOutputStream(os);
@@ -52,7 +52,7 @@ public abstract class Preservable implements Serializable {
 	
 	/**
 	 * load object from specified file
-	 * @param filename - specified file name
+	 * @param filename Specified file name
 	 * @throws IOException 
 	 * @throws ClassNotFoundException 
 	 */
@@ -63,7 +63,7 @@ public abstract class Preservable implements Serializable {
 	
 	/**
 	 * load object from specified input stream
-	 * @param is - specified input stream
+	 * @param is Specified input stream
 	 * @throws IOException 
 	 * @throws ClassNotFoundException 
 	 */
