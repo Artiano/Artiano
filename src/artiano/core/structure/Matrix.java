@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 
 /**
- * <p>Description: Basic structure matrix, contains amount of operation on matrices.</p>
+ * <p>Description: Basic structure matrix, contains amount of operation on matrix.</p>
  * @author Nano.Michael
  * @version 1.0.0
  * @date 2013-8-20
@@ -17,35 +17,52 @@ import java.io.Serializable;
 public class Matrix implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
-	//columns of the matrix
+	/**
+	 * columns of the matrix
+	 */
 	protected int cols = 0;
-	//rows of the matrix
+	/**
+	 * rows of the matrix
+	 */
 	protected int rows = 0;
-	//data of the matrix
+	/**
+	 * data of the matrix
+	 */
 	protected double[] d = null;
-	//data rows
+	/**
+	 * data columns, the original columns of the matrix
+	 */
 	protected int dCols = 0;
-	//row range
+	/**
+	 * row range of the original matrix, while rowRange is specified, the start of the row index is
+	 * rowRange.begin() relative to the original matrix, and the end index of the row index is rowRange.end(). 
+	 * For example: while rowRange.start==2 and rowRange.end==5, the start and the end of the row index is 2
+	 * and 4 relatively.
+	 */
 	protected Range rowRange = null;
-	//column range
+	/**
+	 * column range of the original matrix.
+	 */
 	protected Range colRange = null;
 	
 	private Matrix(){ }
 	
 	/**
-	 * constructor
-	 * @param rows - rows of the matrix
-	 * @param cols - columns of the matrix
+	 * Create a matrix with specified rows and columns.
+	 * @param rows Rows of the matrix.
+	 * @param cols Columns of the matrix.
 	 */
 	public Matrix(int rows, int cols){
 		this(rows, cols, new double[cols * rows]);
 	}
 	
 	/**
-	 * constructor
-	 * @param rows - rows of the matrix
-	 * @param cols - columns of the matrix
-	 * @param data - data
+	 * Create a matrix with specified rows and columns that holds data.
+	 * <li><b><i>NOTICE:</i></b> If the size (size=rows*columns) of the matrix is less than the length of the data, the program 
+	 * can normally running, but that is not recommended.</li>
+	 * @param rows Rows of the matrix.
+	 * @param cols Columns of the matrix.
+	 * @param data Data to hold.
 	 */
 	public Matrix(int rows, int cols, double[] data){
 		if (cols <= 0 || rows <= 0)
@@ -70,8 +87,8 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * copy current matrix to destination
-	 * @param x - destination matrix
+	 * Copy current matrix to destination.
+	 * @param x Destination matrix
 	 */
 	public void copyTo(Matrix x){
 		if (x.rows != rows || x.cols != cols)
@@ -82,52 +99,52 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * get data stored in the matrix
-	 * @return - data
+	 * Get data stored in the matrix.
+	 * @return Data
 	 */
 	public double[] data(){
 		return this.d;
 	}
 	
 	/**
-	 * get columns
-	 * @return - columns
+	 * Get columns.
+	 * @return Columns of the matrix.
 	 */
 	public int columns(){
 		return this.cols;
 	}
 	
 	/**
-	 * get rows
-	 * @return - rows
+	 * Get rows
+	 * @return - Rows of the matrix.
 	 */
 	public int rows(){
 		return this.rows;
 	}
 	
 	/**
-	 * row vector at row i of the matrix
-	 * @param i - row index
-	 * @return - row vector
+	 * Get the row vector at row i of the matrix.
+	 * @param i Row index
+	 * @return Row vector with specified row index.
 	 */
 	public Matrix row(int i){
 		return at(new Range(i, i+1), Range.all());
 	}
 	
 	/**
-	 * column vector at column i of the matrix
-	 * @param i - column index
-	 * @return - column vector
+	 * Get the column vector at column i of the matrix.
+	 * @param i Column index
+	 * @return Column vector with specified column index.
 	 */
 	public Matrix col(int i){
 		return at(Range.all(), new Range(i, i+1));
 	}
 	
 	/**
-	 * create an matrix like A=u*I, I is unit matrix, u is scale
-	 * @param size - matrix size
-	 * @param scale - the value to set
-	 * @return - diagonal matrix
+	 * Create a matrix like A=u*I, I is unit matrix, u is a scale.
+	 * @param size Matrix size (size=rows=columns)
+	 * @param scale Value to set
+	 * @return A diagonal matrix.
 	 */
 	public static Matrix unit(int size, double scale){
 		Matrix x = new Matrix(size, size);
@@ -137,20 +154,20 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * create a unit matrix
-	 * @param size - matrix size
-	 * @return - unit matrix
+	 * Create a unit matrix
+	 * @param size Matrix size (size=rows=columns)
+	 * @return Unit matrix
 	 */
 	public static Matrix unit(int size){
 		return unit(size, 1.);
 	}
 	
 	/**
-	 * create a matrix that all the element hold the same number
-	 * @param rows - rows of the matrix
-	 * @param cols - columns of the matrix
-	 * @param scale - the scale want to set
-	 * @return - a matrix that all the element hold the same number
+	 * Create a matrix that all the element hold the same number.
+	 * @param rows Rows of the matrix
+	 * @param cols Columns of the matrix
+	 * @param scale The scale want to set
+	 * @return A matrix that all the element hold the same number.
 	 */
 	public static Matrix ones(int rows, int cols, double scale){
 		Matrix x = new Matrix(rows, cols);
@@ -161,9 +178,9 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * create a matrix that all the element is 1
-	 * @param rows - rows of the matrix
-	 * @param cols - columns of the matrix
+	 * Create a matrix that all the element is 1
+	 * @param rows Rows of the matrix
+	 * @param cols Columns of the matrix
 	 * @return
 	 */
 	public static Matrix ones(int rows, int cols){
@@ -171,8 +188,8 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * calculate the trace of the matrix
-	 * @return - trace of the matrix
+	 * Calculate the trace of the matrix
+	 * @return Trace of the matrix
 	 */
 	public double trace(){
 		if (rows != cols)
@@ -184,9 +201,9 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * get value at index i while the matrix is a vector (both row vector and column vector)
-	 * @param i - index
-	 * @return - value at the index i
+	 * Get element value at index i while the matrix is a vector (both row vector and column vector).
+	 * @param i Index
+	 * @return Value at the index i
 	 */
 	public double at(int i){
 		if (rows != 1 && cols != 1)
@@ -198,10 +215,10 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * get the value of row i and column j
-	 * @param i - row index
-	 * @param j - column index
-	 * @return - value of row i column j
+	 * Get the element value at row i and column j.
+	 * @param i Row index
+	 * @param j Column index
+	 * @return Value of row i column j
 	 */
 	public double at(int i, int j){
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
@@ -210,10 +227,14 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * get the sub-matrix determined by the row range and column range, and data will not be copied
-	 * @param row - row range
-	 * @param col - column range
-	 * @return - a sub-matrix of the matrix
+	 * Get the sub-matrix determined by the row range and column range
+	 * <li><b><i>NOTICE:</i></b> The data will not be copied. If you want to get a copy of the sub-matrix, you should
+	 * write code like:
+	 * <code><br>Matrix y=new Matrix(2,2); //create a new matrix with 2 rows and 2 columns
+	 * <br>x.at(new Range(1,3), new Range(2,4).copyTo(y); //copy the sub-matrix of x to y</code></li>
+	 * @param row  Row range
+	 * @param col Column range
+	 * @return A sub-matrix of the matrix
 	 */
 	public Matrix at(Range row, Range col){
 		row = row.equals(Range.all()) ? this.rowRange:
@@ -236,9 +257,9 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * set the value to the index i of the matrix while it is a vector (both row vector and column vector)
-	 * @param i - index
-	 * @param value - value to set
+	 * Set the value to the index i of the matrix while it is a vector (both row vector and column vector)
+	 * @param i Index
+	 * @param value Value to set
 	 */
 	public void set(int i, double value){
 		if (rows != 1 && cols != 1)
@@ -250,10 +271,10 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * set a value to row i column j
-	 * @param i - row index
-	 * @param j - column index
-	 * @param value - value to set
+	 * Set a value to row i column j
+	 * @param i Row index
+	 * @param j Column index
+	 * @param value Value to set
 	 */
 	public void set(int i, int j, double value){
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
@@ -262,10 +283,10 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * set value to the sub-matrix of the matrix
-	 * @param row - row range
-	 * @param col - column range
-	 * @param value - matrix to set
+	 * Set the value of the specified matrix to the specified sub-matrix of current matrix.
+	 * @param row Row range
+	 * @param col Column range
+	 * @param value Matrix to set
 	 */
 	public void set(Range row, Range col, Matrix value){
 		Matrix x = at(row, col);
@@ -277,9 +298,9 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * set value to row i of the matrix
-	 * @param i - row index
-	 * @param value - row vector to set
+	 * Set the value of the specified row to the matrix
+	 * @param i Row index
+	 * @param value Row vector to set
 	 */
 	public void setRow(int i, Matrix value){
 		if (value.rows != 1)
@@ -291,9 +312,9 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * set value to column i of the matrix
-	 * @param i - column index
-	 * @param value - column vector to set
+	 * Set the value of the specified column to the matrix.
+	 * @param i Column index
+	 * @param value Column vector to set
 	 */
 	public void setCol(int i, Matrix value){
 		if (value.cols != 1)
@@ -305,8 +326,8 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * transpose the matrix
-	 * @return - transpose of the matrix
+	 * Transpose the matrix
+	 * @return Transpose of the matrix
 	 */
 	public Matrix t(){
 		Matrix x = new Matrix(cols, rows);
@@ -317,19 +338,21 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * matrix addition (z = x + y)
-	 * @param x - matrix to add
-	 * @return - result
+	 * Matrix addition (z = x + y)
+	 * <li><b><i>NOTICE:</i></b> The method will replace the matrix with the new matrix after added.</li>
+	 * @param x Matrix to add
+	 * @return Result
 	 */
 	public Matrix add(Matrix x){
 		return add(x,false);
 	}
 	
 	/**
-	 * matrix addition
-	 * @param x - matrix to add
-	 * @param reserve - indicate reserve the matrix whether or not
-	 * @return - result
+	 * Matrix addition
+	 * @param x Matrix to add
+	 * @param reserve Indicate replace the matrix whether or not, if parameter <code>reserve</code> is false,
+	 * the program will replace the matrix with the new matrix after added.
+	 * @return Result
 	 */
 	public Matrix add(Matrix x, boolean reserve){
 		if (rows != x.rows || cols != x.cols)
@@ -342,9 +365,10 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * matrix addition (z=x+y, x is a scale)
-	 * @param x - number to add
-	 * @param reserve - indicate reserve the matrix whether or not
+	 * Matrix addition (z=x+y, x is a scale)
+	 * @param x Number to add
+	 * @param reserve Indicate replace the matrix whether or not, if parameter <code>reserve</code> is false,
+	 * the program will replace the matrix with the new matrix after added.
 	 * @return - result
 	 */
 	public Matrix add(Number x, boolean reserve){
@@ -356,19 +380,20 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * matrix addition (z=x+y, x is scale)
-	 * @param x - number to add
-	 * @return - result
+	 * Matrix addition (z=x+y, x is scale)
+	 * <li><b><i>NOTICE:</i></b> The method will replace the matrix with new matrix after added.</li>
+	 * @param x Number to add
+	 * @return Result
 	 */
 	public Matrix add(Number x){
 		return add(x,false);
 	}
 	
 	/**
-	 * add a value to row i column j
-	 * @param i - row index
-	 * @param j - column index
-	 * @param value - value to add
+	 * Add a value to row i column j.
+	 * @param i Row index
+	 * @param j Column index
+	 * @param value Value to add
 	 */
 	public void add(int i, int j, Number value){
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
@@ -377,10 +402,10 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * value of row i column j subtract a number
-	 * @param i - row index
-	 * @param j - column index
-	 * @param value - value to subtract
+	 * Element of row i column j subtract the specified number.
+	 * @param i Row index
+	 * @param j Column index
+	 * @param value Value to subtract
 	 */
 	public void subtract(int i, int j, Number value){
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
@@ -389,19 +414,21 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * matrix subtraction (z=x-y)
-	 * @param x - matrix to subtract
-	 * @return - result
+	 * Matrix subtraction (z=x-y)
+	 * <li><b><i>NOTICE:</i></b> The method will replace the matrix with new matrix after subtracted.</li>
+	 * @param x Matrix to subtract
+	 * @return Result
 	 */
 	public Matrix subtract(Matrix x){
 		return subtract(x,false);
 	}
 	
 	/**
-	 * matrix subtraction (z=x-y)
-	 * @param x - matrix to subtract
-	 * @param reserve - indicate reserve the matrix whether or not
-	 * @return - result
+	 * Matrix subtraction (z=x-y)
+	 * @param x Matrix to subtract
+	 * @param reserve Indicate replace the matrix whether or not, if parameter <code>reserve</code> is false,
+	 * the program will replace the matrix with the new matrix after subtracted.
+	 * @return Result
 	 */
 	public Matrix subtract(Matrix x, boolean reserve){
 		if (x.rows != rows || x.cols != cols)
@@ -414,19 +441,21 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * matrix subtraction (z=x-y, x is a scale)
-	 * @param x - number to subtract
-	 * @return - result
+	 * Matrix subtraction (z=x-y, x is a scale)
+	 * <li><b><i>NOTICE:</i></b> The method will replace the matrix with new matrix after subtracted.</li>
+	 * @param x Number to subtract
+	 * @return Result
 	 */
 	public Matrix subtract(Number x){
 		return subtract(x, false);
 	}
 	
 	/**
-	 * matrix subtraction (z=x-y, x is a scale)
-	 * @param x - number to subtract
-	 * @param reserve - indicate reserve the matrix whether or not
-	 * @return - result
+	 * Matrix subtraction (z=x-y, x is a scale)
+	 * @param x Number to subtract
+	 * @param reserve Indicate replace the matrix whether or not, if parameter <code>reserve</code> is false,
+	 * the program will replace the matrix with the new matrix after subtracted.
+	 * @return Result
 	 */
 	public Matrix subtract(Number x, boolean reserve){
 		Matrix y = reserve ? new Matrix(rows, cols): this;
@@ -437,9 +466,9 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * matrix multiplication (z=x*y)
-	 * @param x - right side matrix, y
-	 * @return - result
+	 * Matrix multiplication (z=x*y)
+	 * @param x Right side matrix, y
+	 * @return Result
 	 */
 	public Matrix multiply(Matrix x){
 		if (x.rows != cols)
@@ -457,9 +486,10 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * matrix multiplication (z=x*y, x is scale)
-	 * @param x
-	 * @param reserve - indicate reserve the matrix whether or not
-	 * @return - result
+	 * @param x Specified number to multiply.
+	 * @param reserve Indicate replace the matrix whether or not, if parameter <code>reserve</code> is false,
+	 * the program will replace the matrix with the new matrix after multiplied.
+	 * @return Result
 	 */
 	public Matrix multiply(Number x, boolean reserve){
 		Matrix y = reserve ? new Matrix(rows, cols): this;
@@ -470,19 +500,20 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * matrix multiplication (z=x*y, x is scale)
-	 * @param x
-	 * @return - result
+	 * Matrix multiplication (z=x*y, x is scale)
+	 * <li><b><i>NOTICE:</i></b> The method will replace the matrix with new matrix after multiplied.</li>
+	 * @param x Specified number to multiply.
+	 * @return Result.
 	 */
 	public Matrix multiply(Number x){
 		return multiply(x,false);
 	}
 	
 	/**
-	 * value at row i column j multiply a number
-	 * @param i - row index
-	 * @param j - column index
-	 * @param x - number to multiply
+	 * Value at row i column j multiply specified number.
+	 * @param i Row index
+	 * @param j Column index
+	 * @param x Number to multiply
 	 */
 	public void multiply(int i, int j, Number x){
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
@@ -491,10 +522,10 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * matrix value at row i column j divide a number
-	 * @param i - row index
-	 * @param j - column index
-	 * @param x - number to divide
+	 * Matrix value at row i column j divide a number.
+	 * @param i Row index
+	 * @param j Column index
+	 * @param x Number to divide
 	 */
 	public void divide(int i, int j, Number x){
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
@@ -503,19 +534,21 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * matrix divide a number
-	 * @param x - number to divide
-	 * @return - result
+	 * Matrix division (z=x/y, y is scale)
+	 * <li><b><i>NOTICE:</i></b> The method will replace the matrix with new matrix after divided</li>
+	 * @param x Number to divide
+	 * @return Result
 	 */
 	public Matrix divide(Number x){
 		return divide(x,false);
 	}
 	
 	/**
-	 * matrix divide a number
-	 * @param x - number to divide
-	 * @param reserve - indicate reserve the matrix whether or not
-	 * @return - result
+	 * Matrix division (z=x/y, y is scale)
+	 * @param x Number to divide
+	 * @param reserve Indicate replace the matrix whether or not, if parameter <code>reserve</code> is false,
+	 * the program will replace the matrix with the new matrix after divided.
+	 * @return Result
 	 */
 	public Matrix divide(Number x, boolean reserve){
 		if (x.doubleValue() == 0.)
@@ -528,8 +561,8 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * calculate the mean vector of every row vector
-	 * @return - mean vector
+	 * Calculate the mean vector of every row.
+	 * @return Mean vector
 	 */
 	public Matrix rowMean(){
 		Matrix mean = new Matrix(1, cols);
@@ -540,8 +573,8 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * calculate the mean vector of every column vector
-	 * @return - mean vector
+	 * Calculate the mean vector of every column.
+	 * @return Mean vector
 	 */
 	public Matrix colMean(){
 		Matrix mean = new Matrix(rows, 1);
@@ -552,9 +585,10 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * calculate the square root of the matrix
-	 * @param reserve - indicate reserve the matrix whether or not
-	 * @return - result
+	 * Calculate the square root of the matrix
+	 * @param reserve Indicate replace the matrix whether or not, if parameter <code>reserve</code> is false,
+	 * the program will replace the matrix with the new matrix after calculated.
+	 * @return Result
 	 */
 	public Matrix sqrt(boolean reserve){
 		Matrix x = reserve? new Matrix(rows, cols): this;
@@ -565,17 +599,20 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * calculate the square root of the matrix
-	 * @return - result
+	 * Calculate the square root of the matrix
+	 * <li><b><i>NOTICE:</i></b> The method will replace the matrix with new matrix after calculated.</li>
+	 * @return Result
 	 */
 	public Matrix sqrt(){
 		return sqrt(false);
 	}
 	
 	/**
-	 * calculate the difference between this and matrix x
-	 * @param x - input matrix
-	 * @return - difference
+	 * Calculate the difference between current matrix and specified matrix x.
+	 * <li>Given matrix x and y, the method to calculate the difference is:
+	 * <br>difference=sum[abs(x(i,j)-y(i,j)]</li>
+	 * @param x Input matrix x
+	 * @return Difference
 	 */
 	public double difference(Matrix x){
 		if (x.rows != rows || x.cols != cols)
@@ -588,7 +625,9 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * calculate the l2-norm between this and x
+	 * Calculate the l2-norm between current matrix and specified matrix x
+	 * <li>Given matrix x and y, the method to calculate the l2-norm is:
+	 * <br>l2-norm=sqrt{sum[x(i, j) - y(i, j)]}</li>
 	 * @param x
 	 * @return - l2-norm
 	 */
@@ -632,110 +671,23 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * transpose x
-	 * @param x - input matrix
-	 * @return - the transposition of x
-	 */
-	public static double[][] transpose(double[][] x){
-		double[][] y = new double[x[0].length][x.length];
-		for (int i = 0; i < y.length; i++){
-			for (int j = 0; j < x.length; j++)
-				y[i][j] = x[j][i];
-		}
-		return y;
-	}
-	
-	/**
-	 * copy the specified matrix
-	 * @param x - source matrix
-	 * @return - the copy of x
-	 */
-	public static double[][] copy(double[][] x){
-		double[][] y = new double[x.length][x[0].length];
-		for (int i = 0; i < x.length; i++)
-			for (int j = 0; j < x[0].length; j++)
-				y[i][j] = x[i][j];
-		return y;
-	}
-	
-	/**
-	 * matrix addition (z = x+y)
-	 * @param x - matrix x
-	 * @param y - matrix y
-	 * @param reserveX - indicate reserve x whether or not
-	 * @return - result
-	 */
-	public static double[][] add(double[][] x, double[][] y, boolean reserveX){
-		if (x.length != y.length || x[0].length != y[0].length)
-			throw new IllegalArgumentException("Matrix add, size not match.");
-		double[][] z;
-		z = reserveX ?new double[x.length][x[0].length]: x;
-		for (int i = 0; i < x.length; i++)
-			for (int j = 0; j < x[0].length; j++)
-				z[i][j] = x[i][j] + y[i][j];
-		return z;
-	}
-	
-	/**
-	 * matrix subtract (z = x - y)
-	 * @param x - matrix x
-	 * @param y - matrix y
-	 * @param reserveX - indicate reserve x whether or not
-	 * @return - result
-	 */
-	public static double[][] subtract(double[][] x, double[][] y, boolean reserveX){
-		if (x.length != y.length || x[0].length != y[0].length)
-			throw new IllegalArgumentException("Matrix add, size not match.");
-		double[][] z;
-		z = reserveX ?new double[x.length][x[0].length]: x;
-		for (int i = 0; i < x.length; i++)
-			for (int j = 0; j < x[0].length; j++)
-				z[i][j] = x[i][j] - y[i][j];
-		return z;
-	}
-	
-	/**
-	 * matrix multiplication (z = x * y, y is scale)
-	 * @param x - matrix x
-	 * @param y - matrix y
-	 * @param reserveX - indicate reserve x or not
-	 * @return - result
-	 */
-	public static double[][] multiply(double[][] x, double y, boolean reserveX){
-		double[][] z;
-		z = reserveX ? new double[x.length][x[0].length]: x;
-		for (int i = 0; i < x.length; i++)
-			for (int j = 0; j < x[0].length; j++)
-				z[i][j] = x[i][j] * y;
-		return z;
-	}
-	
-	/**
-	 * compute the multiplication of x and y
-	 * @param x - left matrix
-	 * @param y - right matrix
-	 * @return - multiplication of x and y
-	 */
-	public static double[][] multiply(double[][] x, double[][] y){
-		if (x[0].length != y.length)
-			throw new IllegalArgumentException("Matrix multiply, size not match.");
-		
-		int m = x.length;
-		int s = y.length;
-		int n = y[0].length;
-		double[][] t = new double[x.length][y[0].length];
-		for (int i = 0; i < m; i++){
-			for (int j = 0; j < n; j++){
-				for (int k = 0; k < s; k++)
-					t[i][j] += x[i][k] * y[k][j];
-			}
-		}
-		return t;
-	}
-	
-	/**
-	 * merge two matrices and store it to this
-	 * @param otherMx - matrix to merge
+	 * Merge two matrices and store it to current matrix.
+	 * <li>Given matrix x and y, and 
+	 * <br>x=
+	 * <br>|1 2 3|  
+	 * <br>|4 5 6|
+	 * <br>|7 8 9| ,
+	 * <br>y=
+	 * <br>|1 1 2|
+	 * <br>|2 2 1|
+	 * <br>The matrix after merge is:
+	 * <br>x=
+	 * <br>|1 2 3|  
+	 * <br>|4 5 6|
+	 * <br>|7 8 9|
+	 * <br>|1 1 2|
+	 * <br>|2 2 1|
+	 * @param otherMx Matrix to merge.
 	 */
 	public void mergeAfterRow(Matrix otherMx){
 		if (otherMx.cols != cols)

@@ -8,7 +8,26 @@ import artiano.core.structure.Matrix;
 
 /**
  * <p>Description: Cholesky decomposition, this class for find the inversion of a matrix or solve the linear equation 
- * system like A*x=b while the matrix is symmetric and positive-definite, this method if very efficient. </p>
+ * system like <b>A*x=b</b> while the matrix is symmetric and positive-definite, this method if very efficient, and it is
+ * twice as fast as LU-decomposition. </p>
+ * <li>Any symmetric and positive-definite matrix <b>A</b> can be decomposed as: <b>A=L*LT</b>, <b>L</b> is lower triangular
+ * matrix. So, we can get the inversion of <b>A</b> from <b>L</b> conveniently.
+ * <li>To use the class, you should write code like:
+ * <blockquote>
+ * <pre>
+ * double[] data={4,3,3,4};
+ * Matrix A = new Matrix(2,2,data);
+ * CholeskyDecomposition cd = new CholeskyDecomposition(A); //assume don't reserve A
+ * if (cd.isDefinite()){
+ *     Matrix inv = cd.inverse(); //get inversion of A
+ *     double[] d = {7,7};
+ *     Matrix B = new Matrix(2,1,d);
+ *     Matrix sol = cd.solve(B); //assume don't reserve A
+ * }
+ * </pre>
+ * </blockquote>
+ * <li><i><b>NOTICE:</b></i> This program refer to the book Numerical Recipes, you can read the program at this book, there are detailed
+ * description about Cholesky decomposition.</li>
  * @author Nano.Michael
  * @version 1.0.0
  * @date 2013-8-18

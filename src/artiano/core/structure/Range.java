@@ -8,8 +8,8 @@ import java.io.Serializable;
 /**
  * <p>Description: To describe an ultra-tail range. It is very useful while some structure has a range in 
  * most case. For example: when you want to get a sub-matrix from a matrix, you can write code like:
- * <code><br>Matrix x = y.at(new Range(1,3), Range.all());</br></code>
- * That means x has the 1st row to 3rd row (but not including the 3rd row) and all columns of the matrix y.</p>
+ * <code><br>Matrix x = y.at(new Range(1,3), Range.all());<br></code>
+ * That means matrix x hold the 1st row to 3rd row (but not including the 3rd row) and all columns of the matrix y.</p>
  * @author Nano.Michael
  * @version 1.0.0
  * @date 2013-8-23
@@ -19,9 +19,13 @@ import java.io.Serializable;
 public class Range implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
-	//range start
+	/**
+	 * range start
+	 */
 	protected int start = 0;
-	//range end
+	/**
+	 * range end
+	 */
 	protected int end = 0;
 	
 	/**
@@ -33,9 +37,9 @@ public class Range implements Serializable{
 	}
 	
 	/**
-	 * constructor
-	 * @param start - range start
-	 * @param end - range end
+	 * Construct a new range with specified start and end.
+	 * @param start Range start
+	 * @param end Range end
 	 */
 	public Range(int start, int end){
 		if (start >= end)
@@ -45,59 +49,61 @@ public class Range implements Serializable{
 	}
 	
 	/**
-	 * get the range length
-	 * @return - range length
+	 * Get the range length
+	 * @return Range length
 	 */
 	public int length(){
 		return end - start;
 	}
 	
 	/**
-	 * range all
-	 * @return - a special range express the whole range
+	 * Range all.
+	 * <li>This method will create a special range that represent whole range. It depends on the specific 
+	 * application. When you decide to use it in your application, you should convert it to absolute range.</li>
+	 * @return A special range express the whole range
 	 */
 	public static Range all(){
 		return new Range();
 	}
 	
 	/**
-	 * range begin
-	 * @return - the start of the range
+	 * Range begin
+	 * @return The start of the range
 	 */
 	public int begin(){
 		return start;
 	}
 	
 	/**
-	 * range end
-	 * @return - end of the range
+	 * Range end
+	 * @return End of the range
 	 */
 	public int end(){
 		return end;
 	}
 	
 	/**
-	 * judge if x is in the range
-	 * @param x - an integer
-	 * @return - true if x is in the range or false otherwise
+	 * Judge if x is in the range
+	 * @param x An integer
+	 * @return True if x is in the range or false otherwise
 	 */
 	public boolean isContain(int x){
 		return (x >= start && x <= end);
 	}
 	
 	/**
-	 * judge if another range is in the range
-	 * @param x - another range
-	 * @return - true if x is in the range or false otherwise
+	 * Judge if another range is in the range
+	 * @param x Another range
+	 * @return True if x is in the range or false otherwise
 	 */
 	public boolean isContain(Range x){
 		return (x.start >= start && x.end <= end);
 	}
 	
 	/**
-	 * judge if another range is equals to the range
-	 * @param x - another range
-	 * @return - true if x is equals to the range or false otherwise
+	 * Judge if another range is equals to the range
+	 * @param x Another range
+	 * @return True if x is equals to the range or false otherwise
 	 */
 	public boolean equals(Range x){
 		return (x.start == start && x.end == end);
