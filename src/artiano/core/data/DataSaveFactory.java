@@ -1,11 +1,19 @@
 package artiano.core.data;
-
+/***
+ * 
+ * @author BreezeDust
+ *
+ */
 public class DataSaveFactory {
-	public static String SaveMethod="JsonData"; //以后通过配置文件来选择储存方式
+	private static String saveMethod="JsonData"; //以后通过配置文件来选择储存方式
+	/***
+	 * 
+	 * @return DataSave
+	 */
 	public static DataSave createDataSave(){
 		Class dataSaveClass=null;
 		try {
-			dataSaveClass = Class.forName("artiano.core.data."+SaveMethod);
+			dataSaveClass = Class.forName("artiano.core.data."+saveMethod);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -20,6 +28,15 @@ public class DataSaveFactory {
 			return null;
 		}
 		return dataSave;
+	}
+	/***
+	 * 
+	 * @param saveMethod 持久化保存的方法
+	 * @return DataSave
+	 */
+	public static DataSave createDataSave(String saveMethod){
+		DataSaveFactory.saveMethod=saveMethod;
+		return DataSaveFactory.createDataSave();
 	}
 
 }
