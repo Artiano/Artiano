@@ -7,24 +7,47 @@ package artiano.core.structure;
 public class Domain {
 	public double min=0;
 	public double max=0;
+	public String minCD="";
+	public String maxCD="";
 	/***
-	 *  定义域划分，以min=<value<max 的形式
-	 * @param min 最小边界，区域包含min
-	 * @param max 最大边界,区域部包含max
+	 * 以定义域的形式构造划分，如(1.2,3.0],其中B代表无穷,如(B,1]
+	 * @param condition (1.2,3.0]或者(B,1]的形式  
 	 */
-	public Domain(double min,double max){
-		this.max=max;
-		this.min=min;
+	public Domain(String condition){
+		minCD=condition.substring(0, 1);
+		maxCD=condition.substring(condition.length()-1,condition.length());
+		condition=condition.replaceAll("[\\(\\)\\[\\]]", "");
+		String[] strs=condition.split(",");
+		if(strs[0].equals("B")){
+			min=Double.MIN_VALUE;
+		}
+		else{
+			min=Double.parseDouble(strs[0]);
+		}
+		if(strs[1].equals("B")){
+			max=Double.MAX_VALUE;
+		}
+		else{
+			max=Double.parseDouble(strs[1]);	
+		}
 	}
 	/***
-	 * 判断是否落在区域内
+	 * 判断是否落在划分内，
 	 * @param value
-	 * @return
+	 * @return 0为落在区域内，-1在区域左边，1在区域右边
 	 */
 	public int isIn(double value){
-		if(value>=min && value<max) return 0;
-		if(value<min) return -1;
-		if(value>=max) return 1;
+		boolean[] flag=new boolean[2];
+		flag[0]=false;
+		flag[1]=false;
+		int con=0;
+		if(minCD.equals("(")) if(value>min) flag[con++]=true;
+		if(minCD.equals("[")) if(value>=min) flag[con++]=true;
+		if(maxCD.equals(")")) if(value<max) flag[con++]=true;
+		if(minCD.equals("]")) if(value<=max) flag[con++]=true;
+		if(flag[0] && flag[1]) return 0;
+		if(!flag[0]) return -1;
+		if(!flag[1]) return 1;
 		return -2;
 	}
 
