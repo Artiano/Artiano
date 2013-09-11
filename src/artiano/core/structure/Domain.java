@@ -19,7 +19,7 @@ public class Domain {
 		condition=condition.replaceAll("[\\(\\)\\[\\]]", "");
 		String[] strs=condition.split(",");
 		if(strs[0].equals("B")){
-			min=Double.MIN_VALUE;
+			min=-1*Double.MAX_VALUE;
 		}
 		else{
 			min=Double.parseDouble(strs[0]);
@@ -43,12 +43,27 @@ public class Domain {
 		int con=0;
 		if(minCD.equals("(")) if(value>min) flag[con++]=true;
 		if(minCD.equals("[")) if(value>=min) flag[con++]=true;
+		if(con==0) con++;
 		if(maxCD.equals(")")) if(value<max) flag[con++]=true;
-		if(minCD.equals("]")) if(value<=max) flag[con++]=true;
+		if(maxCD.equals("]")) if(value<=max) flag[con++]=true;
 		if(flag[0] && flag[1]) return 0;
 		if(!flag[0]) return -1;
 		if(!flag[1]) return 1;
 		return -2;
+	}
+	/***
+	 * 根据以空格隔开的这样的字符串实例化一个划分数组 "(1,2] (b,100] [1,5]"
+	 * @param conditions  "(1,2] (b,100] [1,5]"
+	 * @return
+	 */
+	public static Domain[] getArray(String conditions){
+		String[] strs=conditions.split(" ");
+		Domain[] domains=new Domain[strs.length];
+		for(int con=0;con<strs.length;con++){
+			domains[con]=new Domain(strs[con]);
+		}
+		return domains;
+		
 	}
 
 }
