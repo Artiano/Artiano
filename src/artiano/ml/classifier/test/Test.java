@@ -121,7 +121,7 @@ public class Test {
 		
 		//----------------------   Save the training model -------------
 		try {
-			classifier.save("D:\\bayes.txt");
+			classifier.save("F:\\bayesS.txt");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -156,15 +156,15 @@ public class Test {
 		NaiveBayesClassifier loadClassifier = null;				
 		try {
 			loadClassifier = 
-				(NaiveBayesClassifier) NaiveBayesClassifier.load("D:\\bayes.txt");
+				(NaiveBayesClassifier) NaiveBayesClassifier.load("F:\\bayes.txt");
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		System.out.println("------------------------------------------");
-		System.out.println("Prediction of the test sample is " +
-				loadClassifier.predict(testSample) + ".");
+//		System.out.println("Prediction of the test sample is " +
+//				loadClassifier.predict(testSample) + ".");
 
 	}
 
@@ -320,8 +320,8 @@ public class Test {
 	}
 	
 	public static void main(String[] args) {											
-		//testNaiveBayesClassifier();
-		//testDTreeClasifier();
-		testKDTree();
+		testNaiveBayesClassifier();
+//		//testDTreeClasifier();
+//		testKDTree();
 	}
 }

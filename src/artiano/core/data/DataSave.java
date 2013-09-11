@@ -10,17 +10,16 @@ import artiano.core.structure.Matrix;
 public interface DataSave{
 	/***
 	 * 
-	 * @param mx 矩阵
-	 * @param fileName 保存的路径和文件名
-	 * @param fieldNames 字段描述
+	 * @param key 字符串，可以是文件地址，可以是唯一标识
+	 * @param cache 字节数组
 	 * @return
 	 */
-	boolean save(Matrix mx,String fileName,String[] fieldNames);
+	boolean save(String key,byte[] cache);
 	/***
 	 * 
-	 * @param fileName 保存的路径和文件名
-	 * @return Matrix 
+	 * @param key 字符串，可以是文件地址，可以是唯一标识
+	 * @return
 	 */
-	Matrix load(String fileName);
+	byte[] load(String key);
 
 }

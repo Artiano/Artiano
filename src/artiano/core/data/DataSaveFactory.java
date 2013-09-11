@@ -5,7 +5,7 @@ package artiano.core.data;
  *
  */
 public class DataSaveFactory {
-	private static String saveMethod="JsonData"; //以后通过配置文件来选择储存方式
+	private static String saveMethod="TextFileData"; //以后通过配置文件来选择储存方式
 	/***
 	 * 
 	 * @return DataSave

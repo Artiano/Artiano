@@ -3,15 +3,14 @@
  */
 package artiano.core.operation;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
+import artiano.core.data.DataSave;
+import artiano.core.data.DataSaveFactory;
 
 /**
  * <p>Description: Abstract class of every preservable class. Every preservable class should extends this
@@ -19,60 +18,45 @@ import java.io.Serializable;
  * @author Nano.Michael
  * @version 1.0.0
  * @date 2013-9-7
- * @author (latest modification by Nano.Michael)
+ * @author (latest modification by BreezeDust)
  * @since 1.0.0
  */
 public abstract class Preservable implements Serializable {
-	
 	private static final long serialVersionUID = 1L;
-
-	/**
-	 * save object to specified file
-	 * @param filename Specified file name
-	 * @throws IOException 
-	 */
-	public void save(String filename) throws IOException{
-		FileOutputStream os = new FileOutputStream(new File(filename));
-		save(os);
-	}
-	
-	/**
-	 * save object to output stream
-	 * @param os Specified output stream
+	/***
+	 * 以序列化的形式保存数据，并被适配器转换成任意数据
+	 * @param key 字符串，可以是文件地址，可以是唯一标识
 	 * @throws IOException
 	 */
-	public void save(OutputStream os) throws IOException{
-		ObjectOutputStream oos = new ObjectOutputStream(os);
+	public boolean save(String key) throws IOException{
+		ByteArrayOutputStream cache=new ByteArrayOutputStream();
+		ObjectOutputStream oos = new ObjectOutputStream(cache);
 		oos.writeObject(this);
-		os.flush();
-		os.close();
+		DataSave dataSave=DataSaveFactory.createDataSave();
+		boolean flag=dataSave.save(key,cache.toByteArray());
 		oos.flush();
 		oos.close();
+		cache.close();
+		if(flag) return true;
+		return false;
 	}
-	
-	/**
-	 * load object from specified file
-	 * @param filename Specified file name
-	 * @throws IOException 
-	 * @throws ClassNotFoundException 
+	/***
+	 * 加载保存的数据
+	 * @param key 字符串，可以是文件地址，可以是唯一标识
+	 * @return
+	 * @throws IOException
+	 * @throws ClassNotFoundException
 	 */
-	public static Preservable load(String filename) throws ClassNotFoundException, IOException{
-		FileInputStream fis = new FileInputStream(new File(filename));
-		return load(fis);
-	}
-	
-	/**
-	 * load object from specified input stream
-	 * @param is Specified input stream
-	 * @throws IOException 
-	 * @throws ClassNotFoundException 
-	 */
-	public static Preservable load(InputStream is) throws IOException, ClassNotFoundException{
-		ObjectInputStream ois = new ObjectInputStream(is);
-		Preservable obj = (Preservable) ois.readObject();
-		is.close();
+	public  static Object load(String key) throws IOException, ClassNotFoundException{
+		DataSave dataSave=DataSaveFactory.createDataSave();
+		byte[] cache=dataSave.load(key);
+		ByteArrayInputStream bIn=new ByteArrayInputStream(cache);
+		ObjectInputStream ois = new ObjectInputStream(bIn);
+		Object obj = ois.readObject();
+		bIn.close();
 		ois.close();
 		return obj;
+		
 	}
 	
 }
