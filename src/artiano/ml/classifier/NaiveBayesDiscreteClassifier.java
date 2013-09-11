@@ -18,7 +18,8 @@ public class NaiveBayesDiscreteClassifier {
 	private Map<Integer, Matrix> labelMap = 
 			new LinkedHashMap<Integer, Matrix>(); 
 	private List<Integer> labeList=new LinkedList<Integer>();
-	public boolean train(Matrix trainData,Domain[] domains){
+	public boolean train(Matrix trainData,Domain[] domains,int lableColIndex){
+		Matrix labeMx=trainData.c
 		return false;
 	}
 }

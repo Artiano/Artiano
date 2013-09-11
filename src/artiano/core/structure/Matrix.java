@@ -705,4 +705,16 @@ public class Matrix implements Serializable{
 		this.rowRange = x.rowRange;
 		this.colRange = x.colRange;
 	}
+	/***
+	 * 得到其中的一列
+	 * @param colIndex 列的index
+	 * @return
+	 */
+	public Matrix getSingerCol(int colIndex){
+		Matrix mx=new Matrix(this.rows,1);
+		for(int i=0;i<this.rows;i++){
+			mx.set(i, 0, this.at(i,colIndex));
+		}
+		return mx;
+	}
 }
