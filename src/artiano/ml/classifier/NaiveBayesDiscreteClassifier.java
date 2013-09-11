@@ -20,6 +20,7 @@ public class NaiveBayesDiscreteClassifier {
 	public List<Domain[]> domainList = new LinkedList<Domain[]>();
 	public Matrix[] trainingResults;
 	public double[] plabel;
+	public Matrix trainData;
 	
 	public void group(Matrix trainData,int labelColIndex){
 		Matrix labeMx=trainData.getSingerCol(labelColIndex);
@@ -96,9 +97,70 @@ public class NaiveBayesDiscreteClassifier {
 		
 	}
 	public boolean train(Matrix trainData,String[] domainStr,int labelColIndex){
+		this.trainData=trainData;
 		this.groupDomain(domainStr);
 		this.group(trainData, labelColIndex);
 		this.trainWorkBoot(trainData);
 		return false;
 	}
+	public double testResult(Matrix testMx,int labelIndex){
+		int trueCon=0;
+		for(int i=0;i<testMx.rows();i++){
+			Matrix rowMx=new Matrix(1,testMx.columns()-1);
+			for(int j=0,x=0;j<testMx.columns();j++){
+				if(j!=labelIndex) rowMx.set(0, x++, testMx.at(i,j));
+			}
+			if((int)testMx.at(i,labelIndex)==this.classifier(rowMx)) trueCon++;
+		}
+		double p=(double)trueCon/(double)testMx.rows();
+		System.out.println("trainData:"+this.trainData.rows()+"   testData:"+testMx.rows());
+		System.out.println(p*100+"%");
+		return p;
+		
+	}
+	public int classifier(Matrix mx){
+		Matrix labels=new Matrix(mx.rows(),1);
+		double[][] p=new double[labeList.size()][mx.columns()];
+		for(int con=0;con<labeList.size();con++){
+				for(int j=0;j<mx.columns();j++){
+					double ai=mx.at(0, j);
+					Domain[] dm=domainList.get(j);
+					int index=0;
+					for(int y=0;y<dm.length;y++){
+						if(dm[y].isIn(ai)==0){
+							index=y;
+							break;
+						}
+					}
+					p[con][j]=trainingResults[j].at(con,index+1);
+				}			
+		}
+		double[] maxs=new double[labeList.size()];
+		for(int i=0;i<maxs.length;i++){
+			maxs[i]=1;
+			for(int j=0;j<mx.columns();j++){
+				maxs[i]*=p[i][j];
+			}
+			maxs[i]*=trainingResults[0].at(i,0);
+			Matrix ca=new Matrix(1,mx.columns(),p[i]);
+			System.out.println("****p(ai | y))");
+			ca.print();
+		}
+		Matrix ca=new Matrix(labeList.size(),1,maxs);
+		ca.printAll();
+		int index=getMaxIndex(maxs);
+		System.out.println("==========Label is:"+labeList.get(index));
+		return labeList.get(index);
+		
+	}
+	private int getMaxIndex(double[] maxs){
+		int max=0;
+		for(int con=0;con<maxs.length;con++){
+			if(maxs[con]>maxs[max]){
+				max=con;
+			}
+		}
+		return max;
+	}
+	
 }

@@ -278,7 +278,7 @@ public class Matrix implements Serializable{
 	 */
 	public void set(int i, int j, double value){
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
-			throw new IndexOutOfBoundsException("Matrix set, index out of range.");
+			throw new IndexOutOfBoundsException("Matrix set, index out of range."+" i:"+i+"    j:"+j);
 		d[(i + rowRange.begin()) * dCols + j + colRange.begin()] = value;
 	}
 	
@@ -669,7 +669,18 @@ public class Matrix implements Serializable{
 		}
 		System.out.println("-------------------------");
 	}
-	
+	/***
+	 * 不格式化
+	 */
+	public void printAll(){
+		System.out.println("-------------------------");;
+		for (int i = 0; i < rows; i++){
+			for (int j = 0; j < cols; j++)
+				System.out.print(at(i, j) + " ");
+			System.out.println();
+		}
+		System.out.println("-------------------------");		
+	}
 	/**
 	 * Merge two matrices and store it to current matrix.
 	 * <li>Given matrix x and y, and 
