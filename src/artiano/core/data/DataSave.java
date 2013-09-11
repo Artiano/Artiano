@@ -21,6 +21,6 @@ public interface DataSave{
 	 * @param fileName 保存的路径和文件名
 	 * @return Matrix 
 	 */
-	Matrix get(String fileName);
+	Matrix load(String fileName);
 
 }

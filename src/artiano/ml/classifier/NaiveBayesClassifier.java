@@ -5,6 +5,8 @@ package artiano.ml.classifier;
 
 import java.util.*;
 
+import artiano.core.data.DataSave;
+import artiano.core.data.DataSaveFactory;
 import artiano.core.operation.Preservable;
 import artiano.core.structure.Matrix;
 import artiano.core.structure.Range;
@@ -205,6 +207,7 @@ public class NaiveBayesClassifier extends Preservable {
 				trainingResult.add(count, 1, aver);
 				trainingResult.add(count, 2, stdDeviation);
 
+				
 				count++;
 			}
 		}

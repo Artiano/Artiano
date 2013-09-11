@@ -56,7 +56,7 @@ public class JsonData implements DataSave{
 	}
 
 	@Override
-	public Matrix get(String fileName) {
+	public Matrix load(String fileName) {
 		String jsonStr="";
 		try {
 			Scanner cin=new Scanner(new File(fileName));

@@ -19,7 +19,7 @@ public class test {
 		saveBLL.save(A, "a.txt",names);
 		
 		//获取持久化数据
-		Matrix b=saveBLL.get("a.txt");
+		Matrix b=saveBLL.load("a.txt");
 		b.print();
 	}
 
