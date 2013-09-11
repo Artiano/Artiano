@@ -1,12 +1,13 @@
-package artiano.ml.classifier;
+package artiano.ml.classifier.test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 import artiano.core.structure.Matrix;
+import artiano.ml.classifier.NaiveBayesDiscreteClassifier;
 
-public class Test {
+public class NaiveBayesDiscreteClassifier_Test {
 	public static void main(String[] arg) throws FileNotFoundException{
 		NaiveBayesDiscreteClassifier cs=new NaiveBayesDiscreteClassifier();
 		double[] in=new double[129*14];
