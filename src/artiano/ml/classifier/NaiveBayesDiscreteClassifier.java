@@ -49,6 +49,23 @@ public class NaiveBayesDiscreteClassifier {
 			}
 		}		
 	}
+	public Matrix laPlace(Matrix rowMx,int total){
+		boolean flag=false;
+		for(int i=1;i<rowMx.columns();i++){
+			if(rowMx.at(0, i)==0){
+				flag=true;
+				break;
+			} 
+		}
+		if(flag){
+			for(int i=1;i<rowMx.columns();i++){
+				int times=(int) (total*rowMx.at(0, 0)*rowMx.at(0, i));
+				double newp=(double)(times+1)/(double)(total+rowMx.columns()-1)/rowMx.at(0, 0);
+				rowMx.set(0, i, newp);
+			}
+		}
+		return rowMx;
+	}
 	public Matrix trainWork(Matrix trainData,Domain[] domains,int con){
 		/***
 		 * 计算每个label的概率
@@ -72,6 +89,7 @@ public class NaiveBayesDiscreteClassifier {
 				double pA_Y=pAB/plabel[i];
 				rowMx.set(0,j+1,pA_Y);
 			}
+			rowMx=laPlace(rowMx,rows);
 //			rowMx.print();
 			if(i==0) result=rowMx;
 			if(i>0) result.mergeAfterRow(rowMx);

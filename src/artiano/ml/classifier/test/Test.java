@@ -156,7 +156,7 @@ public class Test {
 		NaiveBayesClassifier loadClassifier = null;				
 		try {
 			loadClassifier = 
-				(NaiveBayesClassifier) NaiveBayesClassifier.load("F:\\bayes.txt");
+				(NaiveBayesClassifier) NaiveBayesClassifier.load("F:\\bayesS.txt");
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

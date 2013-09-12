@@ -40,6 +40,10 @@ public class NaiveBayesDiscreteClassifier_Test {
 		}
 		Matrix ts=new Matrix(49,14,in);
 		cs.testResult(ts, 0);
+//		double[] lpa={0.5,0,0.2,0.4,0.4};
+//		Matrix lp=new Matrix(1,5,lpa);
+//		Matrix ps=cs.laPlace(lp, 20);
+//		ps.printAll();
 	}
 
 }
