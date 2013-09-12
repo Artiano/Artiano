@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import artiano.core.operation.Preservable;
 import artiano.core.structure.Domain;
 import artiano.core.structure.Matrix;
 
@@ -13,7 +14,7 @@ import artiano.core.structure.Matrix;
  * @author BreezeDust
  * 
  */
-public class NaiveBayesDiscreteClassifier {
+public class NaiveBayesDiscreteClassifier extends Preservable{
 	public String[] domainStr;
 	public Map<Integer, Matrix> labelMap = new LinkedHashMap<Integer, Matrix>();
 	public List<Integer> labeList = new LinkedList<Integer>();

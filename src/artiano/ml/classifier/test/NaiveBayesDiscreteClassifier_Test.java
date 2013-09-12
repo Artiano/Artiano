@@ -2,6 +2,7 @@ package artiano.ml.classifier.test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Scanner;
 
 import artiano.core.structure.Matrix;
@@ -40,6 +41,25 @@ public class NaiveBayesDiscreteClassifier_Test {
 		}
 		Matrix ts=new Matrix(49,14,in);
 		cs.testResult(ts, 0);
+		/***
+		 * 序列化接口测试
+		 */
+		try {
+			cs.save("cs.txt");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			NaiveBayesDiscreteClassifier loadcs=(NaiveBayesDiscreteClassifier)NaiveBayesDiscreteClassifier.load("cs.txt");
+			loadcs.trainingResults[0].print();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 //		double[] lpa={0.5,0,0.2,0.4,0.4};
 //		Matrix lp=new Matrix(1,5,lpa);
 //		Matrix ps=cs.laPlace(lp, 20);

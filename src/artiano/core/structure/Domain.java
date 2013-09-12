@@ -1,10 +1,13 @@
 package artiano.core.structure;
+
+import java.io.Serializable;
+
 /***
  * 
  * @author BreezeDust
  *
  */
-public class Domain {
+public class Domain implements Serializable{
 	public double min=0;
 	public double max=0;
 	public String minCD="";

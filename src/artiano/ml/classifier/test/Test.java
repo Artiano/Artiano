@@ -140,7 +140,7 @@ public class Test {
 		
 		//----------------------   Save the training model -------------
 		try {
-			classifier.save("F:\\bayesS.txt");
+			classifier.save("bayesS.txt");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -176,7 +176,7 @@ public class Test {
 		NaiveBayesClassifier loadClassifier = null;				
 		try {
 			loadClassifier = 
-				(NaiveBayesClassifier) NaiveBayesClassifier.load("F:\\bayesS.txt");
+				(NaiveBayesClassifier) NaiveBayesClassifier.load("bayesS.txt");
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
