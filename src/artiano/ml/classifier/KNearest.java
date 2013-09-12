@@ -1,32 +1,25 @@
 package artiano.ml.classifier;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import artiano.core.operation.Preservable;
 import artiano.core.structure.Matrix;
+import artiano.ml.classifier.KDTree.KDNode;
 
 public class KNearest extends Preservable {
 	private static final long serialVersionUID = 1L;
-
-	private Matrix trainData;		//Train data
-	private Matrix trainLabel;		//Train label
-	private boolean isRegression;	//The class used for classifier or regression
-	private KDTree kdTree;			//kd-tree
-	private int labelIndex;			//column index of label in train data matrix
+	
+	@SuppressWarnings("unused")
+	//Indicate whether the class is used for classifier or regression
+	private boolean isRegression;	
+	private KDTree kdTree;			//kd-tree	
 	
 	/* Empty constructor */
 	public KNearest() {	
-	}
-	
-	/**
-	 * constructor
-	 * @param trainData - train data
-	 * @param trainLabel - train labels
-	 * @param isRegression - the class for regression or classification
-	 */
-	public KNearest(Matrix trainData, Matrix trainLabel, 
-			boolean isRegression) {
-		this.trainData = trainData;
-		this.trainLabel = trainLabel;
-		this.isRegression = isRegression;
 	}
 	
 	/**
@@ -39,89 +32,80 @@ public class KNearest extends Preservable {
 	public boolean train(Matrix trainData, Matrix trainLabel, 
 			boolean isRegression) {
 		try {
-			isTrainDataValid(trainData, trainLabel);
-			
-			//Get column index of train label
-			int labelIndex = getLabelIndex(trainData, trainLabel);
-			if(labelIndex == -1) {
-				System.err.println("Train data does not match with train labels.");
-				return false;
-			} else {
-				this.labelIndex = labelIndex;
-			}
-			
+			isTrainDataValid(trainData, trainLabel);						
 		} catch(NullPointerException e) {
 			return false;
-		} 				
+		} catch(IllegalArgumentException e) {
+			e.printStackTrace();
+			return false;
+		}				
 		
-		this.trainData = trainData;
-		this.trainLabel = trainLabel;
-		this.isRegression = isRegression;
-		
-		//Remove train label column from train data
-		Matrix dataWithoutLabel = 
-				removeLabelFromTrainData(trainData);  
-		kdTree = new KDTree(dataWithoutLabel);  //construct kd-tree 
+		this.isRegression = isRegression;		
+		kdTree = new KDTree(trainData, trainLabel);  //construct kd-tree 
 		
 		return true;
-	}
-	
-	/**
-	 * Remove train label column from train data.
-	 * @param trainData - train data
-	 * @return train data without train label column
-	 */
-	private Matrix removeLabelFromTrainData(Matrix trainData) {
-		Matrix dataWithoutLabel = 
-				new Matrix(trainData.rows(), trainData.columns()-1);
-		for(int i=0; i<trainData.rows(); i++) { 
-			int count = 0;
-			for(int j=0; j<trainData.columns(); j++) {
-				if(j != labelIndex) {  //Not class label
-					dataWithoutLabel.set(i, count, trainData.at(i, j));
-					count++;
-				}
-			}
-		}
-		return dataWithoutLabel;
 	}
 
 	/**
 	 * Finds the neighbors and predicts responses for input vectors.
 	 * @param samples - samples to get classification
 	 * @param k - number of used nearest neighbors
-	 * @param results - Vector with results of prediction 
-	 * 			(regression or classification) for each input sample
-	 * @return - If only a single input vector is passed, 
-	 * 				the predicted value is returned by the method
+	 * @return - Vector with results of prediction (regression or classification) 
+	 * 				for each input sample.
 	 */
-/*	public double findNearest(Matrix samples, int k, Matrix results) {
-		//Matrix nearest = kdTree.findKNearest(samples, k);
-	}		
-*/	 
+	public Matrix findNearest(Matrix samples, int k) {
+		Matrix results = new Matrix(samples.rows(), 1);
+		for(int i=0; i<samples.rows(); i++) {
+			results.set(i, 0, findNearestForSingleSample(samples.row(i), k));
+		}
+		return results;									
+	}
+
 	/**
-	 * Get column index of label in train data matrix
-	 * @param trainData - samples to get classification
-	 * @param trainLabel - train labels
-	 * @return - column index of label in train data matrix(-1 if not found).
+	 * Find the most frequent label for a sample
+	 * @param samples - samples to get classification
+	 * @param k - number of used nearest neighbors
+	 * @return - The most frequent label
 	 */
-	private int getLabelIndex(Matrix trainData, Matrix trainLabel) {
-		for(int j=0; j<trainData.columns(); j++) {
-			boolean found = true;
-			for(int i=0; i<trainData.rows(); i++) {
-				if(trainData.at(i, j) != trainLabel.at(i)) {
-					found = false;
-					break;
-				}
-			}
-			
-			if(found) {  //Get column index of train label
-				return j;
-			}
-		}	
+	private double findNearestForSingleSample(Matrix samples, int k) {
+		List<KDNode> nearestNode = kdTree.findKNearest(samples, k);
 		
-		return -1;
-	} 
+		//Count each label
+		Map<Double, Integer> eachLabelCount = countEackLabel(nearestNode);
+		
+		//Find the most frequent label
+		Set<Entry<Double, Integer>> entrySet = eachLabelCount.entrySet();
+		double mostFreqLabel = -1;
+		int maxCount = 0;
+		for(Entry<Double, Integer> entry : entrySet) {
+			if(maxCount < entry.getValue()) {
+				maxCount = entry.getValue();
+				mostFreqLabel = entry.getKey();
+			}
+		}
+		
+		return mostFreqLabel;
+	}
+
+	/**
+	 * Get count of each label
+	 * @param nearestNode - k-nearest neighbors 
+	 * @return count of each label
+	 */
+	private Map<Double, Integer> countEackLabel(List<KDNode> nearestNode) {
+		Map<Double, Integer> eachLabelCount = 
+				new HashMap<Double, Integer>();
+		for(int i=0; i<nearestNode.size(); i++) {
+			KDNode node = nearestNode.get(i);
+			double nodeLabel = node.nodeLabel.at(0);
+			if(!eachLabelCount.containsKey(nodeLabel)) {
+				eachLabelCount.put(nodeLabel, 1);
+			} else {
+				eachLabelCount.put(nodeLabel, eachLabelCount.get(nodeLabel) + 1);
+			}
+		}
+		return eachLabelCount;
+	}			 
 	
 	/**
 	 * Check whether train data is valid
@@ -133,7 +117,11 @@ public class KNearest extends Preservable {
 		// Check whether train data is valid
 		if (trainData == null || trainLabel == null) {
 			throw new NullPointerException("Training data is null");
-		}								
-	} 
-	
+		}
+		
+		if(trainData.rows() != trainLabel.rows()) {
+			throw new IllegalArgumentException("Size of trainData does not" +
+					" match that of trainResponse");
+		}
+	} 	
 }
