@@ -657,6 +657,35 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
+	 * Check whether content of the two matrixes are the same
+	 * @param anotherMat - another matrix
+	 * @return whether content of the two matrixes are the same
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		Matrix anotherMat = (Matrix)obj;
+		if(this.rows() != anotherMat.rows() || this.columns() != anotherMat.columns()) {
+			return false;
+		}
+		
+		//Check whether content of the two matrixes are the same
+		for(int i=0; i<this.rows(); i++) {
+			for(int j=0; j<this.columns(); j++) {
+				if(this.at(i, j) != anotherMat.at(i, j)) {
+					return false;
+				}
+			}
+		}
+		
+		return true;
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.columns() * this.rows();
+	}
+	
+	/**
 	 * secondary function, print the matrix to console
 	 */
 	public void print(){

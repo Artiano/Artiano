@@ -1,4 +1,4 @@
-package artiano.ml.classifier;
+package artiano.ml.clustering;
 
 import java.util.*;
 
@@ -7,10 +7,10 @@ import artiano.core.structure.Range;
 import artiano.ml.BaseKDTree;
 
 /**
- * <p>Description: KD Tree for KNN.</p>
+ * <p>Description: KD Tree for KMeans.</p>
  * @author JohnF Nash
  * @version 1.0.0
- * @date 2013-9-6
+ * @date 2013-9-15
  * @function 
  * @since 1.0.0
  */
@@ -24,22 +24,21 @@ public class KDTree extends BaseKDTree {
 	 * Constructor
 	 * @param dataSet - data set
 	 */
-	public KDTree(Matrix dataSet, Matrix dataLabel) {
-		root = buildKDTree(dataSet, dataLabel);
+	public KDTree(Matrix dataSet) {
+		root = buildKDTree(dataSet);
 	}
-	
+
 	/**
 	 *  Build a kd-tree.
 	 * @param dataSet - data set 
 	 * @return root of the decision tree.
-	 *
 	 */
-	public KDNode buildKDTree(Matrix dataSet, Matrix dataLabel) {
+	public BaseKDNode buildKDTree(Matrix dataSet) {
 		if(dataSet.rows() < 1) {
 			throw new IllegalArgumentException("Empty data set!");
 		}		
 				
-		KDNode root = new KDNode(dataSet, dataLabel); //Initialize the root		
+		BaseKDTree.BaseKDNode root = new BaseKDTree.BaseKDNode(dataSet); //Initialize the root		
 		expandSubKDTree(root);   //KD Tree expand
 		
 		return root;
@@ -51,7 +50,7 @@ public class KDTree extends BaseKDTree {
 	 * @return whether deleting successes. 
 	 */
 	@Override
-	public boolean delete(BaseKDNode nodeToDelete) {
+	protected boolean delete(BaseKDTree.BaseKDNode nodeToDelete) {
 		//The node to delete is the last node in the tree
 		if(root.treeData.rows() == 1) {	  
 			root = null;
@@ -60,35 +59,31 @@ public class KDTree extends BaseKDTree {
 		
 		Matrix newTreeData = 
 				new Matrix(root.treeData.rows() - 1, root.treeData.columns());
-		Matrix newTreeLabel = 
-				new Matrix(((KDNode)root).treeLabel.rows() - 1, ((KDNode)root).treeLabel.columns());
 	
 		/* Broad first search to get newTreeData and newTreeLabel */
 		int count = 0;
-		Queue<KDNode> nodeQueue = new LinkedList<KDNode>();
-		nodeQueue.add(((KDNode)root));
+		Queue<BaseKDTree.BaseKDNode> nodeQueue = new LinkedList<BaseKDTree.BaseKDNode>();
+		nodeQueue.add(root);
 		while(!nodeQueue.isEmpty()) {
-			KDNode node = nodeQueue.poll();
+			BaseKDTree.BaseKDNode node = nodeQueue.poll();
 			if(node != nodeToDelete) {  //not the node to delete
-				newTreeData.setRow(count, node.nodeData);
-				newTreeLabel.setRow(count, node.nodeLabel);
-				
+				newTreeData.setRow(count, node.nodeData);				
 				count++;
 			}						
 			
 			if(node.left != null) {
-				nodeQueue.add((KDNode) node.left);
+				nodeQueue.add(node.left);
 			}
 			
 			if(node.right != null) {
-				nodeQueue.add((KDNode) node.right);
+				nodeQueue.add(node.right);
 			}
 		}
 		
 		if(count == root.treeData.rows()) {  //Not found the node to be deleted
 			return false;
 		} else {
-			root = buildKDTree(newTreeData, newTreeLabel);			
+			root = buildKDTree(newTreeData);			
 			return true;
 		}				
 	}		
@@ -98,13 +93,13 @@ public class KDTree extends BaseKDTree {
 	 * @param target - the data point to search its nearest
 	 * @return nearest data point
 	 */
-	public KDNode findNearest(KDNode root, Matrix target) {
+	public BaseKDTree.BaseKDNode findNearest(BaseKDTree.BaseKDNode root, Matrix target) {
 		/* 1. Binary search to get search path */
-		KDNode current = root;		
+		BaseKDTree.BaseKDNode current = root;		
 		int featureIndex = current.featureIndex;
 		
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		Stack<KDNode> searchPath = new Stack();		
+		Stack<BaseKDTree.BaseKDNode> searchPath = new Stack();		
 		while(current != null) {										
 			searchPath.push(current);	//Push searched node to the stack			
 		
@@ -112,19 +107,19 @@ public class KDTree extends BaseKDTree {
 			
 			//Binary search
 			if(target.at(featureIndex) <= current.partitionValue) {
-				current = (KDNode) current.left;
+				current = current.left;
 			} else {
-				current = (KDNode) current.right;
+				current = current.right;
 			}
 		}
-		KDNode nearestNode = searchPath.peek();	//Node data
+		BaseKDTree.BaseKDNode nearestNode = searchPath.peek();	//Node data
 		double max_dist = distance(nearestNode.nodeData, target);
 		double min_dist = max_dist;		
 		
 		/* 2. trace search */
-		KDNode kd_point = null;		
+		BaseKDTree.BaseKDNode kd_point = null;		
 		while(! searchPath.empty()) {
-			KDNode back_point = searchPath.pop();			
+			BaseKDTree.BaseKDNode back_point = searchPath.pop();			
 			double distance2 = distance(back_point.nodeData, target);
 			if(min_dist > distance2) {
 				min_dist = distance2;
@@ -138,9 +133,9 @@ public class KDTree extends BaseKDTree {
 					back_point.nodeData.col(featureIndex));
 			if(dist1 < max_dist) {  //Get next sub space
 				if(target.at(featureIndex) <= back_point.partitionValue) {
-					kd_point = (KDNode) back_point.right;
+					kd_point = back_point.right;
 				} else {
-					kd_point = (KDNode) back_point.left;
+					kd_point = back_point.left;
 				}
 				
 				if(kd_point != null) {
@@ -165,7 +160,7 @@ public class KDTree extends BaseKDTree {
 	 * KD Tree expand.
 	 * @param kdNode - node of sub KDTree
 	 */
-	private void expandSubKDTree(KDNode kdNode) {
+	private void expandSubKDTree(BaseKDTree.BaseKDNode kdNode) {
 		//Leaf node
 		if(kdNode == null) {	
 			return;
@@ -175,17 +170,17 @@ public class KDTree extends BaseKDTree {
 		
 		//Expand left sub tree of kdNode
 		if(kdNode.left != null) {
-			expandSubKDTree((KDNode) kdNode.left);
+			expandSubKDTree(kdNode.left);
 		}
 		
 		//Expand right sub tree of kdNode
 		if(kdNode.right != null) {
-			expandSubKDTree((KDNode) kdNode.right);
+			expandSubKDTree(kdNode.right);
 		}
 	}
 	
 	//Create left and right children.
-	private void partition_features(KDNode kdNode) {
+	private void partition_features(BaseKDTree.BaseKDNode kdNode) {
 		if(kdNode.treeData == null) {   //Leaf node
 			return;
 		}
@@ -199,10 +194,8 @@ public class KDTree extends BaseKDTree {
 		
 		/* Assign data to left child and right child of kdNode. */
 		Matrix data = kdNode.treeData;
-		Matrix labels = kdNode.treeLabel;
 		kdNode.nodeData = 
 				data.row(data.rows() / 2);		
-		kdNode.nodeLabel = labels.row(data.rows() / 2);
 		kdNode.partitionValue = 
 				data.at(data.rows()/2, partitionFeatureIndex);  //Partition key value.
 		
@@ -210,14 +203,11 @@ public class KDTree extends BaseKDTree {
 		/* Get left sub tree data */
 		int leftDataRowNum = data.rows() / 2; 		
 		Matrix leftData = null;
-		Matrix leftLabel = null;
 		if(leftDataRowNum > 0) {
 			leftData = new Matrix(leftDataRowNum, data.columns());
-			leftLabel = new Matrix(leftDataRowNum, 1);
 			for(int i=0; i< leftDataRowNum; i++) {
 				for(int j=0; j<data.columns(); j++) {
 					leftData.set(i, j, data.at(i, j));
-					leftLabel.set(i, 0, labels.at(i, 0));
 				}
 			}
 		}		
@@ -225,21 +215,18 @@ public class KDTree extends BaseKDTree {
 		/* Get right sub tree data */
 		int rightDataRowNum = data.rows() - leftDataRowNum - 1;
 		Matrix rightData = null;
-		Matrix rightLabel = null;
 		if(rightDataRowNum > 0) {
 			rightData = new Matrix(rightDataRowNum, data.columns());
-			rightLabel = new Matrix(rightDataRowNum, 1);
 			for(int i=0; i<rightDataRowNum; i++) {
 				for(int j=0; j<data.columns(); j++) {
 					rightData.set(i, j, data.at(leftDataRowNum+i+1, j));
-					rightLabel.set(i, 0, labels.at(leftDataRowNum+i+1, 0));
 				}
 			}
 		}		
 		
 		//Set children of kdNode 
-		KDNode leftChild =  new KDNode(leftData, leftLabel);
-		KDNode rightChild = new KDNode(rightData, rightLabel);
+		BaseKDTree.BaseKDNode leftChild =  new BaseKDTree.BaseKDNode(leftData);
+		BaseKDTree.BaseKDNode rightChild = new BaseKDTree.BaseKDNode(rightData);
 		if(leftChild.treeData != null) {
 			kdNode.left = leftChild;
 		}
@@ -254,15 +241,12 @@ public class KDTree extends BaseKDTree {
 	 * @param dataSet - data set
 	 * @param featureIndex - index of feature used to sort the data set 
 	 */
-	private void sortFeatureByIndex(KDNode node, final int featureIndex) {
-		Matrix dataSet = node.treeData;
-		Matrix dataLabel = node.treeLabel;		
+	private void sortFeatureByIndex(BaseKDTree.BaseKDNode node, final int featureIndex) {
+		Matrix dataSet = node.treeData;		
 		
 		List<Matrix> dataList = new ArrayList<Matrix>();
-		List<Matrix> labelList =  new ArrayList<Matrix>();
 		for(int i=0; i<dataSet.rows(); i++) {
 			dataList.add(dataSet.at(new Range(i,i+1), new Range(0, dataSet.columns())));
-			labelList.add(dataLabel.at(new Range(i,i+1), new Range(0, dataLabel.columns())));
 		}
 				
 		//Sort treeData
@@ -276,14 +260,7 @@ public class KDTree extends BaseKDTree {
 				if(mat1.at(featureIndex) > mat2.at(featureIndex)){
 					//Swap mat1 with mat2											
 					dataList.set(i, mat2);
-					dataList.set(i + 1, mat1);
-					
-					//Swap labelMat1 with labelMat2
-					Matrix labelMat1 = labelList.get(i);
-					Matrix labelMat2 = labelList.get(i + 1);
-					labelList.set(i, labelMat2);
-					labelList.set(i + 1, labelMat1);
-					needNextPass = true;  //Next pass still needed
+					dataList.set(i + 1, mat1);									
 				}				
 			}
 		}		
@@ -299,29 +276,17 @@ public class KDTree extends BaseKDTree {
 		}
 		Matrix sortedTreeData = 
 				new Matrix(dataSet.rows(), dataSet.columns(), data);
-		node.treeData = sortedTreeData;
-		
-		//Get sorted tree label matrix
-		double[] label = new double[dataLabel.rows() * dataLabel.columns()];
-		for(int i=0; i<dataLabel.rows(); i++) {
-			Matrix currentLabel = labelList.get(i);
-			for(int j=0; j<dataLabel.columns(); j++) {
-				label[i * dataLabel.columns() + j] = currentLabel.at(j);
-			}
-		}
-		Matrix sortedTreeLabel = 
-				new Matrix(dataLabel.rows(), dataLabel.columns(), label);
-		node.treeLabel = sortedTreeLabel;				
+		node.treeData = sortedTreeData;						
 	}
-	
+
 	/**
 	 * Find k-nearest of target data point
 	 * @param target - the data point to search its k-nearest
 	 * @param k - number of nearest to get
 	 * @return - k-nearest data point of target data point
 	 */
-	public List<KDNode> findKNearest(Matrix target, int k) {
-		List<KDNode> kNearest = new ArrayList<KDNode>();
+	public List<BaseKDNode> findKNearest(Matrix target, int k) {
+		List<BaseKDNode> kNearest = new ArrayList<BaseKDNode>();
 		
 		if(root == null) {
 			return null;
@@ -329,32 +294,15 @@ public class KDTree extends BaseKDTree {
 										
 		KDTree tree = new KDTree();
 		Matrix copyData = root.treeData.clone();
-		Matrix copyLabel = ((KDNode)root).treeLabel.clone();
-		tree.root = tree.buildKDTree(copyData, copyLabel);
+		tree.root = tree.buildKDTree(copyData);
 						
 		//Find (1+1)-th nearest respectively.
 		for(int i=0; i<k; i++) {
-			KDNode nearestNode = tree.findNearest(((KDNode)tree.root), target);		
-			nearestNode.nodeData.print();
+			BaseKDNode nearestNode = tree.findNearest(tree.root, target);		
 			kNearest.add(nearestNode);
 			tree.delete(nearestNode);
 		}
 						
 		return kNearest;
-	}
-
-	//Node of KDTree	
-	public static class KDNode extends BaseKDNode {		
-		public Matrix treeLabel;	//class labels of the sub tree
-		Matrix nodeLabel;		//class label of this node.
-		
-		KDNode(Matrix data, Matrix treeLabel) {
-			super(data);
-			this.treeLabel = treeLabel;
-		}
-		
-		KDNode(int featureIndex, double value, Matrix nodeData) {
-			super(featureIndex, value, nodeData);
-		}
 	}
 }
