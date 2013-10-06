@@ -62,7 +62,7 @@ public class GAtest extends artiano.ga.Population{
 	}
 	public static void main(String[] args){
 		GAtest ts=new GAtest();
-		ts.setPopulation(new RouletteMethod(), 133, 500);
+		ts.setPopulation(new RouletteMethod(), 133, 500,10);
 		ts.runGA();
 	}
 

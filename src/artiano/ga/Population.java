@@ -13,6 +13,8 @@ public abstract class Population {
 	public ISelectMethod selectMethod;
 	public double expValue;
 	public int MAXcount;
+	private long mutationC=0;
+	public long mutationMAX=0;
 	public abstract void codeing();
 	public abstract void decodeing();
 	public abstract void init();
@@ -20,7 +22,7 @@ public abstract class Population {
 	public abstract boolean isTrueChromosome(SuperChromosome o);
 	
 	
-	public void setPopulation(ISelectMethod selectMethod,double expValue,int MAXcount){
+	public void setPopulation(ISelectMethod selectMethod,double expValue,int MAXcount,long mutationMAX){
 		this.selectMethod=selectMethod;
 		this.expValue=expValue;
 		this.MAXcount=MAXcount;
@@ -48,8 +50,22 @@ public abstract class Population {
 		}
 		
 	}
-	public SuperChromosome mutation(SuperChromosome chromosome) {
-		return chromosome;
+	public SuperChromosome mutation(SuperChromosome o) {
+		mutationC+=o.key.length();
+		if(mutationC>=mutationMAX){
+			int index=(int)Math.round(Math.random() * (o.key.length()-1));
+			char[] tmp=o.key.toCharArray();
+			System.out.println("---to mutation---> "+o.key);
+			if(tmp[index]=='0') {
+				tmp[index]='1';
+			}
+			else{
+				tmp[index]='0';
+			}
+			o.key=new String(tmp);
+			System.out.println("---to mutationed---> index:["+index+"]   "+o.key);
+		}
+		return o;
 	}
 	public boolean toGA(){  //选择
 		Set<String> keySet=this.SAVE.keySet();
