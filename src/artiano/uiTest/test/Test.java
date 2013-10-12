@@ -21,9 +21,9 @@ public class Test {
 			{ 8.0, 20.94 }, { 9.0, 16.73 }, { 10.0, 14.21 }, { 11.0, 12.44 } };
 
 	public static void main(String[] args) {
-		 testScatteredPoint();
+		 //testScatteredPoint();
 		// testLinearRegression();
-		// testPowerRegression();
+		   testPowerRegression();
 	}
 
 	
