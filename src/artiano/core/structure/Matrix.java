@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 
 /**
- * <p>Description: Basic structure matrix, contains amount of operation on matrix.</p>
+ * <p>基础数据类，表示矩阵。向量、矩阵都由此类表示。</p>
  * @author Nano.Michael
  * @version 1.0.0
  * @date 2013-8-20
@@ -18,51 +18,57 @@ public class Matrix implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	/**
-	 * columns of the matrix
+	 * 矩阵的列数
 	 */
 	protected int cols = 0;
 	/**
-	 * rows of the matrix
+	 * 矩阵的行数
 	 */
 	protected int rows = 0;
 	/**
-	 * data of the matrix
+	 * 保存矩阵的数据
 	 */
 	protected double[] d = null;
 	/**
-	 * data columns, the original columns of the matrix
+	 * 数据列数，最原始矩阵的列数
 	 */
 	protected int dCols = 0;
 	/**
-	 * row range of the original matrix, while rowRange is specified, the start of the row index is
-	 * rowRange.begin() relative to the original matrix, and the end index of the row index is rowRange.end(). 
-	 * For example: while rowRange.start==2 and rowRange.end==5, the start and the end of the row index is 2
-	 * and 4 relatively.
+	 * 相对于最原始矩阵（由构造方法得到）的行范围，最初这个字段应该等于Range.all()，当rowRange被声明，则这个矩阵的行开始
+	 * 下标相对于最初的矩阵的行为rowRange.begin()，矩阵的行结束下标相对于最初的矩阵行为rowRange.end()。举个列子：
+	 * 当<code>rowRange.start==2</code>且<code>rowRange.end==5</code>时，那么这个矩阵相对于最原始矩阵的行的开始
+	 * 和结束下标为2和5。这个字段一般由：
+	 * @see #at(Range, Range)
+	 * @see #set(Range, Range, Matrix)
+	 * 使用
 	 */
 	protected Range rowRange = null;
 	/**
-	 * column range of the original matrix.
+	 * 相对于最原始矩阵的列范围，解释同
+	 * @see #rowRange
 	 */
 	protected Range colRange = null;
 	
 	private Matrix(){ }
 	
 	/**
-	 * Create a matrix with specified rows and columns.
-	 * @param rows Rows of the matrix.
-	 * @param cols Columns of the matrix.
+	 * 使用声明的行数rows和列数cols构造一个矩阵，此时内存已经被分配
+	 * @param rows 矩阵行数。
+	 * @param cols 矩阵列数
 	 */
 	public Matrix(int rows, int cols){
 		this(rows, cols, new double[cols * rows]);
 	}
 	
 	/**
-	 * Create a matrix with specified rows and columns that holds data.
-	 * <li><b><i>NOTICE:</i></b> If the size (size=rows*columns) of the matrix is less than the length of the data, the program 
-	 * can normally running, but that is not recommended.</li>
-	 * @param rows Rows of the matrix.
-	 * @param cols Columns of the matrix.
-	 * @param data Data to hold.
+	 * 使用声明的行数和列数以及预先分配的双精度浮点型数据构造一个矩阵。
+	 * <b><i>NOTICE:</i></b> 如果矩阵的大小（等于行数*列数）小于预先存储的数据的长度，程序能够正常的运行，但是并不
+	 * 推荐这样做。
+	 * 参见：
+	 * @see #Matrix(int, int)
+	 * @param rows 矩阵行数。
+	 * @param cols 矩阵列数。
+	 * @param data 预先存储的数据。
 	 */
 	public Matrix(int rows, int cols, double[] data){
 		if (cols <= 0 || rows <= 0)
@@ -78,7 +84,7 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * set the zero to the matrix
+	 * 将矩阵清零。
 	 */
 	public void clear(){
 		for (int i = 0; i < rows; i++)
@@ -87,8 +93,9 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Copy current matrix to destination.
-	 * @param x Destination matrix
+	 * 将矩阵拷贝到另外一个矩阵，此时，这两个矩阵必须是同型的，数据将完全拷贝到新的矩阵，但是新的矩阵将和当前的矩阵
+	 * 是完全独立的。
+	 * @param x 目标矩阵。
 	 */
 	public void copyTo(Matrix x){
 		if (x.rows != rows || x.cols != cols)
@@ -99,52 +106,54 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Get data stored in the matrix.
-	 * @return Data
+	 * 获取存储于矩阵中的数据。
+	 * @return 数据
 	 */
 	public double[] data(){
 		return this.d;
 	}
 	
 	/**
-	 * Get columns.
-	 * @return Columns of the matrix.
+	 * 获取矩阵的列数。
+	 * @return 矩阵的列数。
 	 */
 	public int columns(){
 		return this.cols;
 	}
 	
 	/**
-	 * Get rows
-	 * @return - Rows of the matrix.
+	 * 获取矩阵的行数。
+	 * @return 矩阵行数。
 	 */
 	public int rows(){
 		return this.rows;
 	}
 	
 	/**
-	 * Get the row vector at row i of the matrix.
-	 * @param i Row index
-	 * @return Row vector with specified row index.
+	 * 获取矩阵在行下标为i处的行向量。
+	 * @param i 行下标。
+	 * @return 特定的行向量。
 	 */
 	public Matrix row(int i){
 		return at(new Range(i, i+1), Range.all());
 	}
 	
 	/**
-	 * Get the column vector at column i of the matrix.
-	 * @param i Column index
-	 * @return Column vector with specified column index.
+	 * 获取矩阵在列下标为i处的列向量。
+	 * @param i 列下标。
+	 * @return 特定的列向量。
 	 */
 	public Matrix col(int i){
 		return at(Range.all(), new Range(i, i+1));
 	}
 	
 	/**
-	 * Create a matrix like A=u*I, I is unit matrix, u is a scale.
-	 * @param size Matrix size (size=rows=columns)
-	 * @param scale Value to set
-	 * @return A diagonal matrix.
+	 * 构造一个矩阵形如 A=u*I, I 是单位向量, u 是一个标量。
+	 * @param 矩阵的边长。 (size=rows=columns)
+	 * @param scale 缩放比列。
+	 * @return A 
+	 * 参见：
+	 * @see #unit(int)
 	 */
 	public static Matrix unit(int size, double scale){
 		Matrix x = new Matrix(size, size);
@@ -154,20 +163,24 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Create a unit matrix
-	 * @param size Matrix size (size=rows=columns)
-	 * @return Unit matrix
+	 * 构造一个单位矩阵。
+	 * @param size 矩阵边长。(size=rows=columns)
+	 * @return 单位矩阵。
+	 * 参见：
+	 * @see #unit(int, double)
 	 */
 	public static Matrix unit(int size){
 		return unit(size, 1.);
 	}
 	
 	/**
-	 * Create a matrix that all the element hold the same number.
-	 * @param rows Rows of the matrix
-	 * @param cols Columns of the matrix
-	 * @param scale The scale want to set
-	 * @return A matrix that all the element hold the same number.
+	 * 构造一个所有元素具有相同数据的矩阵，形如：A=N*scale，N为1矩阵，scale为缩放比例。
+	 * @param rows 矩阵行数。
+	 * @param cols 矩阵列数。
+	 * @param scale 缩放比例。
+	 * @return A 
+	 * 参见：
+	 * @see #ones(int, int)
 	 */
 	public static Matrix ones(int rows, int cols, double scale){
 		Matrix x = new Matrix(rows, cols);
@@ -178,18 +191,20 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Create a matrix that all the element is 1
-	 * @param rows Rows of the matrix
-	 * @param cols Columns of the matrix
-	 * @return
+	 * 构造一个所有元素为1的矩阵。
+	 * @param rows 矩阵行数。
+	 * @param cols 矩阵列数。
+	 * @return A
+	 * 参见：
+	 * @see #ones(int, int, double)
 	 */
 	public static Matrix ones(int rows, int cols){
 		return ones(rows, cols, 1.);
 	}
 	
 	/**
-	 * Calculate the trace of the matrix
-	 * @return Trace of the matrix
+	 * 计算矩阵的迹。
+	 * @return 矩阵的迹。
 	 */
 	public double trace(){
 		if (rows != cols)
@@ -201,9 +216,12 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Get element value at index i while the matrix is a vector (both row vector and column vector).
-	 * @param i Index
-	 * @return Value at the index i
+	 * 获取矩阵在下标i处的值（行向量或列向量均可）。
+	 * @param i 下标。
+	 * @return 值。
+	 * 参见：
+	 * @see #at(int, int)
+	 * @see #at(Range, Range)
 	 */
 	public double at(int i){
 		if (rows != 1 && cols != 1)
@@ -215,10 +233,10 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Get the element value at row i and column j.
-	 * @param i Row index
-	 * @param j Column index
-	 * @return Value of row i column j
+	 * 获取矩阵在行下标为i列下标为j处的值。
+	 * @param i 行下标。
+	 * @param j 列下标。
+	 * @return 值。
 	 */
 	public double at(int i, int j){
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
@@ -227,14 +245,18 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Get the sub-matrix determined by the row range and column range
-	 * <li><b><i>NOTICE:</i></b> The data will not be copied. If you want to get a copy of the sub-matrix, you should
-	 * write code like:
+	 * 获取由行范围和列范围决定的子矩阵。
+	 * <b><i>NOTICE:</i></b> 由这种方式获取的子矩阵将不会被拷贝，如果你想获得矩阵的子矩阵，并且需要修改其中的值，但是
+	 * 又不希望原始矩阵中的值被改变，你应该编写像如下代码：
+	 * <pre>
 	 * <code><br>Matrix y=new Matrix(2,2); //create a new matrix with 2 rows and 2 columns
-	 * <br>x.at(new Range(1,3), new Range(2,4).copyTo(y); //copy the sub-matrix of x to y</code></li>
+	 * <br>x.at(new Range(1,3), new Range(2,4).copyTo(y); //copy the sub-matrix of x to y</code>
+	 * <pre>
 	 * @param row  Row range
 	 * @param col Column range
 	 * @return A sub-matrix of the matrix
+	 * 参见：
+	 * @see #copyTo(Matrix)
 	 */
 	public Matrix at(Range row, Range col){
 		row = row.equals(Range.all()) ? this.rowRange:
@@ -257,9 +279,12 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Set the value to the index i of the matrix while it is a vector (both row vector and column vector)
-	 * @param i Index
-	 * @param value Value to set
+	 * 设置<i>向量</i>在下标i处的值（行向量或列向量。
+	 * @param i 下标。
+	 * @param value 需要设置的值。
+	 * 参见：
+	 * @see #set(int, int, double)
+	 * @see #set(Range, Range, Matrix)
 	 */
 	public void set(int i, double value){
 		if (rows != 1 && cols != 1)
@@ -271,10 +296,13 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Set a value to row i column j
-	 * @param i Row index
-	 * @param j Column index
-	 * @param value Value to set
+	 * 设置矩阵在行下标i以及列下标j出的值。
+	 * @param i 行下标。
+	 * @param j 列下标。
+	 * @param value 需要设置的值。
+	 * 参见：
+	 * @see #set(int, double)
+	 * @see #set(Range, Range, Matrix)
 	 */
 	public void set(int i, int j, double value){
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
@@ -283,10 +311,14 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Set the value of the specified matrix to the specified sub-matrix of current matrix.
-	 * @param row Row range
-	 * @param col Column range
-	 * @param value Matrix to set
+	 * 设置有行范围和列范围决定的子矩阵的值。
+	 * <b><i>NOICE:</i><b>只是将声明的矩阵值拷贝到子矩阵。
+	 * @param row 行范围。
+	 * @param col 列范围。
+	 * @param value 需要设置的矩阵的值。
+	 * 参见：
+	 * @see #set(int, double)
+	 * @see #set(int, int, double)
 	 */
 	public void set(Range row, Range col, Matrix value){
 		Matrix x = at(row, col);
@@ -298,9 +330,9 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Set the value of the specified row to the matrix
-	 * @param i Row index
-	 * @param value Row vector to set
+	 * 设置矩阵在行i处的值。
+	 * @param i 行下标。
+	 * @param value 要设置的值。
 	 */
 	public void setRow(int i, Matrix value){
 		if (value.rows != 1)
@@ -312,9 +344,9 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Set the value of the specified column to the matrix.
-	 * @param i Column index
-	 * @param value Column vector to set
+	 * 设置矩阵在列i处的值。
+	 * @param i 列下标。
+	 * @param value 要设置的值。
 	 */
 	public void setCol(int i, Matrix value){
 		if (value.cols != 1)
@@ -326,8 +358,8 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Transpose the matrix
-	 * @return Transpose of the matrix
+	 * 转置当前矩阵。
+	 * @return 矩阵的转置。
 	 */
 	public Matrix t(){
 		Matrix x = new Matrix(cols, rows);
@@ -338,21 +370,32 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Matrix addition (z = x + y)
-	 * <li><b><i>NOTICE:</i></b> The method will replace the matrix with the new matrix after added.</li>
-	 * @param x Matrix to add
-	 * @return Result
+	 * 矩阵加法 (z = x + y)
+	 * <b><i>NOTICE:</i></b> 这个方法将用相加后的结果替换原始矩阵。
+	 * @param x 
+	 * @return 结果。
+	 * 参见：
+	 * @see #add(Number)
+	 * @see #add(Matrix, boolean)
+	 * @see #add(Number, boolean)
+	 * @see #add(int, int, Number)
 	 */
 	public Matrix add(Matrix x){
 		return add(x,false);
 	}
 	
 	/**
-	 * Matrix addition
-	 * @param x Matrix to add
-	 * @param reserve Indicate replace the matrix whether or not, if parameter <code>reserve</code> is false,
-	 * the program will replace the matrix with the new matrix after added.
-	 * @return Result
+	 * 矩阵加法 (z = x + y)
+	 * @param x 
+	 * @param reserve 指示是否保留原始矩阵。如果<code>reserve==true</code>，方法同
+	 * @see #add(Matrix)
+	 * 否则，程序将保留原始矩阵。
+	 * @return 结果
+	 * 参见：
+	 * @see #add(Matrix)
+	 * @see #add(Number)
+	 * @see #add(Number, boolean)
+	 * @see #add(int, int, Number)
 	 */
 	public Matrix add(Matrix x, boolean reserve){
 		if (rows != x.rows || cols != x.cols)
@@ -365,11 +408,17 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Matrix addition (z=x+y, x is a scale)
-	 * @param x Number to add
-	 * @param reserve Indicate replace the matrix whether or not, if parameter <code>reserve</code> is false,
-	 * the program will replace the matrix with the new matrix after added.
-	 * @return - result
+	 * 矩阵加法 (z=x+y, x 为标量)
+	 * @param x 
+	 * @param reserve 指示是否保留原始矩阵。如果<code>reserve==true</code>，方法同
+	 * @see #add(Number)
+	 * 否则，程序将保留原始矩阵。
+	 * @return 结果
+	 * 参见：
+	 * @see #add(Matrix)
+	 * @see #add(Number)
+	 * @see #add(Matrix, boolean)
+	 * @see #add(int, int, Number)
 	 */
 	public Matrix add(Number x, boolean reserve){
 		Matrix y = reserve ? new Matrix(rows, cols): this;
@@ -380,20 +429,25 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Matrix addition (z=x+y, x is scale)
-	 * <li><b><i>NOTICE:</i></b> The method will replace the matrix with new matrix after added.</li>
-	 * @param x Number to add
-	 * @return Result
+	 * 矩阵加法 (z=x+y, x 为标量)
+	 *  <b><i>NOTICE:</i></b> 这个方法将用相加后的结果替换原始矩阵。
+	 * @param x 
+	 * @return 结果。
+	 * 参见：
+	 * @see #add(Matrix)
+	 * @see #add(Matrix, boolean)
+	 * @see #add(Number, boolean)
+	 * @see #add(int, int, Number)
 	 */
 	public Matrix add(Number x){
 		return add(x,false);
 	}
 	
 	/**
-	 * Add a value to row i column j.
-	 * @param i Row index
-	 * @param j Column index
-	 * @param value Value to add
+	 * 在矩阵行i列j处加上一个数。
+	 * @param i 行下标。
+	 * @param j 列下标。
+	 * @param value 需要加的数。
 	 */
 	public void add(int i, int j, Number value){
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
@@ -402,10 +456,10 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Element of row i column j subtract the specified number.
-	 * @param i Row index
-	 * @param j Column index
-	 * @param value Value to subtract
+	 * 在矩阵行i列j处减去一个数。
+	 * @param i 行下标。
+	 * @param j 列下标。
+	 * @param value 需要减的数。
 	 */
 	public void subtract(int i, int j, Number value){
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
@@ -414,21 +468,36 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Matrix subtraction (z=x-y)
-	 * <li><b><i>NOTICE:</i></b> The method will replace the matrix with new matrix after subtracted.</li>
-	 * @param x Matrix to subtract
-	 * @return Result
+	 * 矩阵减法 (z=x-y)
+	 * <b><i>NOTICE:</i></b> 方法将用结果替换原始矩阵。如果想保留原始矩阵，使用如下代码：
+	 * <pre><code>
+	 * Matrix z=x.subtract(y);
+	 * </code>
+	 * </pre>
+	 * @param x 
+	 * @return 结果
+	 * 参见：
+	 * @see #subtract(Number)
+	 * @see #subtract(Matrix, boolean)
+	 * @see #subtract(int, int, Number)
+	 * @see #subtract(Number, boolean)
 	 */
 	public Matrix subtract(Matrix x){
 		return subtract(x,false);
 	}
 	
 	/**
-	 * Matrix subtraction (z=x-y)
-	 * @param x Matrix to subtract
-	 * @param reserve Indicate replace the matrix whether or not, if parameter <code>reserve</code> is false,
-	 * the program will replace the matrix with the new matrix after subtracted.
-	 * @return Result
+	 * 矩阵减法 (z=x-y)
+	 * @param x 
+	 * @param reserve 指示是否保留原始矩阵。如果参数 <code>reserve==true</code>，方法将保留原始矩阵，并返回计算
+	 * 结果。否则，方法同
+	 * @see #subtract(Matrix)
+	 * @return 结果
+	 * 参见：
+	 * @see #subtract(Number)
+	 * @see #subtract(Matrix)
+	 * @see #subtract(int, int, Number)
+	 * @see #subtract(Number, boolean)
 	 */
 	public Matrix subtract(Matrix x, boolean reserve){
 		if (x.rows != rows || x.cols != cols)
@@ -441,21 +510,35 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Matrix subtraction (z=x-y, x is a scale)
-	 * <li><b><i>NOTICE:</i></b> The method will replace the matrix with new matrix after subtracted.</li>
-	 * @param x Number to subtract
-	 * @return Result
+	 * 矩阵减法 (z=x-y, y 为标量)
+	 * <b><i>NOTICE:</i></b> 方法将用结果替换原始矩阵。如果想保留原始矩阵，使用如下代码：
+	 * <pre><code>
+	 * Matrix z=x.subtract(y);
+	 * </code>
+	 * </pre>
+	 * @param x 
+	 * @return 结果
+	 * 参见：
+	 * @see #subtract(Matrix)
+	 * @see #subtract(Matrix, boolean)
+	 * @see #subtract(int, int, Number)
+	 * @see #subtract(Number, boolean)
 	 */
 	public Matrix subtract(Number x){
 		return subtract(x, false);
 	}
 	
 	/**
-	 * Matrix subtraction (z=x-y, x is a scale)
-	 * @param x Number to subtract
-	 * @param reserve Indicate replace the matrix whether or not, if parameter <code>reserve</code> is false,
-	 * the program will replace the matrix with the new matrix after subtracted.
-	 * @return Result
+	 * 矩阵减法 (z=x-y, x is a scale)
+	 * @param x
+	 * @param reserve 指示是否保留原始矩阵， 如果参数 <code>reserve==true</code>，方法将保留原始矩阵。
+	 * 否则，方法同:
+	 * @see #subtract(Number)
+	 * @return 结果
+	 * @see #subtract(Matrix)
+	 * @see #subtract(Matrix, boolean)
+	 * @see #subtract(int, int, Number)
+	 * @see #subtract(Number)
 	 */
 	public Matrix subtract(Number x, boolean reserve){
 		Matrix y = reserve ? new Matrix(rows, cols): this;
@@ -466,9 +549,12 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Matrix multiplication (z=x*y)
-	 * @param x Right side matrix, y
-	 * @return Result
+	 * 矩阵乘法 (z=x*y)
+	 * @param x
+	 * @return 结果
+	 * @see #multiply(Number)
+	 * @see #multiply(Number, boolean)
+	 * @see #multiply(int, int, Number)
 	 */
 	public Matrix multiply(Matrix x){
 		if (x.rows != cols)
@@ -485,11 +571,15 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * matrix multiplication (z=x*y, x is scale)
-	 * @param x Specified number to multiply.
-	 * @param reserve Indicate replace the matrix whether or not, if parameter <code>reserve</code> is false,
-	 * the program will replace the matrix with the new matrix after multiplied.
-	 * @return Result
+	 * 矩阵数乘
+	 * @param x
+	 * @param reserve 指示是否保留原始矩阵， 如果参数 <code>reserve==true</code>，方法将保留原始矩阵。
+	 * 否则，方法同:
+	 * @see #multiply(Number)
+	 * @return 结果
+	 * @see #multiply(Matrix)
+	 * @see #multiply(Number)
+	 * @see #multiply(int, int, Number)
 	 */
 	public Matrix multiply(Number x, boolean reserve){
 		Matrix y = reserve ? new Matrix(rows, cols): this;
@@ -500,20 +590,27 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Matrix multiplication (z=x*y, x is scale)
-	 * <li><b><i>NOTICE:</i></b> The method will replace the matrix with new matrix after multiplied.</li>
-	 * @param x Specified number to multiply.
-	 * @return Result.
+	 * 矩阵数乘
+	 * <b><i>NOTICE:</i></b> 方法将用结果替换原始矩阵。
+	 * @param x 
+	 * @param x
+	 * @return 结果
+	 * @see #multiply(Matrix)
+	 * @see #multiply(Number)
+	 * @see #multiply(int, int, Number)
 	 */
 	public Matrix multiply(Number x){
 		return multiply(x,false);
 	}
 	
 	/**
-	 * Value at row i column j multiply specified number.
-	 * @param i Row index
-	 * @param j Column index
-	 * @param x Number to multiply
+	 * 在行i列j处乘以一个数。
+	 * @param i 行下标。
+	 * @param j 列下标。
+	 * @param x
+	 * @see #multiply(Matrix)
+	 * @see #multiply(Number)
+	 * @see #multiply(Number, boolean)
 	 */
 	public void multiply(int i, int j, Number x){
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
@@ -522,10 +619,12 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Matrix value at row i column j divide a number.
-	 * @param i Row index
-	 * @param j Column index
-	 * @param x Number to divide
+	 * 在矩阵行i列j处除去一个数。
+	 * @param i 行下标。
+	 * @param j 列下标。
+	 * @param x 
+	 * @see #divide(Number)
+	 * @see #divide(Number, boolean)
 	 */
 	public void divide(int i, int j, Number x){
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
@@ -534,21 +633,23 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Matrix division (z=x/y, y is scale)
-	 * <li><b><i>NOTICE:</i></b> The method will replace the matrix with new matrix after divided</li>
-	 * @param x Number to divide
-	 * @return Result
+	 * 矩阵除法 (z=x/y, y 为标量)
+	 * <b><i>NOTICE:</i></b> 方法将用结果替换原始矩阵。
+	 * @param x 
+	 * @return 结果。
+	 * @see #divide(Number, boolean)
+	 * @see #divide(int, int, Number)
 	 */
 	public Matrix divide(Number x){
 		return divide(x,false);
 	}
 	
 	/**
-	 * Matrix division (z=x/y, y is scale)
-	 * @param x Number to divide
-	 * @param reserve Indicate replace the matrix whether or not, if parameter <code>reserve</code> is false,
-	 * the program will replace the matrix with the new matrix after divided.
-	 * @return Result
+	 * 矩阵除法(z=x/y, y 为标量)
+	 * @param x 
+	 * @param reserve 指示是否保留原始矩阵，如果参数 <code>reserve==true</code>，方法将保留原始矩阵，否则，方法同：
+	 * @see #divide(Number)
+	 * @return 结果
 	 */
 	public Matrix divide(Number x, boolean reserve){
 		if (x.doubleValue() == 0.)
@@ -561,8 +662,9 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Calculate the mean vector of every row.
-	 * @return Mean vector
+	 * 计算矩阵的行向量集合的均值向量。
+	 * @return 均值向量。
+	 * @see #colMean()
 	 */
 	public Matrix rowMean(){
 		Matrix mean = new Matrix(1, cols);
@@ -573,8 +675,9 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Calculate the mean vector of every column.
-	 * @return Mean vector
+	 * 计算矩阵的列向量集合的均值向量。
+	 * @return 均值向量。
+	 * @see #rowMean()
 	 */
 	public Matrix colMean(){
 		Matrix mean = new Matrix(rows, 1);
@@ -585,10 +688,11 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Calculate the square root of the matrix
-	 * @param reserve Indicate replace the matrix whether or not, if parameter <code>reserve</code> is false,
-	 * the program will replace the matrix with the new matrix after calculated.
-	 * @return Result
+	 * 对矩阵开根。
+	 * @param reserve 指示是否保留原始矩阵，如果参数 <code>reserve==true</code>，方法将保留原始矩阵，否则，方法同：
+	 * @see #sqrt()
+	 * @return 结果。
+	 * @see #sqrt()
 	 */
 	public Matrix sqrt(boolean reserve){
 		Matrix x = reserve? new Matrix(rows, cols): this;
@@ -599,18 +703,19 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Calculate the square root of the matrix
-	 * <li><b><i>NOTICE:</i></b> The method will replace the matrix with new matrix after calculated.</li>
-	 * @return Result
+	 * 对矩阵开根。
+	 * <b><i>NOTICE:</i></b> 方法将使用计算结果替换原始矩阵。
+	 * @return 结果。
+	 * @see #sqrt(boolean)
 	 */
 	public Matrix sqrt(){
 		return sqrt(false);
 	}
 	
 	/**
-	 * Calculate the difference between current matrix and specified matrix x.
-	 * <li>Given matrix x and y, the method to calculate the difference is:
-	 * <br>difference=sum[abs(x(i,j)-y(i,j)]</li>
+	 * 计算两个矩阵之间的差别。
+	 * <p>给定两个矩阵x、y，它们之间的差别计算为：
+	 * <br><i>差别<code>=sum[abs(x(i,j)-y(i,j)]</code></i></p>
 	 * @param x Input matrix x
 	 * @return Difference
 	 */
@@ -625,9 +730,9 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Calculate the l2-norm between current matrix and specified matrix x
-	 * <li>Given matrix x and y, the method to calculate the l2-norm is:
-	 * <br>l2-norm=sqrt{sum[x(i, j) - y(i, j)]}</li>
+	 * 计算两个矩阵的l2范数。
+	 * <p>给定两个矩阵x、y，l2范数的计算方法为：
+	 * <br><i><code>l2-norm=sqrt{sum[x(i, j) - y(i, j)]}</code></i></p>
 	 * @param x
 	 * @return - l2-norm
 	 */
@@ -645,7 +750,7 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * clone a matrix, data will copied
+	 * 克隆一个矩阵。
 	 */
 	@Override
 	public Matrix clone(){
@@ -657,9 +762,9 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * Check whether content of the two matrixes are the same
-	 * @param anotherMat - another matrix
-	 * @return whether content of the two matrixes are the same
+	 * 检查两个矩阵是否相等。
+	 * @param anotherMat
+	 * @return
 	 */
 	@Override
 	public boolean equals(Object obj) {
@@ -686,7 +791,7 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
-	 * secondary function, print the matrix to console
+	 * 辅助方法，将矩阵打印到控制台
 	 */
 	public void print(){
 		System.out.println("-------------------------");
@@ -711,8 +816,8 @@ public class Matrix implements Serializable{
 		System.out.println("-------------------------");		
 	}
 	/**
-	 * Merge two matrices and store it to current matrix.
-	 * <li>Given matrix x and y, and 
+	 * 在行后合并一个矩阵。
+	 * <p>给定两个矩阵x、y： 
 	 * <br>x=
 	 * <br>|1 2 3|  
 	 * <br>|4 5 6|
@@ -720,14 +825,15 @@ public class Matrix implements Serializable{
 	 * <br>y=
 	 * <br>|1 1 2|
 	 * <br>|2 2 1|
-	 * <br>The matrix after merge is:
+	 * <br>则经过合并后：
 	 * <br>x=
 	 * <br>|1 2 3|  
 	 * <br>|4 5 6|
 	 * <br>|7 8 9|
 	 * <br>|1 1 2|
 	 * <br>|2 2 1|
-	 * @param otherMx Matrix to merge.
+	 * </p>
+	 * @param otherMx 
 	 */
 	public void mergeAfterRow(Matrix otherMx){
 		if (otherMx.cols != cols)
