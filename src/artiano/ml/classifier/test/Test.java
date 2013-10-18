@@ -1,17 +1,10 @@
 package artiano.ml.classifier.test;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
-import artiano.core.structure.Matrix;
-import artiano.core.structure.Range;
-import artiano.ml.classifier.DTreeClassifierUsingC4_5;
-import artiano.ml.classifier.KDTree;
-import artiano.ml.classifier.KNearest;
-import artiano.ml.classifier.NaiveBayesClassifier;
-import artiano.ml.classifier.Regression;
+import artiano.core.structure.*;
+import artiano.ml.classifier.*;
 
 /**
  * <p>Description: Classifiers Test</p>
@@ -206,10 +199,10 @@ public class Test {
 			System.out.println("Load training data fail.");
 			return;
 		}
-		
-		artiano.ml.classifier.DTreeClassifier classifier = 
-			new artiano.ml.classifier.DTreeClassifier(data, attributeList, targetAttrIndex);
-		classifier.train(data, attributeList, targetAttrIndex); //Train data
+		String targetAttribute = "play";
+		DTreeClassifier classifier = 
+			new DTreeClassifier(data, attributeList, targetAttribute);
+		classifier.train(); //Train data
 		try {
 			classifier.save("D:\\decisionTree.txt");
 		} catch (IOException e) {
@@ -217,8 +210,8 @@ public class Test {
 		}
 		
 		 try {
-			DTreeClassifierUsingC4_5 dTreeClassifier = 
-				(DTreeClassifierUsingC4_5) DTreeClassifierUsingC4_5.load("D:\\decisionTree.txt");
+			artiano.ml.classifier.DTreeClassifier dTreeClassifier = 
+					(artiano.ml.classifier.DTreeClassifier)artiano.ml.classifier.DTreeClassifier.load("D:\\decisionTree.txt");
 			System.out.println(dTreeClassifier.toString());
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -228,7 +221,7 @@ public class Test {
 		 
 		 
 		//-------------------------predict-------------------------------//
-		String[] sampleArr = {"sunny", "hot", "high", "TRUE"};
+		String[] sampleArr = {"rainy", "cool", "normal", "FALSE"};
 		String[] sampleAttribute = {"outlook","temperature","humidity","windy"};
 		List<String> sampleAttributeList = Arrays.asList(sampleAttribute);
 		List<List<String>> sample = new ArrayList<List<String>>();
@@ -281,7 +274,7 @@ public class Test {
 		
 		//File that store the training data
 		String dataFilePath = 
-			"src\\artiano\\ml\\classifier\\test\\data1.txt";		
+			"src\\artiano\\ml\\classifier\\test\\data3.txt";		
 		ArrayList<String> attributeList = new ArrayList<String>();
 		ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
 		//Load training data
@@ -292,8 +285,11 @@ public class Test {
 			return;
 		}		
 
-		String targetAttribute = "work";
-		boolean[] isContinuous = new boolean[]{true, false};
+		String targetAttribute = "PlayGolf";
+		boolean[] isContinuous = new boolean[]{
+			false, true, true, false, false	
+		};
+		
 		DTreeClassifierUsingC4_5 dtree = 
 			new DTreeClassifierUsingC4_5(data, attributeList, targetAttribute, isContinuous);
 		dtree.train();		
@@ -304,16 +300,18 @@ public class Test {
 		}		
 		
 		//-------------------------predict-------------------------------//
-		String[] sampleArr = {"80"};
-		String[] sampleAttribute = {"temperature","work"};
+		String[] sampleArr = {"rainy", "68", "79", "FALSE"};
+		String[] sampleAttribute = 
+			{"Outlook", "Temperature", "Humidity", "Windy", "PlayGolf"};
 		List<String> sampleAttributeList = Arrays.asList(sampleAttribute);
 		List<List<String>> sample = new ArrayList<List<String>>();
-		sample.add(Arrays.asList(sampleArr));
+		sample.add(Arrays.asList(sampleArr));		
 		List<String> classificationList = 
 			dtree.predict(sample, sampleAttributeList);
 		for(int i=0; i<classificationList.size(); i++) {
 			System.out.println("Classification: " + classificationList.get(i));
 		}
+		
 	}
 
 	//Load the training data

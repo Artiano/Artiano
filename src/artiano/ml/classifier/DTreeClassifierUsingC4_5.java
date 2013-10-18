@@ -5,10 +5,10 @@ import java.util.*;
 import artiano.core.operation.Preservable;
 
 /**
- * <p>Description: Decision Tree classifier using ID3 algorithm.</p>
+ * <p>Description: Decision Tree classifier using C4.5 algorithm.</p>
  * @author JohnF Nash
  * @version 1.0.0
- * @date 2013-9-2
+ * @date 2013-10-15
  * @function 
  * @since 1.0.0
  */
@@ -101,8 +101,7 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 				if(!attributeValueList.get(indexOfAttr).contains(valueSearched)
 						&& !isAttributeContinuous[attrIndexInOrigin]) {
 					break;
-				}
-				
+				}				
 				
 				if(!isAttributeContinuous[attrIndexInOrigin]) {
 					searchComplete = false;
@@ -129,8 +128,7 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 					}
 					
 				} else {
-					searchComplete = false;
-										
+					searchComplete = false;										
 					matchNum++;
 					
 					//Search each branch of an decision variable to match the sample
@@ -139,30 +137,24 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 						Double.parseDouble(childrenNodes.get(0).previousDecision);
 					double value = Double.parseDouble(valueSearched);
 					if(value < middleValue) {			
-						current = current.nextNodes.get(0);
-						if(current.nextNodes == null) {							
-							break;
-						}
+						current = current.nextNodes.get(0);						
 					} else {
-						current = current.nextNodes.get(1);					
-						if(current.nextNodes == null) {							
-							break;
-						}					
+						current = current.nextNodes.get(1);											
 					}									
-				}
-				
+					if(current.nextNodes == null) {	
+						predictionList.add(current.label);
+						break;
+					}
+				}				
 			}
 			 
-			if(matchNum == attributeList.size() - 1 ) {   //Find
-				if(! "".equals(current.label)) {
-					predictionList.add(current.label);
-				} else {
-					predictionList.add(null);
-				}				
+			if(matchNum == attributeList.size() - 1 ) {   //Search complete.				
+				predictionList.add(current.label);
 			} else {  				
-				if(!searchComplete) {					
+				int attributeIndex = this.attributeList.indexOf(current.attribute);
+				if(!searchComplete && !isAttributeContinuous[attributeIndex]) {					
 					predictionList.add(null);   //Not exactly matched
-				}				
+				}							
 			}
 		}
 		
@@ -216,10 +208,11 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 		p.attribute = remainingAttribute.get(max_index);
 		
 		//Create sub tree
-		final int indexOfAttr = attributeList.indexOf(p.attribute);
+		final int indexOfAttr = attributeList.indexOf(p.attribute);		
 		if(!isAttributeContinuous[indexOfAttr]) {													
 			constructDiscreteAttributeSubTree(p, remainingData,remainingAttribute);			
 		} else {  			
+			System.out.println(p.attribute + " , " + indexOfAttr);
 			constructContinuousSubTree(p, remainingData, remainingAttribute);
 		}						
 		return p;
@@ -230,7 +223,7 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 						
 		ArrayList<ArrayList<String>> copyOfData = 
 			new ArrayList<ArrayList<String>>(remainingData);
-		final int indexOfAttr = remainingAttribute.indexOf(p.attribute);
+		final int indexOfAttr = this.attributeList.indexOf(p.attribute);
 		Collections.sort(copyOfData, new Comparator<ArrayList<String>>() {
 			@Override
 			public int compare(ArrayList<String> o1, ArrayList<String> o2) {
@@ -255,7 +248,7 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 			new ArrayList<String>(labelValuesSet);
 		
 		int maxInfoGainIndex = getMaxAttributeInfoGainIndex(
-				copyOfData, targetAttrIndex, remainingLabelValues);										
+				copyOfData, remainingLabelValues);										
 		if(remainingData.size() == 0) {
 			p.label = mostCommonLabel(remainingData);
 		}
@@ -351,10 +344,11 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 	}
 	
 	private int getMaxAttributeInfoGainIndex(
-			ArrayList<ArrayList<String>> copyOfData, int targetAttrIndex,
+			ArrayList<ArrayList<String>> copyOfData,
 			ArrayList<String> remainingLabelValues) {		
 		int maxInfoGainIndex = 0;
 		double maxInfoGain = 0;
+		 int targetAttrIndex = this.attributeList.indexOf(targetAttribute);
 		for(int i=0; i<copyOfData.size()-1; i++) {
 			ArrayList<String> leftData = copyOfData.get(i);
 			ArrayList<String> rightData = copyOfData.get(i+1);				

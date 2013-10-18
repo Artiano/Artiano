@@ -2,7 +2,6 @@ package artiano.ml.classifier;
 
 import java.io.*;
 import java.util.*;
-import java.util.Map.Entry;
 
 import artiano.core.operation.Preservable;
 
@@ -14,67 +13,52 @@ import artiano.core.operation.Preservable;
  * @function 
  * @since 1.0.0
  */
-public class DTreeClassifier extends Preservable {	
+public class DTreeClassifier extends Preservable {
 	private static final long serialVersionUID = 1L;
 	
+	private ArrayList<ArrayList<String>> data = 
+			new ArrayList<ArrayList<String>>();
 	private ArrayList<String> attributeList = 
-			new ArrayList<String>(); 	// Attribute list
-	private ArrayList<ArrayList<String>> attributeValueList = 
-			new ArrayList<ArrayList<String>>(); 	//Value of attributes		
-	private int targetAttrIndex = 0;  //Index of target attribute in attribute list
+			new ArrayList<String>(); 	// Attribute list	
+	private String targetAttribute;  //target attribute
 	private DTreeNode root;		 //Root of the decision tree constructed.
-	
-	//Default constructor
-	public DTreeClassifier() {		
-	}
 	
 	/**
 	 * Constructor with training data
 	 * @param data - training data
 	 * @param attributeList - list of attributes
-	 * @param targetAttrIndex - index of target attribute in attributeList
+	 * @param targetAttribute - label of data
 	 */
 	public DTreeClassifier(ArrayList<ArrayList<String>> data, 
-			ArrayList<String> attributeList, int targetAttrIndex) {
+			ArrayList<String> attributeList, String targetAttribute) {
+		this.data = data;
 		this.attributeList = attributeList;
-		this.targetAttrIndex = targetAttrIndex;
-		constructAttributeValueList(data, attributeList);  //Construct attributeValueList
+		this.targetAttribute = targetAttribute;
 	}
-	
+			
 	/**
 	 * Train decision tree
-	 * @param data - data to train
-	 * @param attributeList - list for attribute names
-	 * @param targetAttrIndex - decision attribute index in attribute list
 	 * @return whether the training successes or not
 	 */
-	public boolean train(ArrayList<ArrayList<String>> data, ArrayList<String> attributeList, 
-			int targetAttrIndex) {
+	public boolean train() {		
 		//Check whether the parameters inputed is valid
 		try {
-			isTrainDataInputedValid(data, attributeList, targetAttrIndex);
+			isTrainDataInputedValid();
 		} catch(Exception e) {			
 			return false;
-		}		
-		
-		this.attributeList = attributeList;
-		this.targetAttrIndex = targetAttrIndex;
-		constructAttributeValueList(data, attributeList);  //Construct attributeValueList
-				
+		}					
 		//Construct a decision tree
-		root = constructDecisionTree(root, data, attributeList);
-		
+		root = constructDecisionTree(root, data, attributeList);		
 		return true;   //Data training successes.
 	}				
 		
 	/**
-	 * Predict classification of data
-	 * @param data - data to be predicted for classification. 
+	 * Predict classification of data 
 	 * @return classifications predicted of data.
 	 */
 	public List<String> predict(List<List<String>> data, List<String> attributeList) {
 		if(data == null || attributeList == null) {  //Input empty
-			return null;
+			return new ArrayList<String>();
 		}
 		
 		List<String> predictionList = new ArrayList<String>(); //Store predictions
@@ -84,36 +68,43 @@ public class DTreeClassifier extends Preservable {
 			DTreeNode current = root;
 			int matchNum = 0;		//Number of attribute matched.
 			boolean searchComplete = false;
-			while(current.nextNodes != null) {
-				String attribute = current.attribute;
-				int indexOfAttr = attributeList.indexOf(attribute);				
+			while(current.nextNodes.size() >= 1) {
+				String attribute = current.attribute;							
+				int indexOfAttr = this.attributeList.indexOf(attribute);				
 				String valueSearched = singleItem.get(indexOfAttr); //Value
-							
+				
+				/* The discrete value is not exist. */
+				ArrayList<ArrayList<String>> attributeValueList = 
+					constructAttributeValueList(this.data, this.attributeList);
+				if(!attributeValueList.get(indexOfAttr).contains(valueSearched)) {
+					break;
+				}
+								
 				searchComplete = false;
 				//Search each branch of an decision variable to match the sample
 				List<DTreeNode> childrenNodes = current.nextNodes;					
 				for(int j=0; j<childrenNodes.size(); j++) {
 					DTreeNode childNode = childrenNodes.get(j);
-					if(valueSearched.equals(childNode.previouDecision)) {  //Previous attribute match
+					if(valueSearched.equals(childNode.previousDecision)) {  //Previous attribute match
 						if(childNode.nextNodes == null) {  //All same label or exactly matched.
 							predictionList.add(childNode.label);
 							searchComplete = true;
 							break;
 						}
 						
-						current = childNode;	//Match with next branch of previoud attribute.
+						current = childNode;	//Match with next branch of previous attribute.
 						matchNum++;						
 						
 						break;
 					}
-				}
+				}								
 				
 				if(searchComplete) {
 					break;
-				}
+				}					
 			}
 			 
-			if(matchNum == attributeList.size()) {   //Find
+			if(matchNum == attributeList.size() - 1 ) {   //Find
 				if(! "".equals(current.label)) {
 					predictionList.add(current.label);
 				} else {
@@ -138,57 +129,74 @@ public class DTreeClassifier extends Preservable {
 	 */
 	private DTreeNode constructDecisionTree(DTreeNode p, 
 			ArrayList<ArrayList<String>> remainingData, 
-			ArrayList<String> remainingAttribute) {
+			ArrayList<String> remainingAttribute) {		
 		if(p == null) {
 			p = new DTreeNode();
 		}
 		
-		/* If all the data has the same label, tree building completes.
-		 * Now only considering target attribute that has only two results. */
-		String firstLabel = attributeValueList.get(targetAttrIndex).get(0);
-		String secondLabel = attributeValueList.get(targetAttrIndex).get(1);
-		if(allTheSameLabel(remainingData, firstLabel)) {
-			p.label = firstLabel;
-			return p;
-		} else if(allTheSameLabel(remainingData, secondLabel)) {
-			p.label = secondLabel;
+		/* Check whether all the data has same label. If so, terminate. */		
+		ArrayList<ArrayList<String>> attributeValueList = 
+				constructAttributeValueList(remainingData, remainingAttribute);
+		int targetAttrIndex = remainingAttribute.indexOf(targetAttribute);
+		if(targetAttrIndex == -1) {
 			return p;
 		}
 		
+		ArrayList<String> targetAttributeValues = 
+			attributeValueList.get(targetAttrIndex);		
+		for(int i=0; i<targetAttributeValues.size(); i++) {
+			String label = targetAttributeValues.get(i);
+			if(allTheSameLabel(remainingData, label)) {
+				p.label = label;
+				return p;
+			}
+		}		
+				
 		//All the attributes has been considered ,yet not complete the classification
-		if(remainingAttribute.size() == 0) {			
-			p.label = mostCommonLabel(remainingData, null);
+		if(remainingAttribute.size() == 1) {
+			p.label = mostCommonLabel(remainingData);
 			return p;
 		}
 		
 		/* Find decision variable by finding the max information gain. */
 		int max_index = 
-			getMaxInformationGainAttribute(remainingData,remainingAttribute);
-		p.attribute = remainingAttribute.get(max_index);		
+			getMaxInformationGainAttribute(remainingData, remainingAttribute);
+		p.attribute = remainingAttribute.get(max_index);
+		
+		//Create sub tree														
+		constructSubTree(p, remainingData,remainingAttribute);								
+		return p;
+	}
+			
+	private void constructSubTree(DTreeNode p,
+			ArrayList<ArrayList<String>> remainingData,
+			ArrayList<String> remainingAttribute) {
+				
+		int indexOfAttr = remainingAttribute.indexOf(p.attribute);
+		ArrayList<ArrayList<String>> attributeValueList = 
+			constructAttributeValueList(remainingData, remainingAttribute);	
+		ArrayList<String> attrValues = attributeValueList.get(indexOfAttr);
 		
 		//Update remaining attributes		
 		ArrayList<String> newRemainingAttribute = 
-			getNewRemainingAttribute(p,remainingAttribute);
+			new ArrayList<String>(remainingAttribute);
+		newRemainingAttribute.remove(p.attribute);		
 		
-		/* Update remaining data */
-		int indexOfAttr = attributeList.indexOf(p.attribute);		
-		ArrayList<String> attrValues = 
-				attributeValueList.get(indexOfAttr);  
-		ArrayList<ArrayList<String>> newRemainingData = 
-				new ArrayList<ArrayList<String>>();
 		//Each value of the attribute represents a branch of the decision tree
-		for(int j=0; j<attrValues.size(); j++) {
-			for(int i=0; i<remainingData.size(); i++) {
-				ArrayList<String> currentItem = remainingData.get(i);				
-				if(attrValues.get(j).equals(currentItem.get(indexOfAttr))) {
-					newRemainingData.add(currentItem);
-				}
-			}									
-					
+		int attrIndexInOrigin = this.attributeList.indexOf(p.attribute);
+		for(int j=0; j<attrValues.size() && j<4; j++) {		
+			ArrayList<ArrayList<String>> newRemainingData = 
+				getNewRemainingData(remainingData, attrIndexInOrigin, attrValues.get(j));
+			
 			DTreeNode new_node = new DTreeNode();  //Root of the sub tree
-			new_node.previouDecision = attrValues.get(j);
+			new_node.previousDecision = attrValues.get(j);
 			if(newRemainingData.size() == 0) {	//Now has no sample of this branch
-				new_node.label = mostCommonLabel(remainingData, null);
+				new_node.label = mostCommonLabel(remainingData);
+				if(p.nextNodes == null) {
+					p.nextNodes = new ArrayList<DTreeNode>();
+				}
+				p.nextNodes.add(new_node);    //Add root of the sub tree to the node
+				break;
 			} else {				
 				constructDecisionTree(new_node, newRemainingData, newRemainingAttribute);    
 			}
@@ -196,23 +204,32 @@ public class DTreeClassifier extends Preservable {
 			if(p.nextNodes == null) {
 				p.nextNodes = new ArrayList<DTreeNode>();
 			}
-			p.nextNodes.add(new_node);    //Add root of the sub tree to the node		
-			
-			newRemainingData.clear();   //Clear the list to prepare for next sample
+			p.nextNodes.add(new_node);    //Add root of the sub tree to the node			
 		}
-		
-		return p;
 	}
-
+			
+	private ArrayList<ArrayList<String>> getNewRemainingData(
+			ArrayList<ArrayList<String>> remainingData, 
+			int indexOfAttr,String attrValue) {
+		ArrayList<ArrayList<String>> newRemainingData = 
+				new ArrayList<ArrayList<String>>();
+		for(int i=0; i<remainingData.size(); i++) {
+			ArrayList<String> currentItem = remainingData.get(i);
+			if(attrValue.equals(currentItem.get(indexOfAttr))) {
+				newRemainingData.add(currentItem);
+			}
+		}	
+		return newRemainingData;
+	}
+	
+	/* Get index of attribute which has max information gain */
 	private int getMaxInformationGainAttribute(
 			ArrayList<ArrayList<String>> remainingData,
 			ArrayList<String> remainingAttribute) {
 		double max_gain = 0;
 		int max_index = 0;	//Attribute index where the attribute information gain max  
 		for(int i=0; i<remainingAttribute.size(); i++) {
-			//Attention: not using index
-			if(remainingAttribute.get(i).equals(
-					this.attributeList.get(targetAttrIndex))) {
+			if(remainingAttribute.get(i).equals(targetAttribute)) {
 				continue;
 			}
 			
@@ -226,73 +243,6 @@ public class DTreeClassifier extends Preservable {
 		}
 		return max_index;
 	}
-
-	private ArrayList<String> getNewRemainingAttribute(DTreeNode p,
-			ArrayList<String> remainingAttribute) {
-		ArrayList<String> newRemainingAttribute = new ArrayList<String>();
-		for(int i=0; i<remainingAttribute.size(); i++) {
-			String currentAttr = remainingAttribute.get(i);
-			if(!p.attribute.equals(currentAttr)) {
-				newRemainingAttribute.add(currentAttr);
-			}
-		}
-		return newRemainingAttribute;
-	}			
-	
-	/**
-	 * Check whether all the labels in the data is the same.
-	 * @param remainingData - remaining data to be classified.
-	 * @param isYesStr - value that indicate the value of label(can only be "yes" or "no")
-	 * @return whether all the label has the same value isYesStr
-	 */
-	private boolean allTheSameLabel(ArrayList<ArrayList<String>> remainingData, 
-			String isYesStr) {
-		for(int i=0; i<remainingData.size(); i++) {
-			ArrayList<String> singleSampleData = remainingData.get(i);   //a single test sample						
-			if(!isYesStr.equals(singleSampleData.get(targetAttrIndex))) {
-				return false;				
-		    } 	
-		}		
-		return true;
-	}
-	
-	/**
-	 *  Find the most common label in training data.
-	 * @param remainingData - remaining data to be classified.
-	 * @param counts - use when counting labels
-	 * @return The most common label in remaining data
-	 */
-	private String mostCommonLabel(ArrayList<ArrayList<String>> remainingData, 
-			int[] counts) {
-		String firstTargetAttrValue = 
-				remainingData.get(0).get(targetAttrIndex);  //First label value
-		String secondTargetAttrValue = "";		//Second label value
-		
-		//Count occurrences of the two labels
-		int count = 1;
-		for(int i=1; i<remainingData.size(); i++) {
-			String currentTargetAttrValue = remainingData.get(i).get(targetAttrIndex);
-			if(firstTargetAttrValue.equals(currentTargetAttrValue) ) {
-				count++;
-			} else {
-				secondTargetAttrValue = currentTargetAttrValue;
-			}
-		}
-		
-		//Count tow labels
-		if(counts == null) {
-			counts = new int[2];
-		}
-		counts[0] = count;
-		counts[1] = remainingData.size() - count;
-		
-		//Return the most common label
-		if(count >= remainingData.size() / 2) {
-			return firstTargetAttrValue;
-		} else {
-			return secondTargetAttrValue;
-		}
-	}
 	
 	/**
 	 * Compute information gain of a specified attribute.
@@ -303,33 +253,27 @@ public class DTreeClassifier extends Preservable {
 	 */
 	private double computeInformationGain(ArrayList<ArrayList<String>> remainingData, 
 			String attribute) {		
-		double inforGain = 0;				
-		
-		int indexOfAttr = attributeList.indexOf(attribute);
-		
+		double inforGain = 0;								
 		//Add entropy(S);
-		int[] labelCounts = new int[2];
-		mostCommonLabel(remainingData, labelCounts);
-		for(int i=0; i<labelCounts.length; i++) {
-			double temp = labelCounts[i] * 1.0 / remainingData.size();
+		int targetIndex = attributeList.indexOf(targetAttribute);
+		ArrayList<Integer> labelCounts = 
+			countAttributeValuesApperances(remainingData, targetIndex);
+		for(int i=0; i<labelCounts.size(); i++) {
+			double temp = labelCounts.get(i) * 1.0 / remainingData.size();
 			inforGain += -1 * temp * Math.log10(temp) / Math.log10(2);
 		}
-					
-		/* Count each appearances of values of the attribute */				
-		ArrayList<String> valueList = new ArrayList<String>();
-		for(int k=0; k<remainingData.size(); k++) {
-			valueList.add(remainingData.get(k).get(indexOfAttr));
-		}
+		
+		/* Count each appearances of values of the attribute */
+		int indexOfAttr = attributeList.indexOf(attribute);
 		ArrayList<Integer> eachCount = 
-				getEachValueCount(valueList);
+			countAttributeValuesApperances(remainingData, indexOfAttr);		
 				
 		 /* Get remaining values of attribute in indexOfAttr
 		 * Can not use
 		 *   ArrayList<String> attrValues =attributeValueList.get(indexOfAttr)*/
 		ArrayList<String> attrValues = new ArrayList<String>();
 		for(int i=0; i<remainingData.size(); i++) {
-			ArrayList<String> currentSample = 
-					remainingData.get(i);
+			ArrayList<String> currentSample = remainingData.get(i);
 			if(!attrValues.contains(currentSample.get(indexOfAttr))) {
 				attrValues.add(currentSample.get(indexOfAttr));
 			}
@@ -337,11 +281,10 @@ public class DTreeClassifier extends Preservable {
 		
 		for(int j=0; j<attrValues.size(); j++) {
 			double entropy = 
-					getEntropy(remainingData, indexOfAttr, attrValues.get(j));				
+				getEntropy(remainingData, indexOfAttr, attrValues.get(j));			
 			inforGain += 
 				(-1.0 * eachCount.get(j)) / remainingData.size() * entropy;
-		}
-		
+		}		
 		return inforGain;
 	}
 	
@@ -354,73 +297,98 @@ public class DTreeClassifier extends Preservable {
 	 */
 	private double getEntropy(ArrayList<ArrayList<String>> remainingData, 
 			int attrIndex, String attrValue) {
-		/* Get remaining training data of which value of attribute 
-		 * in attrIndex is attrValue */
-		ArrayList<ArrayList<String>> valueItems = 
-				new ArrayList<ArrayList<String>>();   //Remaining data that has value on attribute attrIndex
-		for(int i=0; i<remainingData.size(); i++) {
-			ArrayList<String> aSample = remainingData.get(i);			
-			if(attrValue.equals(aSample.get(attrIndex))) {
-				valueItems.add(aSample);
-			}			
+		int targetAttrIndex = attributeList.indexOf(targetAttribute);
+		ArrayList<Integer> labelValueCounts =
+			countAttributeValuesApperances(remainingData, targetAttrIndex);		
+		
+		int attributeValueCount = 0;
+		/*If one label value count is 0, the entropy is 0.   */
+		for(int i=0; i<labelValueCounts.size(); i++) {
+			attributeValueCount += labelValueCounts.get(i);
+			if(labelValueCounts.get(i) == 0) {
+				return 0;
+			}
 		}
 		
-		int[] counts = new int[2];		
-		mostCommonLabel(valueItems, counts);   //Count labels
-		
-		/*If all true or all false, the entropy is 0.   */
-		if(counts[0] == 0 || counts[1] == 0) {
-			return 0;
-		}
-		
-		/* Compute entropy */
-		double entropy = 0;		//Entropy of value of the attribute
-		for(int i=0; i<counts.length; i++) {
-			double temp = counts[i] * 1.0 / valueItems.size();
+		/* Compute entropy */		
+		double entropy = 0;		//Entropy of value of the attribute		
+		for(int i=0; i<labelValueCounts.size(); i++) {
+			double temp = labelValueCounts.get(i) * 1.0 / attributeValueCount;
 			entropy += -1 * temp * Math.log10(temp) / Math.log10(2);
 		}		
 		return entropy;
 	}
-
+	
 	/**
-	 * Get count of each attribute value
-	 * @param singleAttributeValues - values of an attribute 
-	 * @return count list of each value of the attribute
+	 * Check whether all the labels in the data is the same.
+	 * @param remainingData - remaining data to be classified.
+	 * @param isYesStr - value that indicate the value of label
+	 * @return whether all the label has the same value isYesStr
 	 */
-	private ArrayList<Integer> getEachValueCount(ArrayList<String> singleAttributeValues) {
-		ArrayList<Integer> valueCounts = new ArrayList<Integer>();
-		
-		/*  Get attribute values and their counts.
-		 * Attention: Use LinkedHashMap instead of HashMap to maintain its sort*/
-		Map<String, Integer> eachValueCounts = 
-				new LinkedHashMap<String, Integer>(); 
-		//Count appearances of each value
-		for(int i=0; i<singleAttributeValues.size(); i++) {
-			String key = singleAttributeValues.get(i);
-			if(eachValueCounts.containsKey(key)) {       //The value already appear
-				int previousCount = eachValueCounts.get(key);
-				eachValueCounts.put(key, previousCount + 1);  //Update the count
-			} else {	//The value appears for the first time
-				eachValueCounts.put(key, 1);
+	private boolean allTheSameLabel(ArrayList<ArrayList<String>> remainingData, 
+			String isYesStr) {
+		for(int i=0; i<remainingData.size(); i++) {
+			ArrayList<String> singleData = remainingData.get(i);   //a single test sample
+			int targetAttrIndex = attributeList.indexOf(targetAttribute);
+			if(!isYesStr.equals(singleData.get(targetAttrIndex))) {
+				return false;				
+		    } 	
+		}		
+		return true;
+	}
+	
+	/**
+	 *  Find the most common label in training data.
+	 * @param remainingData - remaining data to be classified.
+	 * @return The most common label in remaining data
+	 */
+	private String mostCommonLabel(ArrayList<ArrayList<String>> remainingData) {
+		int targetAttrIndex = attributeList.indexOf(targetAttribute);
+		Map<String, Integer> labelMap = new HashMap<String, Integer>();
+		for(int i=0; i<remainingData.size(); i++) {
+			ArrayList<String> singleData = remainingData.get(i);
+			String label = singleData.get(targetAttrIndex);
+			if(!labelMap.containsKey(label)) {
+				labelMap.put(label, 1);
+			} else {
+				labelMap.put(label, labelMap.get(label) + 1);
+			}
+		}
+
+		String comomLabel = "";
+		int maxCount = 0;
+		for(Map.Entry<String, Integer> entry : labelMap.entrySet()) {
+			if(entry.getValue().intValue() > maxCount) {
+				maxCount = entry.getValue().intValue();
+				comomLabel = entry.getKey();				
+			}
+		}
+		return comomLabel;
+	}
+	
+	private ArrayList<Integer> countAttributeValuesApperances(
+			ArrayList<ArrayList<String>> remainingData, int indexOfAttr) {
+		Map<String, Integer> attrValueCountsMap =
+				new HashMap<String, Integer>();
+		for(int i=0; i<remainingData.size(); i++) {
+			ArrayList<String> singleData = remainingData.get(i);
+			String attrValue = singleData.get(indexOfAttr);
+			if(!attrValueCountsMap.containsKey(attrValue)) {
+				attrValueCountsMap.put(attrValue, 1);
+			} else {
+				attrValueCountsMap.put(attrValue, attrValueCountsMap.get(attrValue) + 1);
 			}
 		}	
+		ArrayList<Integer> attrValueCounts = 
+			new ArrayList<Integer>(attrValueCountsMap.values());
+		return attrValueCounts;
+	}
 		
-		Set<Entry<String, Integer>> entrySet = 
-				eachValueCounts.entrySet();
-		for(Entry<String, Integer> item : entrySet) {
-			valueCounts.add(item.getValue());
-		}
-		
-		return valueCounts;
-	}		
-	
-	
 	/* Check whether the data inputed is valid. */
-	private void isTrainDataInputedValid(ArrayList<ArrayList<String>> data,
-			ArrayList<String> attributeList, int decAttrIdx) {
-		//Check whether the parameters inputed is valid
-		if(decAttrIdx < 0 || decAttrIdx >= attributeList.size()) {
-			throw new IllegalArgumentException("Parameter decAttrIdx out of range.");
+	private void isTrainDataInputedValid() {		
+		//Check whether the parameters inputed is valid		
+		if(attributeList.indexOf(targetAttribute) < 0) {
+			throw new IllegalArgumentException("Parameter targetAttrIndex out of range.");
 		}
 		
 		if(data == null || attributeList == null) {
@@ -429,33 +397,38 @@ public class DTreeClassifier extends Preservable {
 	}
 	
 	/**
-	 * Construct attributeValueList using training data
+	 * Construct attributeValueList(not repeat) using training data
 	 * @param data - training data
 	 * @param attributeList - list of attributes
 	 */
-	private void constructAttributeValueList(ArrayList<ArrayList<String>> data, 
+	private ArrayList<ArrayList<String>> constructAttributeValueList(
+			ArrayList<ArrayList<String>> data, 
 			ArrayList<String> attributeList) {
-		attributeValueList.clear();
+		ArrayList<ArrayList<String>> attributeValueList = 
+			new ArrayList<ArrayList<String>>();
 		for(int i=0; i<attributeList.size(); i++) {
 			attributeValueList.add(new ArrayList<String>());
 		}
 		
 		for(int i=0; i<data.size(); i++) {			
-			ArrayList<String> item  = data.get(i);			
-			for(int j=0; j<item.size(); j++) {				
-				if(!attributeValueList.get(j).contains(item.get(j))) {  //Have not been added 
-					attributeValueList.get(j).add(item.get(j));					
-				}
+			ArrayList<String> item  = data.get(i);
+			for(int j=0; j<attributeList.size(); j++) {
+				int attrIndex = this.attributeList.indexOf(attributeList.get(j));
+				//Attention:
+				if(!attributeValueList.get(j).contains(item.get(attrIndex))) {
+					attributeValueList.get(j).add(item.get(attrIndex));
+				}													
 			}
-		}					
+		}		
+		return attributeValueList;
 	}
-	
+		
 	/* Inner class for tree node. */
 	private static class DTreeNode implements Serializable {		
 		private static final long serialVersionUID = 1L;
 		
 		String attribute = "";	  //Attribute for this node
-		String previouDecision = "";   //previous attribute decision
+		String previousDecision = "";   //previous attribute decision
 		String label = "";	//Value of target attribute for this node(for leaf nodes)		
 		ArrayList<DTreeNode> nextNodes;		//Pointers to next decisions	
 	} 
