@@ -48,12 +48,11 @@ public class Test {
         outputs = new Matrix[count];
        
         Scanner scanner = new Scanner(fis);
-        Randomizer ram = new GuassianRandomizer(0, 0.3);
         for (int i = 0; i < count; i++){
         	inputs[i] = new Matrix(1, 4);
         	outputs[i] = new Matrix(1, 3);
         	for (int j = 0; j < 4; j++){
-        		double x = scanner.nextDouble() + ram.next();
+        		double x = scanner.nextDouble();
         		inputs[i].set(0, j, x);
         	}
         	int idx = scanner.nextInt();
