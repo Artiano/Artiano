@@ -162,33 +162,13 @@ public class DTreeClassifier extends Preservable {
 		}
 		
 		/* Find decision variable by finding the max information gain. */
-		double max_gain = 0;
-		int max_index = 0;	//Attribute index where the attribute information gain max  
-		for(int i=0; i<remainingAttribute.size(); i++) {
-			//Attention: not using index
-			if(remainingAttribute.get(i).equals(
-					this.attributeList.get(targetAttrIndex))) {
-				continue;
-			}
-			
-			//Get information gain of the attribute
-			double temp_gain = 
-				computeInformationGain(remainingData, remainingAttribute.get(i));
-			if(max_gain < temp_gain) {
-				max_gain = temp_gain;
-				max_index = i;
-			}
-		}
+		int max_index = 
+			getMaxInformationGainAttribute(remainingData,remainingAttribute);
 		p.attribute = remainingAttribute.get(max_index);		
 		
 		//Update remaining attributes		
-		ArrayList<String> newRemainingAttribute = new ArrayList<String>();
-		for(int i=0; i<remainingAttribute.size(); i++) {
-			String currentAttr = remainingAttribute.get(i);
-			if(!p.attribute.equals(currentAttr)) {
-				newRemainingAttribute.add(currentAttr);
-			}
-		}
+		ArrayList<String> newRemainingAttribute = 
+			getNewRemainingAttribute(p,remainingAttribute);
 		
 		/* Update remaining data */
 		int indexOfAttr = attributeList.indexOf(p.attribute);		
@@ -222,6 +202,41 @@ public class DTreeClassifier extends Preservable {
 		}
 		
 		return p;
+	}
+
+	private int getMaxInformationGainAttribute(
+			ArrayList<ArrayList<String>> remainingData,
+			ArrayList<String> remainingAttribute) {
+		double max_gain = 0;
+		int max_index = 0;	//Attribute index where the attribute information gain max  
+		for(int i=0; i<remainingAttribute.size(); i++) {
+			//Attention: not using index
+			if(remainingAttribute.get(i).equals(
+					this.attributeList.get(targetAttrIndex))) {
+				continue;
+			}
+			
+			//Get information gain of the attribute
+			double temp_gain = 
+				computeInformationGain(remainingData, remainingAttribute.get(i));
+			if(max_gain < temp_gain) {
+				max_gain = temp_gain;
+				max_index = i;
+			}
+		}
+		return max_index;
+	}
+
+	private ArrayList<String> getNewRemainingAttribute(DTreeNode p,
+			ArrayList<String> remainingAttribute) {
+		ArrayList<String> newRemainingAttribute = new ArrayList<String>();
+		for(int i=0; i<remainingAttribute.size(); i++) {
+			String currentAttr = remainingAttribute.get(i);
+			if(!p.attribute.equals(currentAttr)) {
+				newRemainingAttribute.add(currentAttr);
+			}
+		}
+		return newRemainingAttribute;
 	}			
 	
 	/**

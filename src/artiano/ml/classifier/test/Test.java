@@ -7,7 +7,7 @@ import java.util.List;
 
 import artiano.core.structure.Matrix;
 import artiano.core.structure.Range;
-import artiano.ml.classifier.DTreeClassifier;
+import artiano.ml.classifier.DTreeClassifierUsingC4_5;
 import artiano.ml.classifier.KDTree;
 import artiano.ml.classifier.KNearest;
 import artiano.ml.classifier.NaiveBayesClassifier;
@@ -189,11 +189,11 @@ public class Test {
 
 	}
 
-
+	
 	public static void testDTreeClasifier() {					
 		//File that store the training data
 		String dataFilePath = 
-				"src\\artiano\\machinelearning\\classifier\\test\\data.txt";
+				"src\\artiano\\ml\\classifier\\test\\data.txt";
 		
 		ArrayList<String> attributeList = 
 				new ArrayList<String>();
@@ -207,8 +207,8 @@ public class Test {
 			return;
 		}
 		
-		DTreeClassifier classifier = 
-				new DTreeClassifier(data, attributeList, targetAttrIndex);
+		artiano.ml.classifier.DTreeClassifier classifier = 
+			new artiano.ml.classifier.DTreeClassifier(data, attributeList, targetAttrIndex);
 		classifier.train(data, attributeList, targetAttrIndex); //Train data
 		try {
 			classifier.save("D:\\decisionTree.txt");
@@ -217,8 +217,8 @@ public class Test {
 		}
 		
 		 try {
-			DTreeClassifier dTreeClassifier = 
-				(DTreeClassifier) DTreeClassifier.load("D:\\decisionTree.txt");
+			DTreeClassifierUsingC4_5 dTreeClassifier = 
+				(DTreeClassifierUsingC4_5) DTreeClassifierUsingC4_5.load("D:\\decisionTree.txt");
 			System.out.println(dTreeClassifier.toString());
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -237,8 +237,83 @@ public class Test {
 				classifier.predict(sample, sampleAttributeList);
 		for(int i=0; i<classificationList.size(); i++) {
 			System.out.println("Classification: " + classificationList.get(i));
+		}				
+	}
+	
+	public static void testDTreeClassifierUsingC4_5() {
+/*		
+		//File that store the training data
+		String dataFilePath = 
+			"src\\artiano\\ml\\classifier\\test\\data.txt";		
+		ArrayList<String> attributeList = new ArrayList<String>();
+		ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
+		//Load training data
+		int loadResult = 
+			loadTrainingData(attributeList, data, dataFilePath); 		
+		if(loadResult == -1) {
+			System.out.println("Load training data fail.");
+			return;
+		}		
+
+		String targetAttribute = "play";
+		DTreeClassifier dtree = 
+			new DTreeClassifier(data, attributeList, targetAttribute);
+		dtree.train();		
+		
+		try {
+			dtree.save("D:\\decisionTree.txt");
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-				
+		
+		//-------------------------predict-------------------------------//
+		String[] sampleArr = {"sunny", "hot", "high", "TRUE"};
+		String[] sampleAttribute = {"outlook","temperature","humidity","windy"};
+		List<String> sampleAttributeList = Arrays.asList(sampleAttribute);
+		List<List<String>> sample = new ArrayList<List<String>>();
+		sample.add(Arrays.asList(sampleArr));
+		List<String> classificationList = 
+			dtree.predict(sample, sampleAttributeList);
+		for(int i=0; i<classificationList.size(); i++) {
+			System.out.println("Classification: " + classificationList.get(i));
+		}
+*/
+		
+		//File that store the training data
+		String dataFilePath = 
+			"src\\artiano\\ml\\classifier\\test\\data1.txt";		
+		ArrayList<String> attributeList = new ArrayList<String>();
+		ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
+		//Load training data
+		int loadResult = 
+			loadTrainingData(attributeList, data, dataFilePath); 		
+		if(loadResult == -1) {
+			System.out.println("Load training data fail.");
+			return;
+		}		
+
+		String targetAttribute = "work";
+		boolean[] isContinuous = new boolean[]{true, false};
+		DTreeClassifierUsingC4_5 dtree = 
+			new DTreeClassifierUsingC4_5(data, attributeList, targetAttribute, isContinuous);
+		dtree.train();		
+		try {
+			dtree.save("D:\\decisionTree.txt");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+		
+		//-------------------------predict-------------------------------//
+		String[] sampleArr = {"80"};
+		String[] sampleAttribute = {"temperature","work"};
+		List<String> sampleAttributeList = Arrays.asList(sampleAttribute);
+		List<List<String>> sample = new ArrayList<List<String>>();
+		sample.add(Arrays.asList(sampleArr));
+		List<String> classificationList = 
+			dtree.predict(sample, sampleAttributeList);
+		for(int i=0; i<classificationList.size(); i++) {
+			System.out.println("Classification: " + classificationList.get(i));
+		}
 	}
 
 	//Load the training data
@@ -375,7 +450,7 @@ public class Test {
     	Matrix X = new Matrix(a.length / 3, 3, a);
     	Matrix Y = new Matrix(b.length, 1, b);
     	Matrix dst = Regression.getOLSRegression(X, Y);
-    	System.out.println("得到的拟合多项式为:");
+    	System.out.println("寰楀埌鐨勬嫙鍚堝椤瑰紡涓�");
     	for(int i=0; i<dst.rows(); i++) {
     		for(int j=0; j<dst.columns(); j++) {
     			if(i == 0) {
@@ -396,7 +471,7 @@ public class Test {
 		//testDTreeClasifier();
 		//testKDTree();
 		//testKNearest();
-		testOLSRegression();
-		
+		//testOLSRegression();
+		testDTreeClassifierUsingC4_5();
 	}
 }
