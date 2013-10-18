@@ -6,7 +6,7 @@ package artiano.math.distance;
 import artiano.core.structure.Matrix;
 
 /**
- * <p>Description:</p>
+ * <p>表示距离的接口。</p>
  * @author Nano.Michael
  * @version 1.0.0
  * @date 2013-10-15
@@ -15,10 +15,10 @@ import artiano.core.structure.Matrix;
  */
 public interface Distance {
 	/**
-	 * 
-	 * @param a
+	 * 计算给定两个向量a、b之间的距离
+	 * @param a 
 	 * @param b
-	 * @return
+	 * @return 距离
 	 */
 	public double calculate(Matrix a, Matrix b);
 }
