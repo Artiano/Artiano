@@ -1,11 +1,18 @@
+artiano.core.data
 artiano.core.operation
 artiano.core.structure
 artiano.core.test
-artiano.machinelearning.classifier
-artiano.machinelearning.classifier.test
+artiano.ga
+artiano.ga.test
 artiano.math.algebra
 artiano.math.base
+artiano.math.distance
 artiano.math.test
+artiano.ml
+artiano.ml.classifier
+artiano.ml.classifier.test
+artiano.ml.clustering
+artiano.ml.clustering.test
 artiano.neural.actfun
 artiano.neural.initializer
 artiano.neural.layer
@@ -16,3 +23,6 @@ artiano.neural.test
 artiano.randomizer
 artiano.statistics.extractor
 artiano.statistics.extractor.test
+artiano.uiTest
+artiano.uiTest.test
+org.json
