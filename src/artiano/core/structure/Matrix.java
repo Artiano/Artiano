@@ -180,6 +180,38 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
+	 * 将矩阵转换为1维数组，此时方法以行从左至右，以列从上至下顺序将矩阵转换为1维数组。
+	 * <br><b><i>NOTICE:</i></b>得到的将是矩阵中数组的拷贝，如果不想再另外开辟存储空间，请使用{@link #data()}方法，
+	 * 但是此方法返回矩阵全部元素，不能得到子矩阵（由方法：{@link #at(Range, Range)}，{@link #col(int)}，{@link #row(int)}
+	 * 得到）的元素。
+	 * @return
+	 */
+	public double[] toArray(){
+		double[] x = new double[size()];
+		int c = 0;
+		for (int i=0; i<rows; i++){
+			for (int j=0; j<cols; j++){
+				x[c] = at(i, j);
+				c++;
+			}
+		}
+		return x;
+	}
+	
+	/**
+	 * 将矩阵转换为2维数组。
+	 * <br><b><i>NOTICE:</i></b> 得到的将是矩阵中数组的拷贝。
+	 * @return
+	 */
+	public double[][] to2DArray(){
+		double[][] x = new double[rows][cols];
+		for (int i=0; i<rows; i++)
+			for (int j=0; j<cols; j++)
+				x[i][j] = at(i,j);
+		return x;
+	}
+	
+	/**
 	 * 获取存储于矩阵中的数据。
 	 * @return 数据
 	 */
