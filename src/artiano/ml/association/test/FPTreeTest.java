@@ -1,6 +1,7 @@
 package artiano.ml.association.test;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 import artiano.ml.association.FPTree;
 import artiano.ml.association.FPTreeNode;
@@ -62,9 +63,9 @@ public class FPTreeTest {
 		tree.setMinSupport(minSupport);
 		List<List<String>> transactions =
 			tree.readTransactionRecord("src\\artiano\\ml\\association\\test\\data2.txt");
-		// 构建项头表，同时也是频繁1项集
+	 	// 鏋勫缓椤瑰ご琛紝鍚屾椂涔熸槸棰戠箒1椤归泦
         List<FPTreeNode> HeaderTable = tree.buildHeaderTable(transactions);
-        // 构建FP-Tree
+        // 鏋勫缓FP-Tree
         FPTreeNode treeRoot = tree.buildFPTree(transactions, HeaderTable);
         Queue<FPTreeNode> nodeQueue = new LinkedList<FPTreeNode>();
         nodeQueue.add(treeRoot);
@@ -87,6 +88,11 @@ public class FPTreeTest {
         fptree.setMinSupport(3);
         List<List<String>> transRecords = 
         	fptree.readTransactionRecord("src\\artiano\\ml\\association\\test\\data2.txt");
-        fptree.FPGrowth(transRecords, null);
+        Map<String, Integer> frequentPatterns = 
+        	fptree.FPGrowth(transRecords, null);
+        Set<Entry<String, Integer>> entrySet =  frequentPatterns.entrySet();
+        for(Entry<String, Integer> entry : entrySet) {
+        	System.out.println(entry.getValue() + "\t" + entry.getKey());
+        }
 	}
 }

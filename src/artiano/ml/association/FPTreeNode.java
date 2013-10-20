@@ -18,7 +18,7 @@ public class FPTreeNode implements Comparable<FPTreeNode> {
 	private int count;	
 	private FPTreeNode parent;	 //parent node
 	private List<FPTreeNode> children; //child node			
-	private FPTreeNode nextHomonym; // ÏÂÒ»¸öÍ¬Ãû½Úµã
+	private FPTreeNode nextHomonym; //ä¸‹ä¸€ä¸ªåŒåèŠ‚ç‚¹
 	
 	public FPTreeNode() {		
 	}
