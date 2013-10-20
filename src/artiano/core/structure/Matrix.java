@@ -62,9 +62,8 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * 使用声明的行数和列数以及预先分配的双精度浮点型数据构造一个矩阵。
-	 * <b><i>NOTICE:</i></b> 如果矩阵的大小（等于行数*列数）小于预先存储的数据的长度，程序能够正常的运行，但是并不
+	 * <br><b><i>NOTICE:</i></b> 如果矩阵的大小（等于行数*列数）小于预先存储的数据的长度，程序能够正常的运行，但是并不
 	 * 推荐这样做。
-	 * 参见：
 	 * @see #Matrix(int, int)
 	 * @param rows 矩阵行数。
 	 * @param cols 矩阵列数。
@@ -81,6 +80,81 @@ public class Matrix implements Serializable{
 		this.dCols = cols;
 		rowRange = new Range(0, rows);
 		colRange = new Range(0, cols);
+	}
+	
+	/**
+	 * 判断一个矩阵是否为向量（列向量或行向量）
+	 * @return
+	 */
+	public boolean isVector(){
+		return (rows!= 1&&cols!=1);
+	}
+	
+	/**
+	 * 判断矩阵是否为行向量
+	 * @return
+	 */
+	public boolean isRowVector(){
+		return rows==1;
+	}
+	
+	/**
+	 * 判断矩阵是否为列向量
+	 * @return
+	 */
+	public boolean isColumnVector(){
+		return cols==1;
+	}
+	
+	/**
+	 * 判断两个矩阵是否是同型矩阵（即行列相等）
+	 * @param x
+	 * @return 同型返回<code>true</code>，反之则反
+	 */
+	public boolean sameType(Matrix x){
+		return (rows==x.rows&&cols==x.cols);
+	}
+	
+	/**
+	 * 判断是否为方阵。
+	 * @return
+	 */
+	public boolean isSquare(){
+		return rows==cols;
+	}
+	
+	/**
+	 * 得到矩阵大小（size=rows*columns）
+	 * @return
+	 */
+	public int size(){
+		return rows*cols;
+	}
+	
+	/**
+	 * 计算矩阵的绝对值
+	 * @param reserve 指示是否保留原始矩阵，若<code>reserve==false</code>，方法将使用绝对值矩阵替换原始矩阵。
+	 * @return 矩阵的绝对值矩阵
+	 * @see #abs()
+	 */
+	public Matrix abs(boolean reserve){
+		Matrix x = reserve?new Matrix(rows,cols):this;
+		for (int i=0; i<rows; i++)
+			for (int j=0; j<cols; j++){
+				double d = at(i, j);
+				x.set(i, j, d>=0.?d:-d);
+			}
+		return x;
+	}
+	
+	/**
+	 * 计算矩阵的绝对值。
+	 * <br><br><b><i>NOTICE:</i></b>方法将替换原始矩阵。
+	 * @return 矩阵的绝对值矩阵。
+	 * @see #abs(boolean)
+	 */
+	public Matrix abs(){
+		return abs(false);
 	}
 	
 	/**
@@ -103,6 +177,38 @@ public class Matrix implements Serializable{
 		for (int i = 0; i < rows; i++)
 			for (int j = 0; j < cols; j++)
 				x.set(i, j, at(i, j));
+	}
+	
+	/**
+	 * 将矩阵转换为1维数组，此时方法以行从左至右，以列从上至下顺序将矩阵转换为1维数组。
+	 * <br><b><i>NOTICE:</i></b>得到的将是矩阵中数组的拷贝，如果不想再另外开辟存储空间，请使用{@link #data()}方法，
+	 * 但是此方法返回矩阵全部元素，不能得到子矩阵（由方法：{@link #at(Range, Range)}，{@link #col(int)}，{@link #row(int)}
+	 * 得到）的元素。
+	 * @return
+	 */
+	public double[] toArray(){
+		double[] x = new double[size()];
+		int c = 0;
+		for (int i=0; i<rows; i++){
+			for (int j=0; j<cols; j++){
+				x[c] = at(i, j);
+				c++;
+			}
+		}
+		return x;
+	}
+	
+	/**
+	 * 将矩阵转换为2维数组。
+	 * <br><b><i>NOTICE:</i></b> 得到的将是矩阵中数组的拷贝。
+	 * @return
+	 */
+	public double[][] to2DArray(){
+		double[][] x = new double[rows][cols];
+		for (int i=0; i<rows; i++)
+			for (int j=0; j<cols; j++)
+				x[i][j] = at(i,j);
+		return x;
 	}
 	
 	/**
@@ -148,11 +254,30 @@ public class Matrix implements Serializable{
 	}
 	
 	/**
+	 * 构造一个从以pitch为间隔从begin到end递增的向量。
+	 * @param begin 向量开始数据
+	 * @param pitch 间隔
+	 * @param end 向量结束
+	 * @return
+	 */
+	public static Matrix increment(double begin, double pitch, double end){
+		int r = (int)((end-begin)/pitch);
+		if (r<=0)
+			throw new IllegalArgumentException("Matrix increment, end must greater than begin.");
+		Matrix x = new Matrix(r, 1);
+		double pre = begin;
+		for (int i=0; i<x.rows; i++){
+			x.set(i, pre);
+			pre += pitch;
+		}
+		return x;
+	}
+	
+	/**
 	 * 构造一个矩阵形如 A=u*I, I 是单位向量, u 是一个标量。
-	 * @param 矩阵的边长。 (size=rows=columns)
+	 * @param size 矩阵的边长。 (size=rows=columns)
 	 * @param scale 缩放比列。
 	 * @return A 
-	 * 参见：
 	 * @see #unit(int)
 	 */
 	public static Matrix unit(int size, double scale){
@@ -166,7 +291,6 @@ public class Matrix implements Serializable{
 	 * 构造一个单位矩阵。
 	 * @param size 矩阵边长。(size=rows=columns)
 	 * @return 单位矩阵。
-	 * 参见：
 	 * @see #unit(int, double)
 	 */
 	public static Matrix unit(int size){
@@ -179,7 +303,6 @@ public class Matrix implements Serializable{
 	 * @param cols 矩阵列数。
 	 * @param scale 缩放比例。
 	 * @return A 
-	 * 参见：
 	 * @see #ones(int, int)
 	 */
 	public static Matrix ones(int rows, int cols, double scale){
@@ -195,7 +318,6 @@ public class Matrix implements Serializable{
 	 * @param rows 矩阵行数。
 	 * @param cols 矩阵列数。
 	 * @return A
-	 * 参见：
 	 * @see #ones(int, int, double)
 	 */
 	public static Matrix ones(int rows, int cols){
@@ -219,7 +341,6 @@ public class Matrix implements Serializable{
 	 * 获取矩阵在下标i处的值（行向量或列向量均可）。
 	 * @param i 下标。
 	 * @return 值。
-	 * 参见：
 	 * @see #at(int, int)
 	 * @see #at(Range, Range)
 	 */
@@ -246,16 +367,14 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * 获取由行范围和列范围决定的子矩阵。
-	 * <b><i>NOTICE:</i></b> 由这种方式获取的子矩阵将不会被拷贝，如果你想获得矩阵的子矩阵，并且需要修改其中的值，但是
+	 * <br><b><i>NOTICE:</i></b> 由这种方式获取的子矩阵将不会被拷贝，如果你想获得矩阵的子矩阵，并且需要修改其中的值，但是
 	 * 又不希望原始矩阵中的值被改变，你应该编写像如下代码：
-	 * <pre>
 	 * <code><br>Matrix y=new Matrix(2,2); //create a new matrix with 2 rows and 2 columns
 	 * <br>x.at(new Range(1,3), new Range(2,4).copyTo(y); //copy the sub-matrix of x to y</code>
-	 * <pre>
 	 * @param row  Row range
 	 * @param col Column range
 	 * @return A sub-matrix of the matrix
-	 * 参见：
+	 * 
 	 * @see #copyTo(Matrix)
 	 */
 	public Matrix at(Range row, Range col){
@@ -282,7 +401,7 @@ public class Matrix implements Serializable{
 	 * 设置<i>向量</i>在下标i处的值（行向量或列向量。
 	 * @param i 下标。
 	 * @param value 需要设置的值。
-	 * 参见：
+	 * 
 	 * @see #set(int, int, double)
 	 * @see #set(Range, Range, Matrix)
 	 */
@@ -300,7 +419,7 @@ public class Matrix implements Serializable{
 	 * @param i 行下标。
 	 * @param j 列下标。
 	 * @param value 需要设置的值。
-	 * 参见：
+	 * 
 	 * @see #set(int, double)
 	 * @see #set(Range, Range, Matrix)
 	 */
@@ -316,7 +435,7 @@ public class Matrix implements Serializable{
 	 * @param row 行范围。
 	 * @param col 列范围。
 	 * @param value 需要设置的矩阵的值。
-	 * 参见：
+	 * 
 	 * @see #set(int, double)
 	 * @see #set(int, int, double)
 	 */
@@ -371,10 +490,10 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * 矩阵加法 (z = x + y)
-	 * <b><i>NOTICE:</i></b> 这个方法将用相加后的结果替换原始矩阵。
+	 * <br><b><i>NOTICE:</i></b> 这个方法将用相加后的结果替换原始矩阵。
 	 * @param x 
 	 * @return 结果。
-	 * 参见：
+	 * 
 	 * @see #add(Number)
 	 * @see #add(Matrix, boolean)
 	 * @see #add(Number, boolean)
@@ -391,7 +510,7 @@ public class Matrix implements Serializable{
 	 * @see #add(Matrix)
 	 * 否则，程序将保留原始矩阵。
 	 * @return 结果
-	 * 参见：
+	 * 
 	 * @see #add(Matrix)
 	 * @see #add(Number)
 	 * @see #add(Number, boolean)
@@ -414,7 +533,7 @@ public class Matrix implements Serializable{
 	 * @see #add(Number)
 	 * 否则，程序将保留原始矩阵。
 	 * @return 结果
-	 * 参见：
+	 * 
 	 * @see #add(Matrix)
 	 * @see #add(Number)
 	 * @see #add(Matrix, boolean)
@@ -430,10 +549,10 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * 矩阵加法 (z=x+y, x 为标量)
-	 *  <b><i>NOTICE:</i></b> 这个方法将用相加后的结果替换原始矩阵。
+	 *  <br><b><i>NOTICE:</i></b> 这个方法将用相加后的结果替换原始矩阵。
 	 * @param x 
 	 * @return 结果。
-	 * 参见：
+	 * 
 	 * @see #add(Matrix)
 	 * @see #add(Matrix, boolean)
 	 * @see #add(Number, boolean)
@@ -469,14 +588,14 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * 矩阵减法 (z=x-y)
-	 * <b><i>NOTICE:</i></b> 方法将用结果替换原始矩阵。如果想保留原始矩阵，使用如下代码：
+	 * <br><b><i>NOTICE:</i></b> 方法将用结果替换原始矩阵。如果想保留原始矩阵，使用如下代码：
 	 * <pre><code>
 	 * Matrix z=x.subtract(y);
 	 * </code>
 	 * </pre>
 	 * @param x 
 	 * @return 结果
-	 * 参见：
+	 * 
 	 * @see #subtract(Number)
 	 * @see #subtract(Matrix, boolean)
 	 * @see #subtract(int, int, Number)
@@ -493,7 +612,7 @@ public class Matrix implements Serializable{
 	 * 结果。否则，方法同
 	 * @see #subtract(Matrix)
 	 * @return 结果
-	 * 参见：
+	 * 
 	 * @see #subtract(Number)
 	 * @see #subtract(Matrix)
 	 * @see #subtract(int, int, Number)
@@ -511,14 +630,14 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * 矩阵减法 (z=x-y, y 为标量)
-	 * <b><i>NOTICE:</i></b> 方法将用结果替换原始矩阵。如果想保留原始矩阵，使用如下代码：
+	 * <br><b><i>NOTICE:</i></b> 方法将用结果替换原始矩阵。如果想保留原始矩阵，使用如下代码：
 	 * <pre><code>
 	 * Matrix z=x.subtract(y);
 	 * </code>
 	 * </pre>
 	 * @param x 
 	 * @return 结果
-	 * 参见：
+	 * 
 	 * @see #subtract(Matrix)
 	 * @see #subtract(Matrix, boolean)
 	 * @see #subtract(int, int, Number)
@@ -591,7 +710,7 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * 矩阵数乘
-	 * <b><i>NOTICE:</i></b> 方法将用结果替换原始矩阵。
+	 * <br><b><i>NOTICE:</i></b> 方法将用结果替换原始矩阵。
 	 * @param x 
 	 * @param x
 	 * @return 结果
@@ -634,7 +753,7 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * 矩阵除法 (z=x/y, y 为标量)
-	 * <b><i>NOTICE:</i></b> 方法将用结果替换原始矩阵。
+	 * <br><b><i>NOTICE:</i></b> 方法将用结果替换原始矩阵。
 	 * @param x 
 	 * @return 结果。
 	 * @see #divide(Number, boolean)
@@ -690,7 +809,7 @@ public class Matrix implements Serializable{
 	/**
 	 * 对矩阵开根。
 	 * @param reserve 指示是否保留原始矩阵，如果参数 <code>reserve==true</code>，方法将保留原始矩阵，否则，方法同：
-	 * @see #sqrt()
+	 * {@link #sqrt()}
 	 * @return 结果。
 	 * @see #sqrt()
 	 */
@@ -704,7 +823,7 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * 对矩阵开根。
-	 * <b><i>NOTICE:</i></b> 方法将使用计算结果替换原始矩阵。
+	 * <br><b><i>NOTICE:</i></b> 方法将使用计算结果替换原始矩阵。
 	 * @return 结果。
 	 * @see #sqrt(boolean)
 	 */

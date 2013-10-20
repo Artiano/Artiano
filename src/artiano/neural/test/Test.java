@@ -3,11 +3,19 @@
  */
 package artiano.neural.test;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
+
+import javax.swing.JFrame;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
+import org.math.plot.Plot3DPanel;
+
 
 
 import artiano.core.operation.MatrixOpt;
@@ -38,6 +46,8 @@ public class Test {
 	
 	static Matrix[] inputs = null;
 	static Matrix[] outputs = null;
+	
+	static double[][] x,y,z;
 
 	static void read(String filename, int count) throws FileNotFoundException{
 		File file=new File(filename);
@@ -48,12 +58,11 @@ public class Test {
         outputs = new Matrix[count];
        
         Scanner scanner = new Scanner(fis);
-        Randomizer ram = new GuassianRandomizer(0, 0.3);
         for (int i = 0; i < count; i++){
         	inputs[i] = new Matrix(1, 4);
         	outputs[i] = new Matrix(1, 3);
         	for (int j = 0; j < 4; j++){
-        		double x = scanner.nextDouble() + ram.next();
+        		double x = scanner.nextDouble();
         		inputs[i].set(0, j, x);
         	}
         	int idx = scanner.nextInt();
@@ -159,8 +168,36 @@ public class Test {
 		}
 	}
 	
+	public static void testPlot(){
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException | InstantiationException
+				| IllegalAccessException | UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
+		x = new double[3][25];
+		y = new double[3][25];
+		z = new double[3][25];
+		for (int i=0; i<3; i++){
+			for (int j=0; j<25; j++){
+				x[i][j] = inputs[i*25+j].at(0);
+				y[i][j] = inputs[i*25+j].at(1);
+				z[i][j] = inputs[i*25+j].at(2);
+			}
+		}
+		Plot3DPanel panel = new Plot3DPanel("SOUTH");
+		panel.addScatterPlot("1", Color.CYAN, x[0], y[0], z[0]);
+		panel.addScatterPlot("2", Color.RED, x[1], y[1], z[1]);
+		panel.addScatterPlot("3", Color.GREEN, x[2], y[2], z[2]);
+		JFrame frame = new JFrame("a plot panel");
+        frame.setSize(600, 600);
+        frame.setContentPane(panel);
+        frame.setVisible(true);
+	}
+	
 	public static void main(String[] args){
 		testActivationNetwork();
+		testPlot();
 		//testSOM();
 	}
 }
