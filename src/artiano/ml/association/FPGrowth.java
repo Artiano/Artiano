@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * <p>Description: FPTree for finding frequent k-item set.</p>
+ * <p>Description: FPGrowth for finding frequent k-item set.</p>
  * @author JohnF Nash
  * reference: http://blog.csdn.net/abcjennifer/article/details/7928082
  * @version 1.0.0
@@ -12,7 +12,7 @@ import java.util.*;
  * @function 
  * @since 1.0.0
  */
-public class FPTree {
+public class FPGrowth {
 	
 	private int minSupport;		
 	private Map<String, Integer> frequentPatterns = 
@@ -89,7 +89,7 @@ public class FPTree {
 	 * FP-Growth算法
 	 * @return Map of frequent patterns and their count.
 	 */
-    public Map<String, Integer> FPGrowth(List<List<String>> transRecords,
+    public Map<String, Integer> fpGrowth(List<List<String>> transRecords,
             List<String> postPattern) {        	
     	if(transRecords == null || transRecords.size() == 0) {
     		return null;
@@ -139,7 +139,7 @@ public class FPTree {
                 backnode = backnode.getNextHomonym();
             }
             // 递归迭代
-            FPGrowth(newTransRecords, newPostPattern);
+            fpGrowth(newTransRecords, newPostPattern);
         }
         
         return frequentPatterns;

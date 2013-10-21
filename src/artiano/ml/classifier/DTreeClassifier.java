@@ -18,9 +18,8 @@ public class DTreeClassifier extends Preservable {
 	
 	private ArrayList<ArrayList<String>> data = 
 			new ArrayList<ArrayList<String>>();
-	private ArrayList<String> attributeList = 
-			new ArrayList<String>(); 	// Attribute list	
-	private String targetAttribute;  //target attribute
+	private ArrayList<String> attributeList = new ArrayList<String>();	
+	private String targetAttribute; 
 	private DTreeNode root;		 //Root of the decision tree constructed.
 	
 	/**
@@ -53,15 +52,15 @@ public class DTreeClassifier extends Preservable {
 	}				
 		
 	/**
-	 * Predict classification of data 
+	 * Classify data 
 	 * @return classifications predicted of data.
 	 */
-	public List<String> predict(List<List<String>> data, List<String> attributeList) {
-		if(data == null || attributeList == null) {  //Input empty
+	public List<String> classify(List<List<String>> data) {
+		if(data == null) {  //Input empty
 			return new ArrayList<String>();
 		}
 		
-		List<String> predictionList = new ArrayList<String>(); //Store predictions
+		List<String> predictionList = new ArrayList<String>(); 
 		for(int i=0; i<data.size(); i++) {
 			List<String> singleItem = data.get(i);  //A sample
 			
@@ -104,7 +103,7 @@ public class DTreeClassifier extends Preservable {
 				}					
 			}
 			 
-			if(matchNum == attributeList.size() - 1 ) {   //Find
+			if(matchNum == attributeList.size() - 1 ) {   //Search complete
 				if(! "".equals(current.label)) {
 					predictionList.add(current.label);
 				} else {
@@ -268,9 +267,7 @@ public class DTreeClassifier extends Preservable {
 		ArrayList<Integer> eachCount = 
 			countAttributeValuesApperances(remainingData, indexOfAttr);		
 				
-		 /* Get remaining values of attribute in indexOfAttr
-		 * Can not use
-		 *   ArrayList<String> attrValues =attributeValueList.get(indexOfAttr)*/
+		 // Get remaining values of attribute in indexOfAttr
 		ArrayList<String> attrValues = new ArrayList<String>();
 		for(int i=0; i<remainingData.size(); i++) {
 			ArrayList<String> currentSample = remainingData.get(i);
@@ -322,15 +319,15 @@ public class DTreeClassifier extends Preservable {
 	/**
 	 * Check whether all the labels in the data is the same.
 	 * @param remainingData - remaining data to be classified.
-	 * @param isYesStr - value that indicate the value of label
+	 * @param label - value that indicate the value of label
 	 * @return whether all the label has the same value isYesStr
 	 */
 	private boolean allTheSameLabel(ArrayList<ArrayList<String>> remainingData, 
-			String isYesStr) {
+			String label) {
 		for(int i=0; i<remainingData.size(); i++) {
 			ArrayList<String> singleData = remainingData.get(i);   //a single test sample
 			int targetAttrIndex = attributeList.indexOf(targetAttribute);
-			if(!isYesStr.equals(singleData.get(targetAttrIndex))) {
+			if(!label.equals(singleData.get(targetAttrIndex))) {
 				return false;				
 		    } 	
 		}		
@@ -414,7 +411,6 @@ public class DTreeClassifier extends Preservable {
 			ArrayList<String> item  = data.get(i);
 			for(int j=0; j<attributeList.size(); j++) {
 				int attrIndex = this.attributeList.indexOf(attributeList.get(j));
-				//Attention:
 				if(!attributeValueList.get(j).contains(item.get(attrIndex))) {
 					attributeValueList.get(j).add(item.get(attrIndex));
 				}													

@@ -14,11 +14,7 @@ import artiano.ml.BaseKDTree;
  * @function 
  * @since 1.0.0
  */
-public class KDTree extends BaseKDTree {
-	
-	/* Empty constructor*/
-	public KDTree() {		
-	}
+public class KDTree extends BaseKDTree {	
 	
 	/**
 	 * Constructor
@@ -33,7 +29,7 @@ public class KDTree extends BaseKDTree {
 	 * @param dataSet - data set 
 	 * @return root of the decision tree.
 	 */
-	public BaseKDNode buildKDTree(Matrix dataSet) {
+	private BaseKDNode buildKDTree(Matrix dataSet) {
 		if(dataSet.rows() < 1) {
 			throw new IllegalArgumentException("Empty data set!");
 		}		
@@ -58,11 +54,12 @@ public class KDTree extends BaseKDTree {
 		}
 		
 		Matrix newTreeData = 
-				new Matrix(root.treeData.rows() - 1, root.treeData.columns());
+			new Matrix(root.treeData.rows() - 1, root.treeData.columns());
 	
 		/* Broad first search to get newTreeData and newTreeLabel */
 		int count = 0;
-		Queue<BaseKDTree.BaseKDNode> nodeQueue = new LinkedList<BaseKDTree.BaseKDNode>();
+		Queue<BaseKDTree.BaseKDNode> nodeQueue = 
+			new LinkedList<BaseKDTree.BaseKDNode>();
 		nodeQueue.add(root);
 		while(!nodeQueue.isEmpty()) {
 			BaseKDTree.BaseKDNode node = nodeQueue.poll();
@@ -93,7 +90,7 @@ public class KDTree extends BaseKDTree {
 	 * @param target - the data point to search its nearest
 	 * @return nearest data point
 	 */
-	public BaseKDTree.BaseKDNode findNearest(BaseKDTree.BaseKDNode root, Matrix target) {
+	public BaseKDTree.BaseKDNode findNearest(Matrix target) {		
 		/* 1. Binary search to get search path */
 		BaseKDTree.BaseKDNode current = root;		
 		int featureIndex = current.featureIndex;
@@ -102,10 +99,9 @@ public class KDTree extends BaseKDTree {
 		Stack<BaseKDTree.BaseKDNode> searchPath = new Stack();		
 		while(current != null) {										
 			searchPath.push(current);	//Push searched node to the stack			
-		
-			featureIndex = current.featureIndex;  //Get next partition index
-			
+							
 			//Binary search
+			featureIndex = current.featureIndex;  //Get next partition index
 			if(target.at(featureIndex) <= current.partitionValue) {
 				current = current.left;
 			} else {
@@ -285,20 +281,18 @@ public class KDTree extends BaseKDTree {
 	 * @param k - number of nearest to get
 	 * @return - k-nearest data point of target data point
 	 */
-	public List<BaseKDNode> findKNearest(Matrix target, int k) {
-		List<BaseKDNode> kNearest = new ArrayList<BaseKDNode>();
-		
+	public List<BaseKDNode> findKNearest(Matrix target, int k) {				
 		if(root == null) {
 			return null;
 		}			
-										
-		KDTree tree = new KDTree();
+		
 		Matrix copyData = root.treeData.clone();
-		tree.root = tree.buildKDTree(copyData);
-						
+		KDTree tree = new KDTree(copyData);
+
 		//Find (1+1)-th nearest respectively.
+		List<BaseKDNode> kNearest = new ArrayList<BaseKDNode>();
 		for(int i=0; i<k; i++) {
-			BaseKDNode nearestNode = tree.findNearest(tree.root, target);		
+			BaseKDNode nearestNode = tree.findNearest(target);		
 			kNearest.add(nearestNode);
 			tree.delete(nearestNode);
 		}

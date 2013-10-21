@@ -3,14 +3,14 @@ package artiano.ml.association.test;
 import java.util.*;
 import java.util.Map.Entry;
 
-import artiano.ml.association.FPTree;
+import artiano.ml.association.FPGrowth;
 import artiano.ml.association.FPTreeNode;
 
-public class FPTreeTest {
+public class FPGrowthTest {
 
 	
 	public void testReadTransRecord() {
-		FPTree tree = new FPTree();
+		FPGrowth tree = new FPGrowth();
 		List<List<String>> transactions =
 			tree.readTransactionRecord("src\\artiano\\ml\\association\\test\\data2.txt");
 		for(List<String> transaction: transactions) {
@@ -24,7 +24,7 @@ public class FPTreeTest {
 
 	
 	public void testFindFrequentOneItemset() {
-		FPTree tree = new FPTree();
+		FPGrowth tree = new FPGrowth();
 		int minSupport = 3;
 		tree.setMinSupport(minSupport);
 		List<List<String>> transactions =
@@ -39,7 +39,7 @@ public class FPTreeTest {
 
 	
 	public void testSortByFrequent1Itemset() {
-		FPTree tree = new FPTree();
+		FPGrowth tree = new FPGrowth();
 		int minSupport = 3;
 		tree.setMinSupport(minSupport);
 		List<List<String>> transactions =
@@ -58,7 +58,7 @@ public class FPTreeTest {
 	
 	
 	public void testBuildFPTree() {
-		FPTree tree = new FPTree();
+		FPGrowth tree = new FPGrowth();
 		int minSupport = 3;
 		tree.setMinSupport(minSupport);
 		List<List<String>> transactions =
@@ -84,12 +84,12 @@ public class FPTreeTest {
 	
 	@org.junit.Test
 	public void testFPTree() {
-		FPTree fptree = new FPTree();
+		FPGrowth fptree = new FPGrowth();
         fptree.setMinSupport(3);
         List<List<String>> transRecords = 
         	fptree.readTransactionRecord("src\\artiano\\ml\\association\\test\\data2.txt");
         Map<String, Integer> frequentPatterns = 
-        	fptree.FPGrowth(transRecords, null);
+        	fptree.fpGrowth(transRecords, null);
         Set<Entry<String, Integer>> entrySet =  frequentPatterns.entrySet();
         for(Entry<String, Integer> entry : entrySet) {
         	System.out.println(entry.getValue() + "\t" + entry.getKey());

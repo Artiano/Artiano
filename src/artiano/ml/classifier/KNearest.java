@@ -1,10 +1,7 @@
 package artiano.ml.classifier;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import artiano.core.operation.Preservable;
 import artiano.core.structure.Matrix;
@@ -12,10 +9,7 @@ import artiano.ml.classifier.KDTree.KDNode;
 
 public class KNearest extends Preservable {
 	private static final long serialVersionUID = 1L;
-	
-	@SuppressWarnings("unused")
-	//Indicate whether the class is used for classifier or regression
-	private boolean isRegression;	
+			
 	private KDTree kdTree;			//kd-tree	
 	
 	/* Empty constructor */
@@ -26,11 +20,9 @@ public class KNearest extends Preservable {
 	 * Train the model
 	 * @param trainData - train data
 	 * @param trainLabel - train labels
-	 * @param isRegression - the class used for regression or classification
 	 * @return - whether the train successes
 	 */
-	public boolean train(Matrix trainData, Matrix trainLabel, 
-			boolean isRegression) {
+	public boolean train(Matrix trainData, Matrix trainLabel) {
 		try {
 			isTrainDataValid(trainData, trainLabel);						
 		} catch(NullPointerException e) {
@@ -40,7 +32,6 @@ public class KNearest extends Preservable {
 			return false;
 		}				
 		
-		this.isRegression = isRegression;		
 		kdTree = new KDTree(trainData, trainLabel);  //construct kd-tree 
 		
 		return true;
@@ -111,7 +102,8 @@ public class KNearest extends Preservable {
 	 * Check whether train data is valid
 	 * @param trainData - train data
 	 * @param trainLabel - train label
-	 * @throws NullPointerException
+	 * @throws - NullPointerException
+	 *         - IllegalArgumentException
 	 */
 	private void isTrainDataValid(Matrix trainData, Matrix trainLabel) {
 		// Check whether train data is valid
