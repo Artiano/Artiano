@@ -25,7 +25,7 @@ public class ManhattanDistance implements Distance {
 		if (!a.sameType(b))
 			throw new UnsupportedOperationException("Distance calculate, type not same.");
 		double d = 0.;
-		Matrix c = a.subtract(b).abs();
+		Matrix c = a.minus(b).abs();
 		for (int i=0; i<c.size(); i++)
 			d += c.at(i);
 		return d;

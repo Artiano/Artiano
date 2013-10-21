@@ -38,8 +38,7 @@ public class Matrix implements Serializable{
 	 * 下标相对于最初的矩阵的行为rowRange.begin()，矩阵的行结束下标相对于最初的矩阵行为rowRange.end()。举个列子：
 	 * 当<code>rowRange.start==2</code>且<code>rowRange.end==5</code>时，那么这个矩阵相对于最原始矩阵的行的开始
 	 * 和结束下标为2和5。这个字段一般由：
-	 * @see #at(Range, Range)
-	 * @see #set(Range, Range, Matrix)
+	 * {@link #at(Range, Range)}，{@link #set(Range, Range, Matrix)}
 	 * 使用
 	 */
 	protected Range rowRange = null;
@@ -431,7 +430,7 @@ public class Matrix implements Serializable{
 	
 	/**
 	 * 设置有行范围和列范围决定的子矩阵的值。
-	 * <b><i>NOICE:</i><b>只是将声明的矩阵值拷贝到子矩阵。
+	 * <br><b><i>NOICE:</i></b>只是将声明的矩阵值拷贝到子矩阵。
 	 * @param row 行范围。
 	 * @param col 列范围。
 	 * @param value 需要设置的矩阵的值。
@@ -580,7 +579,7 @@ public class Matrix implements Serializable{
 	 * @param j 列下标。
 	 * @param value 需要减的数。
 	 */
-	public void subtract(int i, int j, Number value){
+	public void minus(int i, int j, Number value){
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
 			throw new IndexOutOfBoundsException("Matrix at, index out of range.");
 		d[(i + rowRange.begin()) * dCols + j + colRange.begin()] -= value.doubleValue();
@@ -596,13 +595,13 @@ public class Matrix implements Serializable{
 	 * @param x 
 	 * @return 结果
 	 * 
-	 * @see #subtract(Number)
-	 * @see #subtract(Matrix, boolean)
-	 * @see #subtract(int, int, Number)
-	 * @see #subtract(Number, boolean)
+	 * @see #minus(Number)
+	 * @see #minus(Matrix, boolean)
+	 * @see #minus(int, int, Number)
+	 * @see #minus(Number, boolean)
 	 */
-	public Matrix subtract(Matrix x){
-		return subtract(x,false);
+	public Matrix minus(Matrix x){
+		return minus(x,false);
 	}
 	
 	/**
@@ -610,15 +609,15 @@ public class Matrix implements Serializable{
 	 * @param x 
 	 * @param reserve 指示是否保留原始矩阵。如果参数 <code>reserve==true</code>，方法将保留原始矩阵，并返回计算
 	 * 结果。否则，方法同
-	 * @see #subtract(Matrix)
+	 * @see #minus(Matrix)
 	 * @return 结果
 	 * 
-	 * @see #subtract(Number)
-	 * @see #subtract(Matrix)
-	 * @see #subtract(int, int, Number)
-	 * @see #subtract(Number, boolean)
+	 * @see #minus(Number)
+	 * @see #minus(Matrix)
+	 * @see #minus(int, int, Number)
+	 * @see #minus(Number, boolean)
 	 */
-	public Matrix subtract(Matrix x, boolean reserve){
+	public Matrix minus(Matrix x, boolean reserve){
 		if (x.rows != rows || x.cols != cols)
 			throw new IllegalArgumentException("Matrix subtract, size not match.");
 		Matrix y = reserve ? new Matrix(rows, cols): this;
@@ -638,13 +637,13 @@ public class Matrix implements Serializable{
 	 * @param x 
 	 * @return 结果
 	 * 
-	 * @see #subtract(Matrix)
-	 * @see #subtract(Matrix, boolean)
-	 * @see #subtract(int, int, Number)
-	 * @see #subtract(Number, boolean)
+	 * @see #minus(Matrix)
+	 * @see #minus(Matrix, boolean)
+	 * @see #minus(int, int, Number)
+	 * @see #minus(Number, boolean)
 	 */
-	public Matrix subtract(Number x){
-		return subtract(x, false);
+	public Matrix minus(Number x){
+		return minus(x, false);
 	}
 	
 	/**
@@ -652,14 +651,14 @@ public class Matrix implements Serializable{
 	 * @param x
 	 * @param reserve 指示是否保留原始矩阵， 如果参数 <code>reserve==true</code>，方法将保留原始矩阵。
 	 * 否则，方法同:
-	 * @see #subtract(Number)
+	 * @see #minus(Number)
 	 * @return 结果
-	 * @see #subtract(Matrix)
-	 * @see #subtract(Matrix, boolean)
-	 * @see #subtract(int, int, Number)
-	 * @see #subtract(Number)
+	 * @see #minus(Matrix)
+	 * @see #minus(Matrix, boolean)
+	 * @see #minus(int, int, Number)
+	 * @see #minus(Number)
 	 */
-	public Matrix subtract(Number x, boolean reserve){
+	public Matrix minus(Number x, boolean reserve){
 		Matrix y = reserve ? new Matrix(rows, cols): this;
 		for (int i = 0; i < rows; i++)
 			for (int j = 0; j < cols; j++)

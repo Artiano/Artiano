@@ -9,7 +9,7 @@ import artiano.core.structure.Range;
 import artiano.math.algebra.SingularValueDecomposition;
 
 /**
- * <p>Description:</p>
+ * <p>广义主成分分析特征提取器。</p>
  * @author Nano.Michael
  * @version 1.0.0
  * @date 2013-8-22
@@ -19,9 +19,9 @@ import artiano.math.algebra.SingularValueDecomposition;
 public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtractor{
 	
 	private static final long serialVersionUID = 1L;
-	//the mean matrix
+	//平均矩阵
 	protected Matrix mean = null;
-	//eigen
+	//特征矩阵
 	protected Matrix eigenVectors = null;
 	protected Matrix eigenValues = null;
 	protected int eigens = 0;
@@ -35,44 +35,42 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 	/**
 	 * parameter of the extractor
 	 */
-	//the eigen needed to reconstruct
 	protected int eigensNeeded = 0;
 	//rate of contribution
 	protected double roc = 0.;
 	
 	/**
-	 * constructor
+	 * 构造器
 	 */
 	public GPCAExtractor(){ }
 	
 	/**
-	 * set the rate of contribution
-	 * @param roc - rate of contribution
+	 * 设置贡献率。
+	 * <br><b><i>NOTICE:</i></b> 必须在训练之前设置贡献率，提取器在训练时将根据贡献率来决定保存多少数据。默认值为1。
+	 * @param roc 贡献率。
 	 */
 	public void setRoc(double roc){
-		this.roc = roc;
+		this.roc = roc>0.&&roc<1.?roc:1.;
 	}
 	
 	/**
-	 * set the number of eigen-vectors needed to reconstruct
-	 * @param eigensNeeded - number of eigen-vectors needed to reconstruct
+	 * 设置用来重构的特征向量个数。
+	 * @param eigensNeeded 特征向量个数。
 	 */
 	public void setEigens(int eigensNeeded){
-		if (eigensNeeded <= 0 || eigensNeeded > eigens)
-			throw new IllegalArgumentException("GPCAExtractor setEigens, number of eigen-vectors needed out of range.");
-		this.eigensNeeded = eigensNeeded;
+		this.eigensNeeded = eigensNeeded>0&&eigensNeeded<eigens?eigensNeeded:eigens;
 	}
 	
 	/**
-	 * get eigen-values
-	 * @return - the eigen-value
+	 * 获取特征值向量。
+	 * @return 特征值向量。
 	 */
 	public Matrix getEigenValue(){
 		return this.eigenValues;
 	}
 	
 	/**
-	 * compute the rate of contribution
+	 * 计算贡献率
 	 */
 	protected void computeRoc(Matrix eigenValues){
 		double sum = 0.;
@@ -201,9 +199,9 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 			throw new IllegalArgumentException("GPCAExtractor extract, size not match.");
 		Matrix feature;
 		if (isVectors)
-			feature = eigenVectors.multiply(sample.subtract(mean, true).t()).t();
+			feature = eigenVectors.multiply(sample.minus(mean, true).t()).t();
 		else
-			feature = eigenVectors.multiply(sample.subtract(mean, true));
+			feature = eigenVectors.multiply(sample.minus(mean, true));
 		return feature;
 	}
 

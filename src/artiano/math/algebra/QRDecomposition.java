@@ -69,7 +69,7 @@ public class QRDecomposition {
 				for (j = k+1; j<n; j++){
 					for (sum = 0., i = k; i<n; i++) sum += a.at(i, k)*a.at(i, j);
 					tau = sum/c.at(k);
-					for (i=k; i<n; i++) a.subtract(i, j, tau*a.at(i, k));
+					for (i=k; i<n; i++) a.minus(i, j, tau*a.at(i, k));
 				}
 			}
 		}
@@ -112,7 +112,7 @@ public class QRDecomposition {
 				sum = 0.;
 				for (int i = j; i<n; i++) sum += a.at(i, j)*b.at(i, k);
 				tau = sum/c.at(j);
-				for (int i = j; i<n; i++) b.subtract(i, k, tau*a.at(i, j));
+				for (int i = j; i<n; i++) b.minus(i, k, tau*a.at(i, j));
 			}
 		}
 		return solveR(b);

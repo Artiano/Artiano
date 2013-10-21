@@ -25,7 +25,7 @@ public class EuclideanDistance implements Distance {
 		if (!a.sameType(b))
 			throw new UnsupportedOperationException("Distance calculate, type not same.");
 		double d = 0.;
-		Matrix x = a.subtract(b);
+		Matrix x = a.minus(b);
 		if (x.isRowVector())
 			d = x.multiply(x.t()).sqrt().data()[0];
 		else

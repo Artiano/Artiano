@@ -428,41 +428,6 @@ public class Test {
 			}
 		}
 	}
-	
-	public static void testOLSRegression() {
-		double[] a = {
-    	     //	1, 3, 4, 5, 6,
-				0.4, 23, 163, 
-				3.1, 19, 37,
-				0.6, 34, 157,
-				4.7, 24, 59,
-				1.7, 65, 123,
-				9.4, 44, 46,				
-				10.1, 31, 117,
-				10.9, 37, 111,
-    	};
-    	double[] b = {
-    			//3, 2, 9, 7, 1
-    			60, 71, 61, 54, 77, 81, 93, 76
-    	};
-    	Matrix X = new Matrix(a.length / 3, 3, a);
-    	Matrix Y = new Matrix(b.length, 1, b);
-    	Matrix dst = Regression.getOLSRegression(X, Y);
-    	System.out.println("寰楀埌鐨勬嫙鍚堝椤瑰紡涓�");
-    	for(int i=0; i<dst.rows(); i++) {
-    		for(int j=0; j<dst.columns(); j++) {
-    			if(i == 0) {
-    				System.out.print(dst.at(i, j) + " ");
-    			} else {
-    				if(dst.at(i, j) < 0) {
-    					System.out.print("- " + dst.at(i, j) + "*x" + i + " ");
-    				} else {
-    					System.out.print("+ " + dst.at(i, j) + "*x" + i + " ");
-    				}    				
-    			}    			
-    		}
-    	}
-	}
 	 
 	public static void main(String[] args) {											
 		//testNaiveBayesClassifier();

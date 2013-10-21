@@ -54,7 +54,7 @@ public class Test {
 		printMatrix(x);
 		printMatrix(m.row(2));
 		printMatrix(m.col(2));
-		m.subtract(0, 0, 3);
+		m.minus(0, 0, 3);
 		printMatrix(m);
 		Matrix n = m.at(new Range(1, 3), new Range(2, 4));
 		printMatrix(n);

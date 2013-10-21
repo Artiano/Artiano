@@ -139,9 +139,9 @@ public class GaussJordan {
 					dum = a.at(ll, icol);
 					a.set(ll, icol, 0.);
 					for (l = 0; l < n; l++)
-						a.subtract(ll, l, a.at(icol, l) * dum);
+						a.minus(ll, l, a.at(icol, l) * dum);
 					for (l = 0; l < m; l++)
-						b.subtract(ll, l, b.at(icol, l) * dum);
+						b.minus(ll, l, b.at(icol, l) * dum);
 				}
 		}
 		

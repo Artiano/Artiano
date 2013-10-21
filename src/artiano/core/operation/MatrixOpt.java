@@ -99,9 +99,9 @@ public class MatrixOpt {
 			throw new IllegalArgumentException("MatrixOpt computeCovarianceByRow, out of range.");
 		Matrix cov = new Matrix(length, length);
 		for (int i = start; i < length; i++){
-			Matrix t = vectors[i].subtract(mean, true);
+			Matrix t = vectors[i].minus(mean, true);
 			for (int j = 0; j < length; j++){
-				Matrix r = vectors[j].subtract(mean, true).t();
+				Matrix r = vectors[j].minus(mean, true).t();
 				cov.set(i, j, t.multiply(r).data()[0]*scale);
 			}
 		}
@@ -166,7 +166,7 @@ public class MatrixOpt {
 	public static Matrix compute2DCovariance(Matrix[] matrices, Matrix mean, double scale){
 		Matrix cov = new Matrix(mean.columns(), mean.columns());
 		for (int i = 0; i < matrices.length; i++){
-			Matrix t = matrices[i].subtract(mean, true);
+			Matrix t = matrices[i].minus(mean, true);
 			cov.add(t.t().multiply(t));
 		}
 		cov.multiply(scale);

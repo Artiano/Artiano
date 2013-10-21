@@ -128,7 +128,7 @@ public class EigenValueDecomposition {
 						h=t*a.at(ip, iq);
 						z[ip] -= h;
 						z[iq] += h;
-						d.subtract(0, ip, h);
+						d.minus(0, ip, h);
 						d.add(0, iq, h);
 						a.set(ip, iq, 0.);
 						for (j=0; j<ip; j++)
