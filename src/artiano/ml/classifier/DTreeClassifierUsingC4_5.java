@@ -74,11 +74,11 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 	}				
 		
 	/**
-	 * Predict classification of data 
+	 * Classify data 
 	 * @return classifications predicted of data.
 	 */
-	public List<String> predict(List<List<String>> data, List<String> attributeList) {
-		if(data == null || attributeList == null) {  //Input empty
+	public List<String> classify(List<List<String>> data) {
+		if(data == null) {  //Input empty
 			return new ArrayList<String>();
 		}
 		
@@ -212,7 +212,6 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 		if(!isAttributeContinuous[indexOfAttr]) {													
 			constructDiscreteAttributeSubTree(p, remainingData,remainingAttribute);			
 		} else {  			
-			System.out.println(p.attribute + " , " + indexOfAttr);
 			constructContinuousSubTree(p, remainingData, remainingAttribute);
 		}						
 		return p;
@@ -559,15 +558,15 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 	/**
 	 * Check whether all the labels in the data is the same.
 	 * @param remainingData - remaining data to be classified.
-	 * @param isYesStr - value that indicate the value of label
+	 * @param label - value that indicate the value of label
 	 * @return whether all the label has the same value isYesStr
 	 */
 	private boolean allTheSameLabel(ArrayList<ArrayList<String>> remainingData, 
-			String isYesStr) {
+			String label) {
 		for(int i=0; i<remainingData.size(); i++) {
 			ArrayList<String> singleData = remainingData.get(i);   //a single test sample
 			int targetAttrIndex = attributeList.indexOf(targetAttribute);
-			if(!isYesStr.equals(singleData.get(targetAttrIndex))) {
+			if(!label.equals(singleData.get(targetAttrIndex))) {
 				return false;				
 		    } 	
 		}		

@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * <p>Description: FPTree for finding frequent k-item set.</p>
+ * <p>Description: FPGrowth for finding frequent k-item set.</p>
  * @author JohnF Nash
  * reference: http://blog.csdn.net/abcjennifer/article/details/7928082
  * @version 1.0.0
@@ -12,9 +12,11 @@ import java.util.*;
  * @function 
  * @since 1.0.0
  */
-public class FPTree {
+public class FPGrowth {
 	
 	private int minSupport;		
+	private Map<String, Integer> frequentPatterns = 
+		new HashMap<String, Integer>();
 	
 	public int getMinSupport() {
 		return minSupport;
@@ -34,7 +36,7 @@ public class FPTree {
 			List<String> record = new ArrayList<String>();			
 			while((line = br.readLine()) != null) {
 				if(line.trim().length() > 0) {
-					String[] str = line.split("[,£¬]");
+					String[] str = line.split("[,ï¼Œ]");
 					record = new LinkedList<String>();
 					for(String w : str) {
 						record.add(w.trim());
@@ -71,7 +73,7 @@ public class FPTree {
 			}
 		} 
 		
-		// °ÑÖ§³Ö¶È´óÓÚ£¨»òµÈÓÚ£©minSupµÄÏî¼ÓÈëµ½F1ÖĞ
+		// æŠŠæ”¯æŒåº¦å¤§äºï¼ˆæˆ–ç­‰äºï¼‰minSupçš„é¡¹åŠ å…¥åˆ°F1ä¸­
 		Set<String> itemNames = itemsetMap.keySet();
 		for (String name : itemNames) {
             FPTreeNode tnode = itemsetMap.get(name);
@@ -83,48 +85,51 @@ public class FPTree {
 		return frequent1Itemset;
 	}
 	
-	// FP-GrowthËã·¨
-    public void FPGrowth(List<List<String>> transRecords,
+	/**
+	 * FP-Growthç®—æ³•
+	 * @return Map of frequent patterns and their count.
+	 */
+    public Map<String, Integer> fpGrowth(List<List<String>> transRecords,
             List<String> postPattern) {        	
     	if(transRecords == null || transRecords.size() == 0) {
-    		return;
+    		return null;
     	}
-    	// ¹¹½¨ÏîÍ·±í£¬Í¬Ê±Ò²ÊÇÆµ·±1Ïî¼¯
+    	// æ„å»ºé¡¹å¤´è¡¨ï¼ŒåŒæ—¶ä¹Ÿæ˜¯é¢‘ç¹1é¡¹é›†
         List<FPTreeNode> HeaderTable = buildHeaderTable(transRecords);
-        // ¹¹½¨FP-Tree
+        // æ„å»ºFP-Tree
         FPTreeNode treeRoot = buildFPTree(transRecords, HeaderTable);
-        // Èç¹ûFP-TreeÎª¿ÕÔò·µ»Ø
+        // å¦‚æœFP-Treeä¸ºç©ºåˆ™è¿”å›
         if (treeRoot.getChildren()==null || treeRoot.getChildren().size() == 0) {
-            return;
+            return null;
         }
         
-        //Êä³öÏîÍ·±íµÄÃ¿Ò»Ïî+postPattern
+        //è¾“å‡ºé¡¹å¤´è¡¨çš„æ¯ä¸€é¡¹+postPattern
         if(postPattern!=null){
             for (FPTreeNode header : HeaderTable) {
-                System.out.print(header.getCount() + "\t" + header.getName());
+            	StringBuffer bf = new StringBuffer(header.getName());
                 for (String ele : postPattern) {
-                    System.out.print("\t" + ele);
+                	bf.append("\t" + ele);                	
                 }
-                System.out.println();
+                frequentPatterns.put(bf.toString(), header.getCount());
             }
         }
         
-        // ÕÒµ½ÏîÍ·±íµÄÃ¿Ò»ÏîµÄÌõ¼şÄ£Ê½»ù£¬½øÈëµİ¹éµü´ú
+        // æ‰¾åˆ°é¡¹å¤´è¡¨çš„æ¯ä¸€é¡¹çš„æ¡ä»¶æ¨¡å¼åŸºï¼Œè¿›å…¥é€’å½’è¿­ä»£
         for (FPTreeNode header : HeaderTable) {
-            // ºó×ºÄ£Ê½Ôö¼ÓÒ»Ïî
+        	// åç¼€æ¨¡å¼å¢åŠ ä¸€é¡¹
             List<String> newPostPattern = new LinkedList<String>();
             newPostPattern.add(header.getName());
             if (postPattern != null) {
                 newPostPattern.addAll(postPattern);
             }
-            // Ñ°ÕÒheaderµÄÌõ¼şÄ£Ê½»ùCPB£¬·ÅÈënewTransRecordsÖĞ
+            // å¯»æ‰¾headerçš„æ¡ä»¶æ¨¡å¼åŸºCPBï¼Œæ”¾å…¥newTransRecordsä¸­
             List<List<String>> newTransRecords = new LinkedList<List<String>>();
             FPTreeNode backnode = header.getNextHomonym();
             while (backnode != null) {
                 int counter = backnode.getCount();
                 List<String> prenodes = new ArrayList<String>();
                 FPTreeNode parent = backnode;
-                // ±éÀúbacknodeµÄ×æÏÈ½Úµã£¬·Åµ½prenodesÖĞ
+                // éå†backnodeçš„ç¥–å…ˆèŠ‚ç‚¹ï¼Œæ”¾åˆ°prenodesä¸­
                 while ((parent = parent.getParent()).getName() != null) {
                     prenodes.add(parent.getName());
                 }
@@ -133,14 +138,16 @@ public class FPTree {
                 }
                 backnode = backnode.getNextHomonym();
             }
-            // µİ¹éµü´ú
-            FPGrowth(newTransRecords, newPostPattern);
+            // é€’å½’è¿­ä»£
+            fpGrowth(newTransRecords, newPostPattern);
         }
+        
+        return frequentPatterns;
     }
 
 	public FPTreeNode buildFPTree(List<List<String>> transRecords,
 			List<FPTreeNode> frequent1Iteset) {
-		FPTreeNode root = new FPTreeNode(); // ´´½¨Ê÷µÄ¸ù½Úµã
+		FPTreeNode root = new FPTreeNode(); // åˆ›å»ºæ ‘çš„æ ¹èŠ‚ç‚¹
 		for (List<String> transRecord : transRecords) {
             LinkedList<String> record = 
             	sortByFrequent1Itemset(transRecord, frequent1Iteset);
@@ -149,7 +156,6 @@ public class FPTree {
             if(root.getChildren() != null) {
             	while(!record.isEmpty() 
             		&& (tempRoot = subTreeRoot.findChild(record.peek())) != null ) {
-            		//tempRoot = subTreeRoot.findChild(record.peek());
             		if(tempRoot != null) {
             			tempRoot.countIncrement(1);
             			subTreeRoot = tempRoot;
@@ -176,7 +182,7 @@ public class FPTree {
 		return sortedItemset;
 	}
 	
-	// °Ñrecord×÷ÎªancestorµÄºó´ú²åÈëÊ÷ÖĞ
+	// æŠŠrecordä½œä¸ºancestorçš„åä»£æ’å…¥æ ‘ä¸­
     public void addNodes(FPTreeNode ancestor, LinkedList<String> record,
     		List<FPTreeNode> F1) {
     	while(record.size() > 0){

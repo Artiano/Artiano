@@ -33,8 +33,7 @@ public class KMeans extends Preservable {
 	 * @return clusterMap - mapping between centers and members of each center 
 	 */
 	public Map<Matrix, Matrix> kmeans(Matrix data, int k) {
-		this.data = data;
-		
+		this.data = data;		
 		dataValidationCheck(data, k); //Check validation of parameters inputed. 
 		
 		//Get centers with min evaluations in several exercises
@@ -54,7 +53,8 @@ public class KMeans extends Preservable {
 		//Store all final centers of NUMOFGENERATINGCENTERS times computing
 		Matrix allExerCenters = new Matrix(NUMOFGENERATINGCENTERS * k, data.columns());
 		//Store all cluster Maps
-		List<Map<Matrix, Matrix>> allClusterMaps = new ArrayList<Map<Matrix, Matrix>>();			
+		List<Map<Matrix, Matrix>> allClusterMaps = 
+				new ArrayList<Map<Matrix, Matrix>>();			
 		//Store evaluations of each generating of random centers
 		Matrix allEvaluations = new Matrix(NUMOFGENERATINGCENTERS, 1);  
 		
@@ -139,7 +139,7 @@ public class KMeans extends Preservable {
 		Matrix newCenters = new Matrix(centerNum, columns);
 		Set<Entry<Matrix, Matrix>> entrySet = clusterMap.entrySet();
 		int count = 0;
-		DecimalFormat f = new DecimalFormat("#.##");   //Format double value 
+		DecimalFormat f = new DecimalFormat("#.###");   //Format double value 
 		for(Entry<Matrix, Matrix> entry: entrySet) {	
 			Matrix aCluster = entry.getValue();
 			Matrix newCenter = new Matrix(1, columns);  //Compute average matrix

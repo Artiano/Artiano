@@ -4,6 +4,7 @@
 package artiano.ml.classifier;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 import artiano.core.operation.Preservable;
 import artiano.core.structure.Matrix;
@@ -11,7 +12,7 @@ import artiano.core.structure.Range;
 
 /**
  * <p>
- * Description: Normal Bayes classifier
+ * Description: Naive Bayes classifier
  * </p>
  * 
  * @author JohnF Nash
@@ -22,61 +23,50 @@ import artiano.core.structure.Range;
  */
 public class NaiveBayesClassifier extends Preservable {
 	private static final long serialVersionUID = 1L;
-
-	// Training data
-	private Matrix trainingData;
-	// class label to train data
-	private Matrix trainingLabel;
+	
+	private Matrix trainData;
+	private Matrix trainLabel;
 	// Training result
-	private Matrix trainingResult;
+	private Matrix trainResult;
 	// Count of all labels
 	private Map<Integer, Integer> eachlabelCount = 
-			new LinkedHashMap<Integer, Integer>();
-
-	/**
-	 * constructor
-	 */
-	public NaiveBayesClassifier() {
-	}
-
-	/**
-	 * constructor
-	 * 
-	 * @param trainingData  - training data
-	 * @param trainLabel - Labels of training data.
-	 */
-	public NaiveBayesClassifier(Matrix trainingData, Matrix trainLabel) {
-		this.trainingData = trainingData;
-		this.trainingLabel = trainLabel;
-	}
-
+			new LinkedHashMap<Integer, Integer>();	
+	
 	/**
 	 * Train data
-	 * 
-	 * @param trainingData - training data
-	 * @param trainingLabel - labels for training data
-	 * @param var_idx - starting index of feature to train
-	 * @param labelAttrIndex - column index of label for each training data
+	 * @param trainData - training data
+	 * @param trainLabel - labels for training data
 	 * @return whether the training success.
 	 */
-	public boolean train(Matrix trainingData, Matrix trainingLabel,
-			int labelAttrIndex) {
+	public boolean train(Matrix trainData, Matrix trainLabel) {
 		try {
 			// Check whether train data is valid
-			isTrainingDataValid(trainingData, trainingLabel, labelAttrIndex);
+			isTrainingDataValid(trainData, trainLabel);
 		} catch (Exception e) {
 			return false; // The data training fails
 		}
+		this.trainData = trainData;
+		this.trainLabel = trainLabel;
 
-		this.trainingData = trainingData;
-		this.trainingLabel = trainingLabel;
-
-		Map<Integer, Matrix> labelMap = 
-				new LinkedHashMap<Integer, Matrix>(); // Store labels and its data
-		// Cluster training data by class
-		groupTraningDataByClass(labelAttrIndex, labelMap); 
+		// Group training data by class
+		Map<Integer, Matrix> labelMap = groupTraningDataByLabel();	
 		generateTrainingResult(labelMap); // Generate training result
 		return true;
+	}
+	
+	/**
+	 * Classify samples
+	 * 
+	 * @param samples - sample to get its classification
+	 * @return classification result.
+	 */
+	public Matrix classify(Matrix samples) {		
+		Matrix result = new Matrix(samples.rows(), 1);
+		for (int i = 0; i < samples.rows(); i++) {
+			int predictResult = classifySingleData(samples.row(i));
+			result.set(i, 0, predictResult);
+		}
+		return result;
 	}
 
 	/**
@@ -86,7 +76,7 @@ public class NaiveBayesClassifier extends Preservable {
 	 * @return classification of the sample
 	 * @throws Exception
 	 */
-	public int predict(Matrix sample) {
+	private int classifySingleData(Matrix sample) {
 		if (sample.rows() > 1) {
 			throw new IllegalArgumentException(
 				"The test sample matrix can only be one row. For"
@@ -94,34 +84,10 @@ public class NaiveBayesClassifier extends Preservable {
 		}
 
 		/* Get the classification by finding the max probability */
-		List<Double> probabilityList = new ArrayList<Double>();
-
-		// Get label list
-		List<Integer> labelList = new ArrayList<Integer>(
-				eachlabelCount.keySet());
-		for (int j = 0; j < labelList.size(); j++) {
-			double probabilitiy = 1;
-			for (int k = 0; k < sample.columns(); k++) {
-				// Attention: j * sample.columns() + k
-				double aver = 
-						trainingResult.at(j * sample.columns() + k, 1); 
-				double stdDeviation = 
-						trainingResult.at(j * sample.columns()+ k, 2);
-
-				double a = (1.0 / (Math.sqrt(Math.PI * 2) * stdDeviation));
-				double b = Math.pow((sample.at(0, k) - aver), 2);
-				double c = 2 * Math.pow(stdDeviation, 2);
-				// Gaussian distribution
-				probabilitiy *= (a * Math.pow(Math.E, -1 * b / c)); 
-			}
-			double labelAppearProba = eachlabelCount.get(labelList.get(j))
-					* 1.0 / trainingData.rows(); // Probability of each label
-			probabilitiy *= labelAppearProba;
-			// Probability with j-th classification
-			probabilityList.add(probabilitiy); 
-		}
-
-		/* Get the classification by searching the max probability */
+		List<Integer> labelList = 
+			new ArrayList<Integer>(eachlabelCount.keySet());						
+		List<Double> probabilityList = 
+			computeEachLabelProbabilityOfData(sample, labelList);
 		double maxPorba = probabilityList.get(0);
 		int maxIndex = 0;
 		for (int m = 1; m < probabilityList.size(); m++) {
@@ -133,21 +99,29 @@ public class NaiveBayesClassifier extends Preservable {
 		return labelList.get(maxIndex); // Return the classification
 	}
 
-	/**
-	 * Predict classification of multiple samples
-	 * 
-	 * @param samples - sample to get its classification
-	 * @param result - predict result
-	 * @return
-	 */
-	public int predict(Matrix samples, Matrix result) {
-		for (int i = 0; i < samples.rows(); i++) {
-			int predictResult = predict(samples.row(i));
-			result.set(i, 0, predictResult);
+	private List<Double> computeEachLabelProbabilityOfData(Matrix sample,
+			List<Integer> labelList) {
+		List<Double> probabilityList = new ArrayList<Double>();		
+		for (int j = 0; j < labelList.size(); j++) {
+			double probabilitiy = 1;
+			for (int k = 0; k < sample.columns(); k++) {
+				double aver = 
+						trainResult.at(j * sample.columns() + k, 1); 
+				double stdDeviation = 
+						trainResult.at(j * sample.columns()+ k, 2);
+				double a = (1.0 / (Math.sqrt(Math.PI * 2) * stdDeviation));
+				double b = Math.pow((sample.at(0, k) - aver), 2);
+				double c = 2 * Math.pow(stdDeviation, 2);
+				probabilitiy *= (a * Math.pow(Math.E, -1 * b / c)); 
+			}
+			double labelAppearProba = 
+				eachlabelCount.get(labelList.get(j)) * 1.0 / trainData.rows(); // Probability of each label
+			probabilitiy *= labelAppearProba;			
+			probabilityList.add(probabilitiy);  // Probability with j-th classification 
 		}
-		return 0;
+		return probabilityList;
 	}
-
+	
 	/**
 	 * Compute Standard Deviation(标准差) of a number list
 	 * 
@@ -156,7 +130,7 @@ public class NaiveBayesClassifier extends Preservable {
 	 */
 	private double computeStandardDeviation(Matrix numbers) {
 		double average = computeAverage(numbers); // Get average of numbers
-		double variance = 0; // Variance(方差) of numbers
+		double variance = 0; 		// Variance(方差) of numbers
 		for (int j = 0; j < numbers.columns(); j++) {
 			variance += Math.pow(numbers.at(0, j) - average, 2);
 		}
@@ -183,28 +157,24 @@ public class NaiveBayesClassifier extends Preservable {
 	 * @param labelMap - labels and theirs appearances count.
 	 */
 	private void generateTrainingResult(Map<Integer, Matrix> labelMap) {
-		Set<Integer> keys = labelMap.keySet(); // class labels
-		Iterator<Integer> iter = keys.iterator();
 		int count = 0;
-
-		int dataRowCount = (trainingData.columns() - 1) * keys.size();
-		trainingResult = new Matrix(dataRowCount, 3);
-		while (iter.hasNext()) {
-			Integer key = iter.next();
-			Matrix aClass = labelMap.get(key); // Data with same label
+		int dataRowCount = trainData.columns() * labelMap.keySet().size();
+		trainResult = new Matrix(dataRowCount, 3);
+		Set<Entry<Integer, Matrix>> entrySet = labelMap.entrySet();		
+		for(Entry<Integer, Matrix> entry : entrySet) {		
+			Matrix dataWithSameLabel = entry.getValue();
 			// Count occurrences of each label
-			eachlabelCount.put(key, aClass.rows()); 
-
-			Matrix reverse = aClass.t(); // Reverse of matrix aClass
+			eachlabelCount.put(entry.getKey(), dataWithSameLabel.rows());
+			
+			Matrix reverse = dataWithSameLabel.t(); // Reverse of matrix aClass
 			for (int i = 0; i < reverse.rows(); i++) {
 				double aver = computeAverage(reverse.at(new Range(i, i + 1),
 						new Range(0, reverse.columns())));
 				double stdDeviation = computeStandardDeviation(reverse.at(
 						new Range(i, i + 1), new Range(0, reverse.columns())));
-				trainingResult.add(count, 0, key);
-				trainingResult.add(count, 1, aver);
-				trainingResult.add(count, 2, stdDeviation);
-
+				trainResult.add(count, 0, entry.getKey());
+				trainResult.add(count, 1, aver);
+				trainResult.add(count, 2, stdDeviation);
 				
 				count++;
 			}
@@ -214,62 +184,40 @@ public class NaiveBayesClassifier extends Preservable {
 	/**
 	 * Group training data by class
 	 * 
-	 * @param labeAttrlndex - column index of label for each training data.
-	 * @param labelMap - labels and theirs appearances count.
+	 * @return map, key for label, value for data with the label.
 	 */
-	private void groupTraningDataByClass(int labeAttrlndex,
-			Map<Integer, Matrix> labelMap) {
-		for (int i = 0; i < trainingData.rows(); i++) {
-			int label = (int) trainingLabel.at(i, 0); // label of a class
-			// get feature vector
-			Matrix matrix = new Matrix(1, trainingData.columns() - 1);
-			for (int m = 0; m < matrix.columns(); m++) {
-				if (m < labeAttrlndex) {
-					matrix.set(0, m, trainingData.at(i, m));
-				} else if (m >= labeAttrlndex) {
-					matrix.set(0, m, trainingData.at(i, m + 1));
-				}
-			}
-
-			if (!labelMap.containsKey(label)) { // A new class
-				labelMap.put(label, matrix);
-
+	private Map<Integer, Matrix> groupTraningDataByLabel() {
+		Map<Integer, Matrix> labelMap = new HashMap<Integer, Matrix>();
+		for (int i = 0; i < trainData.rows(); i++) {
+			int label = (int) trainLabel.at(i, 0); // label of a class
+			if(!labelMap.containsKey(label)) {
+				labelMap.put(label, trainData.row(i));
 			} else {
 				Matrix oldMatrix = labelMap.get(label);
-				oldMatrix.mergeAfterRow(matrix);
-			}
+				oldMatrix.mergeAfterRow(trainData.row(i));
+				labelMap.put(label, oldMatrix);
+			}		
 		}
+		return labelMap;
 	}
 
 	/**
 	 * Check the validation of training data inputed.
 	 * 
-	 * @param trainingData - training data
-	 * @param trainingLabel - labels for training data
-	 * @param labelAttrIndex - column index of label for each training data
+	 * @throws NullPointerException - trainData or trainLabel is null.
 	 * @throws IllegalArgumentException
-	 *             - when labelAttrIndex out of range or Data in parameter
-	 *             trainingResponse does not match with data in parameter
-	 *             trainingData
+	 *            - Data in parameter trainingLabel does not match with 
+	 *              data in parameter trainingData
 	 */
-	private void isTrainingDataValid(Matrix trainingData, Matrix trainingLabel,
-			int labelAttrIndex) {
+	private void isTrainingDataValid(Matrix trainData, Matrix trainLabel) {
 		// Check whether train data is valid
-		if (trainingData == null || trainingLabel == null) {
+		if (trainData == null || trainLabel == null) {
 			throw new NullPointerException("Training data is null");
 		}
 
-		if (labelAttrIndex < 0 || labelAttrIndex >= trainingData.columns()) {
-			throw new IllegalArgumentException(
-					"Parameter labelAttrIndex out of range.");
-		}
-
-		for (int i = 0; i < trainingData.rows(); i++) {
-			if (trainingData.at(i, labelAttrIndex) != trainingLabel.at(i, 0)) {
-				throw new IllegalArgumentException(
-						"Data in parameter trainingResponse does not"
-								+ " match with data in parameter trainingData.");
-			}
+		if(trainData.rows() != trainLabel.rows()) {
+			throw new IllegalArgumentException("Size of TrainingLabel does not match " +
+					"with that of trainingData.");
 		}
 	}
 }

@@ -1,15 +1,16 @@
 package artiano.ml.association.test;
 
 import java.util.*;
+import java.util.Map.Entry;
 
-import artiano.ml.association.FPTree;
+import artiano.ml.association.FPGrowth;
 import artiano.ml.association.FPTreeNode;
 
-public class FPTreeTest {
+public class FPGrowthTest {
 
 	
 	public void testReadTransRecord() {
-		FPTree tree = new FPTree();
+		FPGrowth tree = new FPGrowth();
 		List<List<String>> transactions =
 			tree.readTransactionRecord("src\\artiano\\ml\\association\\test\\data2.txt");
 		for(List<String> transaction: transactions) {
@@ -23,7 +24,7 @@ public class FPTreeTest {
 
 	
 	public void testFindFrequentOneItemset() {
-		FPTree tree = new FPTree();
+		FPGrowth tree = new FPGrowth();
 		int minSupport = 3;
 		tree.setMinSupport(minSupport);
 		List<List<String>> transactions =
@@ -38,7 +39,7 @@ public class FPTreeTest {
 
 	
 	public void testSortByFrequent1Itemset() {
-		FPTree tree = new FPTree();
+		FPGrowth tree = new FPGrowth();
 		int minSupport = 3;
 		tree.setMinSupport(minSupport);
 		List<List<String>> transactions =
@@ -57,14 +58,14 @@ public class FPTreeTest {
 	
 	
 	public void testBuildFPTree() {
-		FPTree tree = new FPTree();
+		FPGrowth tree = new FPGrowth();
 		int minSupport = 3;
 		tree.setMinSupport(minSupport);
 		List<List<String>> transactions =
 			tree.readTransactionRecord("src\\artiano\\ml\\association\\test\\data2.txt");
-		// 构建项头表，同时也是频繁1项集
+	 	// 鏋勫缓椤瑰ご琛紝鍚屾椂涔熸槸棰戠箒1椤归泦
         List<FPTreeNode> HeaderTable = tree.buildHeaderTable(transactions);
-        // 构建FP-Tree
+        // 鏋勫缓FP-Tree
         FPTreeNode treeRoot = tree.buildFPTree(transactions, HeaderTable);
         Queue<FPTreeNode> nodeQueue = new LinkedList<FPTreeNode>();
         nodeQueue.add(treeRoot);
@@ -83,10 +84,15 @@ public class FPTreeTest {
 	
 	@org.junit.Test
 	public void testFPTree() {
-		FPTree fptree = new FPTree();
+		FPGrowth fptree = new FPGrowth();
         fptree.setMinSupport(3);
         List<List<String>> transRecords = 
         	fptree.readTransactionRecord("src\\artiano\\ml\\association\\test\\data2.txt");
-        fptree.FPGrowth(transRecords, null);
+        Map<String, Integer> frequentPatterns = 
+        	fptree.fpGrowth(transRecords, null);
+        Set<Entry<String, Integer>> entrySet =  frequentPatterns.entrySet();
+        for(Entry<String, Integer> entry : entrySet) {
+        	System.out.println(entry.getValue() + "\t" + entry.getKey());
+        }
 	}
 }
