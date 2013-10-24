@@ -45,7 +45,7 @@ public class LinearRegression extends Regression {
     		double sumY = 0;
     		for(int n=0; n<rows; n++) {
 				sumY += right_hand.at(n, 0) * coefficients.at(n, i);    				
-			}    			    			
+			}
 			b.set(i, 0, sumY);
     	}
 		return b;
@@ -54,10 +54,10 @@ public class LinearRegression extends Regression {
 	private static Matrix genearteLeftHandSide(Matrix coefficients) {
 		int rows = coefficients.rows();
 		int cols = coefficients.columns() - 1;
-		Matrix a = new Matrix(cols + 1, cols + 1);    	
+		Matrix a = new Matrix(cols + 1, cols + 1);
     	for(int i=0; i<a.rows(); i++) {
     		for(int j=0; j<a.columns(); j++) {
-    			double sumX = 0;    			
+    			double sumX = 0;
     			for(int n=0; n<rows; n++) {
     				sumX += coefficients.at(n, j) * coefficients.at(n, i);    				
     			}
@@ -76,7 +76,7 @@ public class LinearRegression extends Regression {
     				coefficients.set(i, j, 1);
     			} else {
     				coefficients.set(i, j, left_hand.at(i, j - 1));
-    			}    			
+    			}
     		}
     	}
 		return coefficients;
