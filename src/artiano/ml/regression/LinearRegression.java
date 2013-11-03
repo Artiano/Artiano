@@ -4,7 +4,7 @@
 package artiano.ml.regression;
 
 import artiano.core.structure.Matrix;
-import artiano.math.algebra.LUDecomposition;
+import artiano.math.algebra.CholeskyDecomposition;
 
 /**
  * <p>使用最小二乘方法生成一个线性模型。
@@ -33,8 +33,8 @@ public class LinearRegression extends Regression {
     	/* Solve AW=b to coefficients of the linear regression Polynomial */
     	Matrix A = genearteLeftHandSide(coefficients);
     	Matrix b = generateRightHandSide(YData, coefficients);
-    	LUDecomposition luDecomposition = new LUDecomposition(A);
-    	return luDecomposition.solve(b); 
+    	CholeskyDecomposition decomposition = new CholeskyDecomposition(A);
+    	return decomposition.solve(b);
 	}
 	
 	private static Matrix generateRightHandSide(Matrix right_hand, Matrix coefficients) {

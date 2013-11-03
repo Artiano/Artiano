@@ -4,6 +4,7 @@
 package artiano.core.structure;
 
 import java.io.Serializable;
+import java.util.Random;
 
 
 /**
@@ -43,8 +44,7 @@ public class Matrix implements Serializable{
 	 */
 	protected Range rowRange = null;
 	/**
-	 * 相对于最原始矩阵的列范围，解释同
-	 * @see #rowRange
+	 * 相对于最原始矩阵的列范围，解释同{@link #rowRange}
 	 */
 	protected Range colRange = null;
 	
@@ -321,6 +321,15 @@ public class Matrix implements Serializable{
 	 */
 	public static Matrix ones(int rows, int cols){
 		return ones(rows, cols, 1.);
+	}
+	/**
+	 * 使用指定值填充矩阵
+	 * @param value 指定值
+	 */
+	public void fill(double value){
+		for (int i=0; i<rows; i++)
+			for (int j=0; j<cols; j++)
+				set(i, j, value);
 	}
 	
 	/**
@@ -778,7 +787,34 @@ public class Matrix implements Serializable{
 				y.set(i, j, at(i, j)/x.doubleValue());
 		return y;
 	}
-	
+	/**
+	 * 求取矩阵行元素的最大值
+	 * @return
+	 */
+	public Matrix rowMax(){
+		Matrix m = Matrix.ones(1, cols, Double.MIN_VALUE);
+		for (int i=0; i<rows(); i++){
+			for (int j=0; j<columns(); j++){
+				if (m.at(0, j) < at(i, j))
+					m.set(0, j, at(i, j));
+			}
+		}
+		return m;
+	}
+	/**
+	 * 求取矩阵行元素的最小值
+	 * @return
+	 */
+	public Matrix rowMin(){
+		Matrix m = Matrix.ones(1, cols, Double.MAX_VALUE);
+		for (int i=0; i<rows(); i++){
+			for (int j=0; j<columns(); j++){
+				if (m.at(0,j) > at(i, j))
+					m.set(0, j, at(i, j));
+			}
+		}
+		return m;
+	}
 	/**
 	 * 计算矩阵的行向量集合的均值向量。
 	 * @return 均值向量。
@@ -803,6 +839,28 @@ public class Matrix implements Serializable{
 			mean.add(col(i));
 		mean.divide(cols);
 		return mean;
+	}
+	/**
+	 * 将矩阵按行归一化
+	 * @return
+	 */
+	public Matrix normalizeRows(boolean reserve){
+		Matrix x = reserve ? new Matrix(rows, cols): this;
+		Matrix max = rowMax();
+		Matrix min = rowMin();
+		for (int i=0; i<rows(); i++)
+			for (int j=0; j<columns(); j++){
+				double r = 2 * (at(i, j) - min.at(j))/(max.at(j) - min.at(j)) - 1;
+				x.set(i, j, r);
+			}
+		return x;
+	}
+	/**
+	 * 将矩阵按行归一化
+	 * @return
+	 */
+	public Matrix normalizeRows(){
+		return normalizeRows(false);
 	}
 	
 	/**
@@ -916,7 +974,7 @@ public class Matrix implements Serializable{
 		java.text.DecimalFormat f = new java.text.DecimalFormat("#.## ");
 		for (int i = 0; i < rows; i++){
 			for (int j = 0; j < cols; j++)
-				System.out.print(f.format(at(i, j)) + " ");
+				System.out.print(f.format(at(i, j)) + "\t");
 			System.out.println();
 		}
 		System.out.println("-------------------------");
@@ -981,4 +1039,31 @@ public class Matrix implements Serializable{
 		}
 		return mx;
 	}
+	
+	public static void main(String[] args){
+		Matrix m = new Matrix(4,5);
+		Random r = new Random();
+		//random generate
+		for (int i=0; i<m.rows(); i++)
+			for (int j=0; j<m.columns(); j++)
+				m.set(i, j, r.nextDouble());
+		System.out.println("after random generate:");
+		m.print();
+		//max & min
+		Matrix min = m.rowMin();
+		Matrix max = m.rowMax();
+		System.out.println("minimal element of row:");
+		min.print();
+		System.out.println("maximal element of row:");
+		max.print();
+		//normalize
+		System.out.println("after normalize:");
+		Matrix n = m.normalizeRows();
+		n.print();
+	}
 }
+
+
+
+
+

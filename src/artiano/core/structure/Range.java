@@ -83,6 +83,15 @@ public class Range implements Serializable{
 	}
 	
 	/**
+	 * judge if two range is crossover
+	 * @param range
+	 * @return
+	 */
+	public boolean isCross(Range range){
+		return (this.start > range.end || range.start > this.end);
+	}
+	
+	/**
 	 * Judge if x is in the range
 	 * @param x An integer
 	 * @return True if x is in the range or false otherwise

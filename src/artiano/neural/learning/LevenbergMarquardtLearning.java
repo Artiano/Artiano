@@ -260,9 +260,9 @@ public class LevenbergMarquardtLearning implements SupervisedLearning {
 	 * @see artiano.neural.learning.SupervisedLearning#runEpoch(artiano.core.structure.Matrix[], artiano.core.structure.Matrix[])
 	 */
 	@Override
-	public double runEpoch(Matrix[] inputs, Matrix[] targetOutputs) {
-		finalBlockSize = inputs.length % blockSize;
-		int blocks = inputs.length / blockSize;
+	public double runEpoch(Matrix inputs, Matrix targetOutputs) {
+		finalBlockSize = inputs.rows() % blockSize;
+		int blocks = inputs.rows() / blockSize;
 		blocks = finalBlockSize == 0? blocks: blocks+1;
 		int blockIdx = 0;
 		sumSquaredError = 0.;
@@ -279,8 +279,8 @@ public class LevenbergMarquardtLearning implements SupervisedLearning {
 			Matrix[] inputBlock = new Matrix[blockSize];
 			Matrix[] outputBlock = new Matrix[blockSize];
 			for (int j = 0; j < blockSize; j++, blockIdx++){
-				inputBlock[j] = inputs[blockIdx];
-				outputBlock[j] = targetOutputs[blockIdx];
+				inputBlock[j] = inputs.row(blockIdx);
+				outputBlock[j] = targetOutputs.row(blockIdx);
 			}
 			sumSquaredError += computeJacobian(inputBlock, outputBlock);
 			if (computeHessian()){

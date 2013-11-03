@@ -136,11 +136,11 @@ public class StochasticBPLearning implements SupervisedLearning {
 	 * @see artiano.learning.SupervisedLearning#runEpoch(double[][], double[][])
 	 */
 	@Override
-	public double runEpoch(Matrix[] inputs, Matrix[] targetOutputs) {
+	public double runEpoch(Matrix inputs, Matrix targetOutputs) {
 		network.epochs++;
 		double e = 0.;
-		for (int i = 0; i < inputs.length; i++)
-			e += run(inputs[i], targetOutputs[i]);
+		for (int i = 0; i < inputs.rows(); i++)
+			e += run(inputs.row(i), targetOutputs.row(i));
 		network.squreError = e;
 		return e;
 	}

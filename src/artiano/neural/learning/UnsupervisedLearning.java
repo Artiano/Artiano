@@ -19,7 +19,7 @@ public interface UnsupervisedLearning {
 	 * @param inputs - samples of every input vector
 	 * @return double - error
 	 */
-	public double runEpoch(Matrix[] inputs);
+	public double runEpoch(Matrix inputs);
 	
 	/**
 	 * runs a learning iteration

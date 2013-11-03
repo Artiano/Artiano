@@ -21,7 +21,7 @@ public interface SupervisedLearning {
 	 * @param targetOutputs labels of target output
 	 * @return error term
 	 */
-	public double runEpoch(Matrix[] inputs, Matrix[] targetOutputs);
+	public double runEpoch(Matrix inputs, Matrix targetOutputs);
 	
 	/**
 	 * run an iteration on specified sample

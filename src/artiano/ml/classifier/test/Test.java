@@ -218,7 +218,7 @@ public class Test {
 			return -1;
 		}
 		
-		int targetAttrIdx = -1;  //Index of target attribute index 
+		int targetAttrIdx = -1;  //IncrementIndex of target attribute index 
 		try {
 			//Target attribute index
 			String targetAttrIdxStr = 

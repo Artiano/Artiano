@@ -56,10 +56,10 @@ public class SOMLearning implements UnsupervisedLearning {
 	 * @see artiano.neural.learning.UnsupervisedLearning#runEpoch(artiano.core.structure.Matrix[])
 	 */
 	@Override
-	public double runEpoch(Matrix[] inputs) {
+	public double runEpoch(Matrix inputs) {
 		double error = 0.;
-		for (int i = 0; i < inputs.length; i++)
-			error += run(inputs[i]);
+		for (int i = 0; i < inputs.rows(); i++)
+			error += run(inputs.row(i));
 		return error;
 	}
 
