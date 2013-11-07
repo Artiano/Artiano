@@ -3,6 +3,8 @@
  */
 package artiano.core.structure;
 
+import java.io.Serializable;
+
 /**
  * <p>基本数据结构，表示任何属性的超类。</p>
  * @author Nano.Michael
@@ -11,7 +13,9 @@ package artiano.core.structure;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public abstract class Attribute {
+public abstract class Attribute implements Serializable {
+	private static final long serialVersionUID = 3942311725437624264L;
+	
 	/** 属性缺失取值 */
 	public static final double MISSING_VALUE = Double.NaN;
 	/** 符号属性缺失取值 */

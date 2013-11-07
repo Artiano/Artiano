@@ -3,9 +3,8 @@
  */
 package artiano.core.structure;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * <p>基本数据结构表，由一系列列属性组成。</p>
@@ -15,7 +14,9 @@ import java.util.Random;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class Table {	
+public class Table implements Serializable {
+	private static final long serialVersionUID = -375665745092267557L;
+	
 	/** 存放属性的向量列表 */
 	private List<Attribute> attributes = new ArrayList<Attribute>();
 	/** 表的行数 */
@@ -51,6 +52,34 @@ public class Table {
 		for (int i=0; i<rows; i++)
 			index.push(i);
 	}
+	
+	/**
+	 * 使用矩阵构造一个表(只适用于数据为数值型的情况)
+	 * @param data
+	 */
+	public Table(Matrix data) {
+		int rows = data.rows();
+		int columns = data.columns();
+		attributes = new ArrayList<Attribute>();
+		for(int i=0; i<columns; i++) {
+			attributes.add(new NumericAttribute());
+		}
+		
+		for(int j=0; j<columns; j++) {
+			IncrementVector vector = new IncrementVector(rows);
+			for(int i=0; i<rows; i++) {
+				vector.set(i, data.at(i, j));
+			}
+			Attribute attr = new NumericAttribute("", vector);
+			attributes.set(j, attr);
+		}		
+		this.rows = rows;
+		this.capacity = columns;
+		//initialize row index (full reference)
+		for (int i=0; i<rows; i++)
+			index.push(i);
+	}
+	
 	/**
 	 * 获取索引
 	 * @return
@@ -305,7 +334,7 @@ public class Table {
 		/**	表的一行 */
 		Object[] row = new Object[columns()];
 		/** 只能在Table中构造行 */
-		TableRow(){	}
+		public TableRow(){	}
 		/**
 		 * 获取行的大小
 		 * @return
