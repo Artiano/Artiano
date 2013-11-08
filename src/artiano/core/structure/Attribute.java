@@ -85,6 +85,11 @@ public abstract class Attribute {
 	 * @return
 	 */
 	public abstract Object get(int i);
+	/**
+	 * 将属性向量转换为数组
+	 * @return
+	 */
+	public abstract Object toArray();
 }
 
 

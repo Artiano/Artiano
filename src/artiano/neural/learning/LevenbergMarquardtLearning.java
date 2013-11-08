@@ -20,7 +20,7 @@ import artiano.neural.neuron.Neuron;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class LevenbergMarquardtLearning implements SupervisedLearning {
+public class LevenbergMarquardtLearning implements SupervisedNeuralLearning {
 
 	protected ActivationNetwork network = null;
 	protected Matrix jacobian = null;
@@ -257,7 +257,7 @@ public class LevenbergMarquardtLearning implements SupervisedLearning {
 	}
 	
 	/* (non-Javadoc)
-	 * @see artiano.neural.learning.SupervisedLearning#runEpoch(artiano.core.structure.Matrix[], artiano.core.structure.Matrix[])
+	 * @see artiano.neural.learning.SupervisedNeuralLearning#runEpoch(artiano.core.structure.Matrix[], artiano.core.structure.Matrix[])
 	 */
 	@Override
 	public double runEpoch(Matrix inputs, Matrix targetOutputs) {
@@ -293,7 +293,7 @@ public class LevenbergMarquardtLearning implements SupervisedLearning {
 	}
 
 	/* (non-Javadoc)
-	 * @see artiano.neural.learning.SupervisedLearning#run(artiano.core.structure.Matrix, artiano.core.structure.Matrix)
+	 * @see artiano.neural.learning.SupervisedNeuralLearning#run(artiano.core.structure.Matrix, artiano.core.structure.Matrix)
 	 */
 	@Override
 	public double run(Matrix input, Matrix targetOutput) {

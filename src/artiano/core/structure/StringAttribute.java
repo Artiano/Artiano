@@ -51,4 +51,14 @@ public class StringAttribute extends Attribute {
 	public String get(int i){
 		return (String) this.vector.at(i);
 	}
+	/* (non-Javadoc)
+	 * @see artiano.core.structure.Attribute#toArray()
+	 */
+	@Override
+	public String[] toArray() {
+		String[] array = new String[this.vector.size()];
+		for (int i=0; i<array.length; i++)
+			array[i] = (String)this.vector.at(i);
+		return array;
+	}
 }

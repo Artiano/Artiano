@@ -16,7 +16,7 @@ import artiano.neural.neuron.DistanceNeuron;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class SOMLearning implements UnsupervisedLearning {
+public class SOMLearning implements UnsupervisedNeuralLearning {
 
 	double learningRate = 0.1;
 	double radius = 0;
@@ -53,7 +53,7 @@ public class SOMLearning implements UnsupervisedLearning {
 	}
 	
 	/* (non-Javadoc)
-	 * @see artiano.neural.learning.UnsupervisedLearning#runEpoch(artiano.core.structure.Matrix[])
+	 * @see artiano.neural.learning.UnsupervisedNeuralLearning#runEpoch(artiano.core.structure.Matrix[])
 	 */
 	@Override
 	public double runEpoch(Matrix inputs) {
@@ -64,7 +64,7 @@ public class SOMLearning implements UnsupervisedLearning {
 	}
 
 	/* (non-Javadoc)
-	 * @see artiano.neural.learning.UnsupervisedLearning#run(artiano.core.structure.Matrix)
+	 * @see artiano.neural.learning.UnsupervisedNeuralLearning#run(artiano.core.structure.Matrix)
 	 */
 	@Override
 	public double run(Matrix inputs) {

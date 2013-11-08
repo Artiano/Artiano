@@ -6,6 +6,7 @@ package artiano.core.structure;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -58,7 +59,36 @@ public class NominalAttribute extends Attribute {
 	public List<String> getNominals(){
 		return this.nominals;
 	}
-	
+	/**
+	 * 获取符号取值为nominal的个数
+	 * @param nominal
+	 * @return
+	 */
+	public int getNominalCount(String nominal){
+		int count = 0;
+		for (int i=0; i<vector.size(); i++){
+			if (nominal.equals(get(i)))
+				count++;
+		}
+		return count;
+	}
+	/**
+	 * 将符号属性转换为数值属性
+	 * @param nominalToNumericMap 符号取值与数值取值之间的映射关系
+	 * @return
+	 */
+	public NumericAttribute toNumeric(Map<String, Double> nominalToNumericMap){
+		//check valid
+		if (nominalToNumericMap.size() < this.nominals.size())
+			throw new IllegalArgumentException("map not completed.");
+		for (int i=0; i<nominals.size(); i++)
+			if (!nominalToNumericMap.containsKey(nominals.get(i)))
+				throw new IllegalArgumentException("map not completed.");
+		NumericAttribute attribute = new NumericAttribute(getName(), new IncrementVector(vector.size()));
+		for (int i=0; i<vector.size(); i++)
+			attribute.vector.push(nominalToNumericMap.get(this.get(i)));
+		return attribute;
+	}
 	/**
 	 * 将属性转换为布尔属性
 	 * @return 转换后形成的布尔属性（由数值属性表示）集合
@@ -89,6 +119,17 @@ public class NominalAttribute extends Attribute {
 	@Override
 	public String get(int i) {
 		return (String) this.vector.at(i);
+	}
+	
+	/* (non-Javadoc)
+	 * @see artiano.core.structure.Attribute#toArray()
+	 */
+	@Override
+	public String[] toArray() {
+		String[] array = new String[this.vector.size()];
+		for (int i=0; i<array.length; i++)
+			array[i] = (String) this.vector.at(i);
+		return array;
 	}
 	
 	public static void main(String[] args){
@@ -125,6 +166,7 @@ public class NominalAttribute extends Attribute {
 			System.out.println();
 		}
 	}
+	
 }
 
 

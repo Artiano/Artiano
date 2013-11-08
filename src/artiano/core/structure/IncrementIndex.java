@@ -16,7 +16,7 @@ import java.util.Random;
  */
 public class IncrementIndex {
 	//default capacity
-	public static final int DEFAULT_CAPACITY = 100;
+	public static final int DEFAULT_CAPACITY = 10;
 	//not index
 	public static final int NOT_INDEX = -1;
 	//increment factor
@@ -44,6 +44,7 @@ public class IncrementIndex {
 	 */
 	public IncrementIndex copy(){
 		IncrementIndex inn = new IncrementIndex(this.size);
+		inn.size = this.size;
 		System.arraycopy(this.index, 0, inn.index, 0, size);
 		return inn;
 	}
@@ -87,6 +88,8 @@ public class IncrementIndex {
 	 * @return
 	 */
 	public int at(int i){
+		if (i>=size)
+			throw new IllegalArgumentException("index at, range out of bounds.");
 		return index[i];
 	}
 	/**
@@ -101,6 +104,9 @@ public class IncrementIndex {
 		}
 		index[size] = i;
 		size++;
+	}
+	public void clear(){
+		this.size = 0;
 	}
 	/**
 	 * 判断索引是否存在
