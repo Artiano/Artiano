@@ -22,7 +22,8 @@ import artiano.core.data.DataSaveFactory;
  * @since 1.0.0
  */
 public abstract class Preservable implements Serializable {
-//	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -4129767820227253645L;
+	
 	/***
 	 * 以序列化的形式保存数据，并被适配器转换成任意数据
 	 * @param key 字符串，可以是文件地址，可以是唯一标识
