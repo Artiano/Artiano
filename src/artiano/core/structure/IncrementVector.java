@@ -235,6 +235,10 @@ public class IncrementVector {
 		IncrementVector vector3 = vector.copy();
 		System.out.println("copy vector to vector3:");
 		vector3.print();
+		//remove
+		vector3.remove(1);
+		System.out.println("after remove:");
+		vector3.print();
 	}
 }
 

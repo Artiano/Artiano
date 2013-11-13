@@ -105,6 +105,22 @@ public class IncrementIndex {
 		index[size] = i;
 		size++;
 	}
+	/**
+	 * 移除尾部索引值
+	 */
+	public void pop(){
+		pop(1);
+	}
+	/**
+	 * 从尾部移除一段索引
+	 * @param length 需移除的长度
+	 */
+	public void pop(int length){
+		this.size -= length;
+	}
+	/**
+	 * 清除所有索引
+	 */
 	public void clear(){
 		this.size = 0;
 	}

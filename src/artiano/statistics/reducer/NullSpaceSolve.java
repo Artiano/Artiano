@@ -1,7 +1,7 @@
 /**
  * NullSpaceSolve.java
  */
-package artiano.statistics.extractor;
+package artiano.statistics.reducer;
 
 import artiano.core.structure.Matrix;
 
@@ -19,7 +19,7 @@ public class NullSpaceSolve implements SolvingAlgorithm {
 	protected Matrix eigenValue = null;
 	
 	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.SolvingAlgorithm#solve(artiano.core.structure.Matrix, artiano.core.structure.Matrix, artiano.core.structure.Matrix[])
+	 * @see artiano.statistics.reducer.SolvingAlgorithm#solve(artiano.core.structure.Matrix, artiano.core.structure.Matrix, artiano.core.structure.Matrix[])
 	 */
 	@Override
 	public void solve(Matrix cov1, Matrix cov2, Matrix[] matrices) {
@@ -27,7 +27,7 @@ public class NullSpaceSolve implements SolvingAlgorithm {
 	}
 
 	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.SolvingAlgorithm#getProjectionMatrix()
+	 * @see artiano.statistics.reducer.SolvingAlgorithm#getProjectionMatrix()
 	 */
 	@Override
 	public Matrix getProjectionMatrix() {
@@ -35,7 +35,7 @@ public class NullSpaceSolve implements SolvingAlgorithm {
 	}
 
 	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.SolvingAlgorithm#getEigenValue()
+	 * @see artiano.statistics.reducer.SolvingAlgorithm#getEigenValue()
 	 */
 	@Override
 	public Matrix getEigenValue() {

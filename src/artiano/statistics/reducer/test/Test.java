@@ -1,13 +1,13 @@
 /**
  * Test.java
  */
-package artiano.statistics.extractor.test;
+package artiano.statistics.reducer.test;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
 
 import artiano.core.structure.Matrix;
-import artiano.statistics.extractor.GPCAExtractor;
+import artiano.statistics.reducer.PrincipleComponentAnalysis;
 
 /**
  * <p>Description:</p>
@@ -34,7 +34,7 @@ public class Test {
 	    {1.1000  ,  3.1000  ,  2.3000  ,  1.4000  ,  2.7000  ,  1.2000 ,   2.4000  ,  1.8000 ,   2.1000  ,  1.5000}};
 	
 	public static void testPCA(){
-		GPCAExtractor extractor = new GPCAExtractor();
+		PrincipleComponentAnalysis extractor = new PrincipleComponentAnalysis();
 		extractor.setRoc(1.);
 		Matrix[] m = new Matrix[3];
 		for (int i = 0; i < 3; i++)
@@ -48,9 +48,9 @@ public class Test {
 			e.printStackTrace();
 		}
 		//load
-		GPCAExtractor extractor2;
+		PrincipleComponentAnalysis extractor2;
 		try {
-			extractor2 = (GPCAExtractor) GPCAExtractor.load("F:\\Artiano\\pca-extractor.ext");
+			extractor2 = (PrincipleComponentAnalysis) PrincipleComponentAnalysis.load("F:\\Artiano\\pca-extractor.ext");
 			Matrix eigen = extractor2.getEigenValue();
 			System.out.println("Eigen values:");
 			eigen.print();
@@ -58,7 +58,7 @@ public class Test {
 			System.out.println("Eigen Vectors:");
 			model.print();
 			System.out.println("Features:");
-			Matrix feature = extractor2.extract(m[0]);
+			Matrix feature = extractor2.reduce(m[0]);
 			feature.print();
 			System.out.println("Reconstruct:");
 			Matrix x = extractor2.reconstruct(feature);

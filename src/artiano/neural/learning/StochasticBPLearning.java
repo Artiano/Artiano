@@ -141,6 +141,7 @@ public class StochasticBPLearning implements SupervisedNeuralLearning {
 		double e = 0.;
 		for (int i = 0; i < inputs.rows(); i++)
 			e += run(inputs.row(i), targetOutputs.row(i));
+		e /= inputs.rows();
 		network.squreError = e;
 		return e;
 	}

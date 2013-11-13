@@ -1,7 +1,7 @@
 /**
- * SupervisedExtractor.java
+ * SupervisedReducer.java
  */
-package artiano.statistics.extractor;
+package artiano.statistics.reducer;
 
 import artiano.core.structure.Matrix;
 
@@ -13,7 +13,7 @@ import artiano.core.structure.Matrix;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public interface SupervisedExtractor {
+public interface SupervisedReducer {
 	/**
 	 * train an extractor with labels
 	 * @param samples - samples to train

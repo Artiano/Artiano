@@ -21,8 +21,8 @@ artiano.neural.network
 artiano.neural.neuron
 artiano.neural.test
 artiano.randomizer
-artiano.statistics.extractor
-artiano.statistics.extractor.test
+artiano.statistics.reducer
+artiano.statistics.reducer.test
 artiano.uiTest
 artiano.uiTest.test
 org.json

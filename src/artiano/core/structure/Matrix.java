@@ -515,7 +515,7 @@ public class Matrix implements Serializable{
 	 * 矩阵加法 (z = x + y)
 	 * @param x 
 	 * @param reserve 指示是否保留原始矩阵。如果<code>reserve==true</code>，方法同
-	 * @see #add(Matrix)
+	 * {@link #add(Matrix)}
 	 * 否则，程序将保留原始矩阵。
 	 * @return 结果
 	 * 
@@ -538,7 +538,7 @@ public class Matrix implements Serializable{
 	 * 矩阵加法 (z=x+y, x 为标量)
 	 * @param x 
 	 * @param reserve 指示是否保留原始矩阵。如果<code>reserve==true</code>，方法同
-	 * @see #add(Number)
+	 * {@link #add(Number)}
 	 * 否则，程序将保留原始矩阵。
 	 * @return 结果
 	 * 

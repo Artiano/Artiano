@@ -90,8 +90,8 @@
 <li><a href="artiano/neural/neuron/package-tree.html">artiano.neural.neuron</a>, </li>
 <li><a href="artiano/neural/test/package-tree.html">artiano.neural.test</a>, </li>
 <li><a href="artiano/randomizer/package-tree.html">artiano.randomizer</a>, </li>
-<li><a href="artiano/statistics/extractor/package-tree.html">artiano.statistics.extractor</a>, </li>
-<li><a href="artiano/statistics/extractor/test/package-tree.html">artiano.statistics.extractor.test</a>, </li>
+<li><a href="artiano/statistics/extractor/package-tree.html">artiano.statistics.reducer</a>, </li>
+<li><a href="artiano/statistics/extractor/test/package-tree.html">artiano.statistics.reducer.test</a>, </li>
 <li><a href="artiano/uiTest/package-tree.html">artiano.uiTest</a>, </li>
 <li><a href="artiano/uiTest/test/package-tree.html">artiano.uiTest.test</a>, </li>
 <li><a href="org/json/package-tree.html">org.json</a></li>
@@ -148,7 +148,7 @@
 <li type="circle">org.json.<a href="org/json/Cookie.html" title="org.json中的类"><span class="strong">Cookie</span></a></li>
 <li type="circle">org.json.<a href="org/json/CookieList.html" title="org.json中的类"><span class="strong">CookieList</span></a></li>
 <li type="circle">artiano.core.data.<a href="artiano/core/data/DataSaveFactory.html" title="artiano.core.data中的类"><span class="strong">DataSaveFactory</span></a></li>
-<li type="circle">artiano.statistics.extractor.<a href="artiano/statistics/extractor/DirectedCovariance.html" title="artiano.statistics.extractor中的类"><span class="strong">DirectedCovariance</span></a> (implements artiano.statistics.extractor.<a href="artiano/statistics/extractor/CovarianceComputingMethod.html" title="artiano.statistics.extractor中的接口">CovarianceComputingMethod</a>)</li>
+<li type="circle">artiano.statistics.reducer.<a href="artiano/statistics/extractor/DirectedCovariance.html" title="artiano.statistics.extractor中的类"><span class="strong">DirectedCovariance</span></a> (implements artiano.statistics.reducer.<a href="artiano/statistics/extractor/CovarianceComputingMethod.html" title="artiano.statistics.extractor中的接口">CovarianceComputingMethod</a>)</li>
 <li type="circle">artiano.core.structure.<a href="artiano/core/structure/Domain.html" title="artiano.core.structure中的类"><span class="strong">Domain</span></a> (implements java.io.<a href="http://download.oracle.com/javase/7/docs/api/java/io/Serializable.html?is-external=true" title="java.io中的类或接口">Serializable</a>)</li>
 <li type="circle">artiano.math.algebra.<a href="artiano/math/algebra/EigenValueDecomposition.html" title="artiano.math.algebra中的类"><span class="strong">EigenValueDecomposition</span></a></li>
 <li type="circle">artiano.math.algebra.<a href="artiano/math/algebra/GaussJordan.html" title="artiano.math.algebra中的类"><span class="strong">GaussJordan</span></a></li>
@@ -191,7 +191,7 @@
 </ul>
 </li>
 <li type="circle">artiano.neural.initializer.<a href="artiano/neural/initializer/NguyenWidrow.html" title="artiano.neural.initializer中的类"><span class="strong">NguyenWidrow</span></a> (implements artiano.neural.initializer.<a href="artiano/neural/initializer/WeightsInitializer.html" title="artiano.neural.initializer中的接口">WeightsInitializer</a>)</li>
-<li type="circle">artiano.statistics.extractor.<a href="artiano/statistics/extractor/NullSpaceSolve.html" title="artiano.statistics.extractor中的类"><span class="strong">NullSpaceSolve</span></a> (implements artiano.statistics.extractor.<a href="artiano/statistics/extractor/SolvingAlgorithm.html" title="artiano.statistics.extractor中的接口">SolvingAlgorithm</a>)</li>
+<li type="circle">artiano.statistics.reducer.<a href="artiano/statistics/extractor/NullSpaceSolve.html" title="artiano.statistics.extractor中的类"><span class="strong">NullSpaceSolve</span></a> (implements artiano.statistics.reducer.<a href="artiano/statistics/extractor/SolvingAlgorithm.html" title="artiano.statistics.extractor中的接口">SolvingAlgorithm</a>)</li>
 <li type="circle">artiano.ga.<a href="artiano/ga/Population.html" title="artiano.ga中的类"><span class="strong">Population</span></a>
 <ul>
 <li type="circle">artiano.ga.test.<a href="artiano/ga/test/GAtest.html" title="artiano.ga.test中的类"><span class="strong">GAtest</span></a></li>
@@ -200,11 +200,11 @@
 <li type="circle">artiano.core.operation.<a href="artiano/core/operation/Preservable.html" title="artiano.core.operation中的类"><span class="strong">Preservable</span></a> (implements java.io.<a href="http://download.oracle.com/javase/7/docs/api/java/io/Serializable.html?is-external=true" title="java.io中的类或接口">Serializable</a>)
 <ul>
 <li type="circle">artiano.ml.classifier.<a href="artiano/ml/classifier/DTreeClassifier.html" title="artiano.ml.classifier中的类"><span class="strong">DTreeClassifier</span></a></li>
-<li type="circle">artiano.statistics.extractor.<a href="artiano/statistics/extractor/FeatureExtractor.html" title="artiano.statistics.extractor中的类"><span class="strong">FeatureExtractor</span></a>
+<li type="circle">artiano.statistics.reducer.<a href="artiano/statistics/extractor/FeatureExtractor.html" title="artiano.statistics.extractor中的类"><span class="strong">FeatureExtractor</span></a>
 <ul>
-<li type="circle">artiano.statistics.extractor.<a href="artiano/statistics/extractor/FastPCA.html" title="artiano.statistics.extractor中的类"><span class="strong">FastPCA</span></a></li>
-<li type="circle">artiano.statistics.extractor.<a href="artiano/statistics/extractor/GPCAExtractor.html" title="artiano.statistics.extractor中的类"><span class="strong">GPCAExtractor</span></a> (implements artiano.statistics.extractor.<a href="artiano/statistics/extractor/UnsupervisedExtractor.html" title="artiano.statistics.extractor中的接口">UnsupervisedExtractor</a>)</li>
-<li type="circle">artiano.statistics.extractor.<a href="artiano/statistics/extractor/LDAExtractor.html" title="artiano.statistics.extractor中的类"><span class="strong">LDAExtractor</span></a> (implements artiano.statistics.extractor.<a href="artiano/statistics/extractor/SupervisedExtractor.html" title="artiano.statistics.extractor中的接口">SupervisedExtractor</a>)</li>
+<li type="circle">artiano.statistics.reducer.<a href="artiano/statistics/extractor/FastPCA.html" title="artiano.statistics.extractor中的类"><span class="strong">FastPCA</span></a></li>
+<li type="circle">artiano.statistics.reducer.<a href="artiano/statistics/extractor/GPCAExtractor.html" title="artiano.statistics.extractor中的类"><span class="strong">GPCAExtractor</span></a> (implements artiano.statistics.reducer.<a href="artiano/statistics/extractor/UnsupervisedExtractor.html" title="artiano.statistics.extractor中的接口">UnsupervisedExtractor</a>)</li>
+<li type="circle">artiano.statistics.reducer.<a href="artiano/statistics/extractor/LDAExtractor.html" title="artiano.statistics.extractor中的类"><span class="strong">LDAExtractor</span></a> (implements artiano.statistics.reducer.<a href="artiano/statistics/extractor/SupervisedExtractor.html" title="artiano.statistics.extractor中的接口">SupervisedExtractor</a>)</li>
 </ul>
 </li>
 <li type="circle">artiano.ml.clustering.<a href="artiano/ml/clustering/KMeans.html" title="artiano.ml.clustering中的类"><span class="strong">KMeans</span></a></li>
@@ -230,7 +230,7 @@
 <li type="circle">artiano.neural.learning.<a href="artiano/neural/learning/StochasticBPLearning.html" title="artiano.neural.learning中的类"><span class="strong">StochasticBPLearning</span></a> (implements artiano.neural.learning.<a href="artiano/neural/learning/SupervisedLearning.html" title="artiano.neural.learning中的接口">SupervisedLearning</a>)</li>
 <li type="circle">artiano.ga.<a href="artiano/ga/SuperChromosome.html" title="artiano.ga中的类"><span class="strong">SuperChromosome</span></a></li>
 <li type="circle">artiano.neural.test.<a href="artiano/neural/test/Test.html" title="artiano.neural.test中的类"><span class="strong">Test</span></a></li>
-<li type="circle">artiano.statistics.extractor.test.<a href="artiano/statistics/extractor/test/Test.html" title="artiano.statistics.extractor.test中的类"><span class="strong">Test</span></a></li>
+<li type="circle">artiano.statistics.reducer.test.<a href="artiano/statistics/extractor/test/Test.html" title="artiano.statistics.reducer.test中的类"><span class="strong">Test</span></a></li>
 <li type="circle">artiano.uiTest.test.<a href="artiano/uiTest/test/Test.html" title="artiano.uiTest.test中的类"><span class="strong">Test</span></a></li>
 <li type="circle">artiano.core.test.<a href="artiano/core/test/Test.html" title="artiano.core.test中的类"><span class="strong">Test</span></a></li>
 <li type="circle">artiano.core.structure.<a href="artiano/core/structure/Test.html" title="artiano.core.structure中的类"><span class="strong">Test</span></a></li>
@@ -258,7 +258,7 @@
 </ul>
 <h2 title="接口分层结构">接口分层结构</h2>
 <ul>
-<li type="circle">artiano.statistics.extractor.<a href="artiano/statistics/extractor/CovarianceComputingMethod.html" title="artiano.statistics.extractor中的接口"><span class="strong">CovarianceComputingMethod</span></a></li>
+<li type="circle">artiano.statistics.reducer.<a href="artiano/statistics/extractor/CovarianceComputingMethod.html" title="artiano.statistics.extractor中的接口"><span class="strong">CovarianceComputingMethod</span></a></li>
 <li type="circle">artiano.core.data.<a href="artiano/core/data/DataSave.html" title="artiano.core.data中的接口"><span class="strong">DataSave</span></a></li>
 <li type="circle">artiano.math.distance.<a href="artiano/math/distance/Distance.html" title="artiano.math.distance中的接口"><span class="strong">Distance</span></a></li>
 <li type="circle">artiano.ga.<a href="artiano/ga/IChromosome.html" title="artiano.ga中的接口"><span class="strong">IChromosome</span></a></li>
@@ -266,10 +266,10 @@
 <li type="circle">artiano.ga.<a href="artiano/ga/ISelectMethod.html" title="artiano.ga中的接口"><span class="strong">ISelectMethod</span></a></li>
 <li type="circle">org.json.<a href="org/json/JSONString.html" title="org.json中的接口"><span class="strong">JSONString</span></a></li>
 <li type="circle">artiano.randomizer.<a href="artiano/randomizer/Randomizer.html" title="artiano.randomizer中的接口"><span class="strong">Randomizer</span></a></li>
-<li type="circle">artiano.statistics.extractor.<a href="artiano/statistics/extractor/SolvingAlgorithm.html" title="artiano.statistics.extractor中的接口"><span class="strong">SolvingAlgorithm</span></a></li>
-<li type="circle">artiano.statistics.extractor.<a href="artiano/statistics/extractor/SupervisedExtractor.html" title="artiano.statistics.extractor中的接口"><span class="strong">SupervisedExtractor</span></a></li>
+<li type="circle">artiano.statistics.reducer.<a href="artiano/statistics/extractor/SolvingAlgorithm.html" title="artiano.statistics.extractor中的接口"><span class="strong">SolvingAlgorithm</span></a></li>
+<li type="circle">artiano.statistics.reducer.<a href="artiano/statistics/extractor/SupervisedExtractor.html" title="artiano.statistics.extractor中的接口"><span class="strong">SupervisedExtractor</span></a></li>
 <li type="circle">artiano.neural.learning.<a href="artiano/neural/learning/SupervisedLearning.html" title="artiano.neural.learning中的接口"><span class="strong">SupervisedLearning</span></a></li>
-<li type="circle">artiano.statistics.extractor.<a href="artiano/statistics/extractor/UnsupervisedExtractor.html" title="artiano.statistics.extractor中的接口"><span class="strong">UnsupervisedExtractor</span></a></li>
+<li type="circle">artiano.statistics.reducer.<a href="artiano/statistics/extractor/UnsupervisedExtractor.html" title="artiano.statistics.extractor中的接口"><span class="strong">UnsupervisedExtractor</span></a></li>
 <li type="circle">artiano.neural.learning.<a href="artiano/neural/learning/UnsupervisedLearning.html" title="artiano.neural.learning中的接口"><span class="strong">UnsupervisedLearning</span></a></li>
 <li type="circle">artiano.neural.initializer.<a href="artiano/neural/initializer/WeightsInitializer.html" title="artiano.neural.initializer中的接口"><span class="strong">WeightsInitializer</span></a></li>
 </ul>

@@ -1,7 +1,7 @@
 /**
- * GPCAExtractor.java
+ * PrincipleComponentAnalysis.java
  */
-package artiano.statistics.extractor;
+package artiano.statistics.reducer;
 
 import artiano.core.operation.MatrixOpt;
 import artiano.core.structure.Matrix;
@@ -16,7 +16,7 @@ import artiano.math.algebra.SingularValueDecomposition;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtractor{
+public class PrincipleComponentAnalysis extends Reducer implements UnsupervisedReducer{
 	
 	private static final long serialVersionUID = 1L;
 	//平均矩阵
@@ -42,7 +42,7 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 	/**
 	 * 构造器
 	 */
-	public GPCAExtractor(){ }
+	public PrincipleComponentAnalysis(){ }
 	
 	/**
 	 * 设置贡献率。
@@ -174,12 +174,12 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 	}
 	
 	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.UnsupervisedExtractor#train(artiano.core.structure.Matrix[], double)
+	 * @see artiano.statistics.reducer.UnsupervisedReducer#train(artiano.core.structure.Matrix[], double)
 	 */
 	@Override
 	public void train(Matrix[] samples) {
 		if (samples[0].columns() == 1)
-			throw new IllegalArgumentException("GPCAExtractor train, accept row vectors only while samples is vectors.");
+			throw new IllegalArgumentException("PrincipleComponentAnalysis train, accept row vectors only while samples is vectors.");
 		if (samples[0].rows() == 1)
 			isVectors = true;
 		else
@@ -191,12 +191,12 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 	}
 
 	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.FeatureExtractor#extract(double[])
+	 * @see artiano.statistics.reducer.Reducer#extract(double[])
 	 */
 	@Override
-	public Matrix extract(Matrix sample) {
+	public Matrix reduce(Matrix sample) {
 		if (sample.rows() != sampleHeight || sample.columns() != sampleWidth)
-			throw new IllegalArgumentException("GPCAExtractor extract, size not match.");
+			throw new IllegalArgumentException("PrincipleComponentAnalysis extract, size not match.");
 		Matrix feature;
 		if (isVectors)
 			feature = eigenVectors.multiply(sample.minus(mean, true).t()).t();
@@ -206,7 +206,7 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 	}
 
 	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.FeatureExtractor#getModel()
+	 * @see artiano.statistics.reducer.Reducer#getModel()
 	 */
 	@Override
 	public Matrix getModel() {
@@ -214,7 +214,7 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 	}
 
 	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.FeatureExtractor#reconstruct(artiano.core.structure.Matrix)
+	 * @see artiano.statistics.reducer.Reducer#reconstruct(artiano.core.structure.Matrix)
 	 */
 	@Override
 	public Matrix reconstruct(Matrix feature) {

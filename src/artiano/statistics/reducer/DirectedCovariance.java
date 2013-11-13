@@ -1,7 +1,7 @@
 /**
  * DirectedCovariance.java
  */
-package artiano.statistics.extractor;
+package artiano.statistics.reducer;
 
 import artiano.core.operation.MatrixOpt;
 import artiano.core.structure.Matrix;
@@ -19,7 +19,7 @@ public class DirectedCovariance implements CovarianceComputingMethod {
 	public DirectedCovariance(){ }
 	
 	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.CovarianceComputingMethod#compute(artiano.core.structure.Matrix[], artiano.core.structure.Matrix)
+	 * @see artiano.statistics.reducer.CovarianceComputingMethod#compute(artiano.core.structure.Matrix[], artiano.core.structure.Matrix)
 	 */
 	@Override
 	public Matrix compute(Matrix[] matrices, Matrix mean) {

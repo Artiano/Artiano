@@ -33,9 +33,11 @@ public class CSVLoader {
 	/** 文件后缀名 */
 	public static final String FILE_EXTENSION = ".csv";
 	/** 默认一次读取的行数 */
-	public static final int DEFAULT_READ_STEP = 1000;
+	public static final int DEFAULT_READ_STEP = 2000;
 	/** 文件行数 */
 	private int rows = 0;
+	/** 表的列数 */
+	private int columns = 0;
 	/** 文件所在的当前行 */
 	private int currentRow = 0;
 	public CSVLoader(){}
@@ -52,18 +54,25 @@ public class CSVLoader {
 	 * @throws IOException
 	 */
 	private void getAllRows() throws IOException{
-		reader.mark((int) file.length());
+		columns = readHeader().length;
 		while (reader.readLine() != null)
 			rows++;
-		rows--;
-		reader.reset();
+		reader.close();
+		reader = new BufferedReader(new FileReader(file));
 	}
 	/**
 	 * 获取文件行数
 	 * @return
 	 */
-	public int getRows(){
+	public int rows(){
 		return this.rows;
+	}
+	/**
+	 * 获取表列数
+	 * @return
+	 */
+	public int columns(){
+		return this.columns;
 	}
 	/**
 	 * 设置文件路径
@@ -114,9 +123,9 @@ public class CSVLoader {
 			values = line.split(",");
 			r++;
 			currentRow++;
-			for (int i=0; i<values.length; i++){
+			for (int i=0; i<columns; i++){
 				//if missing value
-				if (values[i] == null || values[i].equals("")){
+				if (i>=values.length || values[i] == null || values[i].equals("")){
 					vectors[i].push(Attribute.MISSING_VALUE);
 					continue;
 				}
@@ -126,7 +135,7 @@ public class CSVLoader {
 					vectors[i].push(x);
 					dvc[i]++;
 				} catch (Exception e) {
-					vectors[i].push(values[i]);
+					vectors[i].push(values[i].trim());
 					svc[i]++;
 				}
 			}
@@ -174,10 +183,14 @@ public class CSVLoader {
 	public static void main(String[] args){
 		CSVLoader loader = new CSVLoader();
 		try {
-			loader.setPath("f:\\231.csv");
-			System.out.println("data rows:"+loader.getRows());
+			loader.setPath("f:\\Titanic.csv");
+			System.out.println("data rows:"+loader.rows());
 			Table table = loader.read();
 			loader.close();
+			System.out.println("read: ");
+			table.print();
+			System.out.println("delete with missing: ");
+			table.deleteWithMissing();
 			table.print();
 		} catch (Exception e) {
 			e.printStackTrace();
