@@ -141,7 +141,8 @@ public class CSVLoader {
 			}
 		}
 		//construct attributes
-		Table table = new Table();
+		String tableName = this.file.getName().replaceAll("\\.[cC][sS][vV]$", "");
+		Table table = new Table(tableName);
 		for (int i=0; i<cols; i++){
 			if (dvc[i] >= svc[i]){
 				Attribute att = new NumericAttribute(names[i], vectors[i]);

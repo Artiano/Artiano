@@ -80,6 +80,19 @@ public class Matrix implements Serializable{
 		rowRange = new Range(0, rows);
 		colRange = new Range(0, cols);
 	}
+	/**
+	 * 判断矩阵是否对称
+	 * @return
+	 */
+	public boolean isSysmetric(){
+		if (!isSquare())
+			return false;
+		for (int i=0; i<rows; i++)
+			for (int j=0; j<cols; j++)
+				if (at(i, j) != at(j, i))
+					return false;
+		return true;
+	}
 	
 	/**
 	 * 判断一个矩阵是否为向量（列向量或行向量）
@@ -787,6 +800,48 @@ public class Matrix implements Serializable{
 				y.set(i, j, at(i, j)/x.doubleValue());
 		return y;
 	}
+	/** 左转置乘，在方法{@link #multiplyTranspose(int)}方法中作为参数使用 */
+	public static final int MULTIPLY_LEFT_TRANSPOSE = 0;
+	/** 右转置乘，在方法{@link #multiplyTranspose(int)}方法中作为参数使用 */
+	public static final int MULTIPLY_RIGHT_TRANSPOSE = 1;
+	/**
+	 * 矩阵转置乘法
+	 * @param method 使用何种方法做转置乘法，应使用参数{@link #MULTIPLY_LEFT_TRANSPOSE}或
+	 * {@link #MULTIPLY_RIGHT_TRANSPOSE}
+	 * @return 运算结果
+	 */
+	public Matrix multiplyTranspose(int method){
+		Matrix y = null;
+		if (method == MULTIPLY_RIGHT_TRANSPOSE){
+			int m = rows;
+			int s = cols;
+			int n = rows;
+			y = new Matrix(m, m);
+			for (int i = 0; i < m; i++){
+				for (int j = i; j < n; j++){
+					for (int k = 0; k < s; k++){
+						y.add(i, j ,at(i, k) * at(j, k));
+					}
+					y.set(j, i, y.at(i, j));
+				}
+			}
+		} else if (method == MULTIPLY_LEFT_TRANSPOSE){
+			int m = cols;
+			int s = rows;
+			int n = cols;
+			y = new Matrix(m, m);
+			for (int i = 0; i < m; i++){
+				for (int j = i; j < n; j++){
+					for (int k = 0; k < s; k++){
+						y.add(i, j ,at(k, i) * at(k, j));
+					}
+					y.set(j, i, y.at(i, j));
+				}
+			}
+		}
+		return y;
+	}
+	
 	/**
 	 * 求取矩阵行元素的最大值
 	 * @return
@@ -827,7 +882,6 @@ public class Matrix implements Serializable{
 		mean.divide(rows);
 		return mean;
 	}
-	
 	/**
 	 * 计算矩阵的列向量集合的均值向量。
 	 * @return 均值向量。
@@ -841,10 +895,11 @@ public class Matrix implements Serializable{
 		return mean;
 	}
 	/**
-	 * 将矩阵按行归一化
+	 * 将矩阵按行归一化到[-1,1]
+	 * @param reserve 指示是否保留原矩阵
 	 * @return
 	 */
-	public Matrix normalizeRows(boolean reserve){
+	public Matrix normalizeRowsN11(boolean reserve){
 		Matrix x = reserve ? new Matrix(rows, cols): this;
 		Matrix max = rowMax();
 		Matrix min = rowMin();
@@ -856,11 +911,86 @@ public class Matrix implements Serializable{
 		return x;
 	}
 	/**
-	 * 将矩阵按行归一化
+	 * 将矩阵按行归一化到[-1,1]
 	 * @return
 	 */
-	public Matrix normalizeRows(){
-		return normalizeRows(false);
+	public Matrix normalizeRowsN11(){
+		return normalizeRowsN11(false);
+	}
+	/**
+	 * 将矩阵按行归一化到[0,1]
+	 * @param reserve 指示是否保留原矩阵
+	 * @return
+	 */
+	public Matrix normalizeRows01(boolean reserve){
+		Matrix x = reserve ? new Matrix(rows, cols): this;
+		Matrix max = rowMax();
+		Matrix min = rowMin();
+		for (int i=0; i<rows(); i++)
+			for (int j=0; j<columns(); j++){
+				double r = (at(i, j) - min.at(j))/(max.at(j) - min.at(j));
+				x.set(i, j, r);
+			}
+		return x;
+	}
+	/**
+	 * 将矩阵按行归一化到[0,1]
+	 * @return
+	 */
+	public Matrix normalizeRows01(){
+		return normalizeRows01(false);
+	}
+	/**
+	 * 使用Z-Score方法归一化矩阵
+	 * @param reserve 指示是否保留原矩阵
+	 * @return
+	 */
+	public Matrix normalizeRowsByZScore(boolean reserve){
+		throw new UnsupportedOperationException("not implement!");
+		//Matrix x = reserve ? new Matrix(rows, cols): this;
+		//return x;
+	}
+	/** 协方差矩阵计算方法，由方法{@link #covarianceOfRows(int, boolean)}使用 */
+	public static final int COVARIANCE_INVERTED = 0;
+	/** 协方差矩阵计算方法，由方法{@link #covarianceOfRows(int, boolean)}使用 */
+	public static final int COVARIANCE_NORMAL = 1;
+	/**
+	 * 按行（将矩阵每行作为一个样本）计算矩阵的协方差矩阵。
+	 * <br>设有矩阵X=[V1;V2;...;Vn]，其中Vi表示m维行向量，";"表示分行，则有矩阵X(n*m)，设：
+	 * M=mean(X)，为X的行均值向量C=cov(X)，为X的协方差矩阵。在参数<code>method</code>中:
+	 * <li>若指定为<code>COVARIANCE_INVERTED</code>，则方法将按照以下规则计算协方差矩阵
+	 * （其中".t()"为转置）：
+	 * <pre>
+	 * C=[(V1-M);(V2-M);...;(Vn-M)]*[(V1-M);(V2-M);...;(Vn-M)].t()
+	 * </pre></li>
+	 * <li>若指定为<code>COVARIANCE_NORMAL</code>，则方法将按照以下规则计算协方差矩阵：
+	 * <pre>
+	 * C=[(V1-M);(V2-M);...;(Vn-M)].t()*[(V1-M);(V2-M);...;(Vn-M)]
+	 * </pre></li>
+	 * </ul>
+	 * @param method 计算方法，为{@link #COVARIANCE_INVERTED}或{@link #COVARIANCE_NORMAL}两种
+	 * @param rowMean 行均值向量。若没有指定（为null），方法将计算均值向量。
+	 * @param doScale 指定是否进行缩放。若为<code>true</code>，则方法将对计算的到的协方差矩阵
+	 * 进行缩放，即<code>C=C/rows</code>，rows为矩阵行数
+	 * @return
+	 */
+	public Matrix covarianceOfRows(int method, Matrix rowMean, boolean doScale){
+		Matrix mean = rowMean == null?rowMean():rowMean;
+		Matrix t = this.clone();
+		Matrix cov = null;
+		for (int i=0; i<t.rows; i++)
+			t.row(i).minus(mean);
+		if (method == Matrix.COVARIANCE_INVERTED) {
+			cov = t.multiplyTranspose(MULTIPLY_RIGHT_TRANSPOSE);
+			if (doScale)
+				cov.divide(this.rows());
+		}
+		else if (method == Matrix.COVARIANCE_NORMAL) {
+			cov = t.multiplyTranspose(Matrix.MULTIPLY_LEFT_TRANSPOSE);
+			if (doScale)
+				cov.divide(this.rows());
+		}
+		return cov;
 	}
 	
 	/**
@@ -1058,8 +1188,28 @@ public class Matrix implements Serializable{
 		max.print();
 		//normalize
 		System.out.println("after normalize:");
-		Matrix n = m.normalizeRows();
+		Matrix n = m.normalizeRowsN11();
 		n.print();
+		//transpose multiply
+		Matrix x = new Matrix(4,3, new double[]{1,2,3,
+				4,5,6,
+				7,8,9,
+				1,2,3});
+		x.multiplyTranspose(Matrix.MULTIPLY_RIGHT_TRANSPOSE).print();
+		//check
+		Matrix y = new Matrix(3,4, new double[]{1,4,7,1,
+				2,5,8,2,
+				3,6,9,3});
+		x.multiply(y).print();
+		x.multiplyTranspose(Matrix.MULTIPLY_LEFT_TRANSPOSE).print();
+		y.multiply(x).print();
+		//covariance
+		System.out.println("covariance normal:");
+		x.covarianceOfRows(Matrix.COVARIANCE_NORMAL, null, true).print();
+		x.print();
+		System.out.println("covariance invert:");
+		x.covarianceOfRows(Matrix.COVARIANCE_INVERTED, null, true).print();
+		x.print();
 	}
 }
 

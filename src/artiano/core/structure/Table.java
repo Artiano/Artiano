@@ -20,6 +20,8 @@ import java.util.*;
 public class Table implements Serializable {
 	private static final long serialVersionUID = -375665745092267557L;
 
+	/** 表名 */
+	private String name = "";
 	/** 存放属性的向量列表 */
 	private List<Attribute> attributes = new ArrayList<Attribute>();
 	/** 表的行数 */
@@ -33,12 +35,17 @@ public class Table implements Serializable {
 	public Table() {
 	}
 
+	public Table(String name){
+		this.name = name;
+	}
+	
 	/**
 	 * 使用声明的属性列表构造一个表
 	 * 
 	 * @param attributes
 	 */
-	public Table(List<Attribute> attributes) {
+	public Table(List<Attribute> attributes, String name) {
+		this.name = name;
 		this.attributes = attributes;
 		int minSize = 0;
 		// find minimal size of the attributes as the rows of the table
@@ -79,7 +86,21 @@ public class Table implements Serializable {
 		for (int i = 0; i < rows; i++)
 			index.push(i);
 	}
-
+	/**
+	 * 设置表名
+	 * @param name
+	 */
+	public void setName(String name){
+		this.name = name;
+	}
+	/**
+	 * 获取表名
+	 * @return
+	 */
+	public String getName(){
+		return this.name;
+	}
+	
 	/**
 	 * 获取索引
 	 * 
@@ -291,7 +312,6 @@ public class Table implements Serializable {
 		}
 		return tables;
 	}
-
 	/**
 	 * 随机（均匀分布）重采样表数据 <br>
 	 * <b><i>NOTICE:</i></b> 重采样后形成的表和原来的表共享属性向量的数据，也就是说， 重采样后的表并不会开辟新的存储空间。
@@ -426,6 +446,7 @@ public class Table implements Serializable {
 	 */
 	public void print() {
 		// print header
+		System.out.println("Name: "+getName());
 		System.out.print("No.\t\t");
 		for (int i = 0; i < columns(); i++)
 			System.out.print(attributes.get(i).getType() + "\t\t");

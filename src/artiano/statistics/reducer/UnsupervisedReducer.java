@@ -18,5 +18,5 @@ public interface UnsupervisedReducer {
 	 * train an extractor with no labels
 	 * @param samples - samples to train
 	 */
-	public void train(Matrix[] samples);
+	public void train(Matrix samples);
 }

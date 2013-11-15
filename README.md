@@ -1,6 +1,4 @@
-b
-the branch is develop
 Artiano
 =======
 
-A framework of neural network and michine learning.
+A framework of neural computing and machine learning (not released yet).
