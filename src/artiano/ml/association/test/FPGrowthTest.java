@@ -2,9 +2,7 @@ package artiano.ml.association.test;
 
 import java.util.*;
 import java.util.Map.Entry;
-
 import artiano.ml.association.FPGrowth;
-import artiano.ml.association.FPTreeNode;
 
 public class FPGrowthTest {
 
@@ -22,7 +20,7 @@ public class FPGrowthTest {
 		
 	}
 
-	
+/*	
 	public void testFindFrequentOneItemset() {
 		FPGrowth tree = new FPGrowth();
 		int minSupport = 3;
@@ -36,8 +34,8 @@ public class FPGrowthTest {
 		}
 		System.out.println();
 	}
-
-	
+*/
+/*	
 	public void testSortByFrequent1Itemset() {
 		FPGrowth tree = new FPGrowth();
 		int minSupport = 3;
@@ -55,8 +53,8 @@ public class FPGrowthTest {
             System.out.println();
 		}
 	}
-	
-	
+*/	
+/*	
 	public void testBuildFPTree() {
 		FPGrowth tree = new FPGrowth();
 		int minSupport = 3;
@@ -81,6 +79,7 @@ public class FPGrowthTest {
         	}
          }
 	}
+*/
 	
 	@org.junit.Test
 	public void testFPTree() {

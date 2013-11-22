@@ -3,6 +3,8 @@ package artiano.ml.association;
 import java.io.*;
 import java.util.*;
 
+import artiano.ml.association.structure.FPTreeNode;
+
 /**
  * <p>Description: FPGrowth for finding frequent k-item set.</p>
  * @author JohnF Nash
@@ -54,7 +56,7 @@ public class FPGrowth {
 	}
 	
 	//find frequent 1 item set
-	public List<FPTreeNode> buildHeaderTable(List<List<String>> transactions) {
+	private List<FPTreeNode> buildHeaderTable(List<List<String>> transactions) {
 		if(transactions.size() == 0) {
 			throw new IllegalArgumentException("Transaction empty.");
 		}
@@ -145,7 +147,7 @@ public class FPGrowth {
         return frequentPatterns;
     }
 
-	public FPTreeNode buildFPTree(List<List<String>> transRecords,
+	private FPTreeNode buildFPTree(List<List<String>> transRecords,
 			List<FPTreeNode> frequent1Iteset) {
 		FPTreeNode root = new FPTreeNode(); // 创建树的根节点
 		for (List<String> transRecord : transRecords) {
@@ -170,7 +172,7 @@ public class FPGrowth {
 		return root;
 	}
 
-	public LinkedList<String> sortByFrequent1Itemset(List<String> transRecord,
+	private LinkedList<String> sortByFrequent1Itemset(List<String> transRecord,
 			List<FPTreeNode> headerTable) {
 		LinkedList<String> sortedItemset = new LinkedList<String>();
 		for(int i=0; i<headerTable.size(); i++) {
@@ -183,7 +185,7 @@ public class FPGrowth {
 	}
 	
 	// 把record作为ancestor的后代插入树中
-    public void addNodes(FPTreeNode ancestor, LinkedList<String> record,
+    private void addNodes(FPTreeNode ancestor, LinkedList<String> record,
     		List<FPTreeNode> F1) {
     	while(record.size() > 0){
     		String item = record.poll();
