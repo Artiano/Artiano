@@ -1,9 +1,8 @@
 /**
- * GPCAExtractor.java
+ * PrincipleComponentAnalysis.java
  */
-package artiano.statistics.extractor;
+package artiano.statistics.reducer;
 
-import artiano.core.operation.MatrixOpt;
 import artiano.core.structure.Matrix;
 import artiano.core.structure.Range;
 import artiano.math.algebra.SingularValueDecomposition;
@@ -16,7 +15,7 @@ import artiano.math.algebra.SingularValueDecomposition;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtractor{
+public class PrincipleComponentAnalysis extends Reducer implements UnsupervisedReducer{
 	
 	private static final long serialVersionUID = 1L;
 	//平均矩阵
@@ -27,14 +26,8 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 	protected int eigens = 0;
 	protected int samplesNumber = 0;
 	//sample size
-	protected int sampleWidth = 0;
-	protected int sampleHeight = 0;
-	//judge if the sample is vector
-	protected boolean covarianceByRow = false;
-	protected boolean isVectors = false;
-	/**
-	 * parameter of the extractor
-	 */
+	protected int sampleSize = 0;
+	protected boolean covarianceInverted = false;
 	protected int eigensNeeded = 0;
 	//rate of contribution
 	protected double roc = 0.;
@@ -42,7 +35,7 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 	/**
 	 * 构造器
 	 */
-	public GPCAExtractor(){ }
+	public PrincipleComponentAnalysis(){ }
 	
 	/**
 	 * 设置贡献率。
@@ -93,21 +86,18 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 	 * @param samples
 	 * @return - covariance matrix
 	 */
-	protected Matrix computeCovariance(Matrix[] samples){
+	protected Matrix computeCovariance(Matrix samples){
 		Matrix cov = null;
-		mean = MatrixOpt.computeMean(samples);
-		if (isVectors){
-			if (samples[0].columns() > samples.length){
-				eigens = samples.length;
-				covarianceByRow = true;
-				cov = MatrixOpt.computeCovarianceByRow(samples, mean, 1.);
-			} else {
-				eigens = samples[0].columns();
-				covarianceByRow = false;
-				cov = MatrixOpt.computeCovarianceByCol(samples, mean, 1.);
-			}
-		}else
-			cov = MatrixOpt.compute2DCovariance(samples, mean, 1.);
+		this.sampleSize = samples.columns();
+		this.mean = samples.rowMean();
+		if (samples.rows() < samples.columns()) {
+			cov = samples.covarianceOfRows(Matrix.COVARIANCE_INVERTED, mean, false);
+			covarianceInverted = true;
+		}
+		else {
+			cov = samples.covarianceOfRows(Matrix.COVARIANCE_NORMAL, mean, false);
+			covarianceInverted = false;
+		}
 		return cov;
 	}
 	
@@ -115,15 +105,13 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 	 * compute the eigen-vectors
 	 * @param samples
 	 */
-	protected void computeEigens(Matrix[] samples){
+	protected void computeEigens(Matrix samples){
 		Matrix cov = computeCovariance(samples);
 		//the covariance calculated by row, fast PCA algorithm
-		if (covarianceByRow){
+		if (covarianceInverted){
 			SingularValueDecomposition svd = new SingularValueDecomposition(cov, false);
 			svd.sort();
-			Matrix t = svd.W().sqrt();
-			computeRoc(t);
-			Matrix w = t.at(Range.all(), new Range(0, eigens)).clone();
+			Matrix w = svd.W().clone().sqrt();
 			int zeroIdx = 0;
 			//w := w^(-1/2)
 			final double TINY = 1e-7;
@@ -151,62 +139,42 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 			/**
 			 * eigen-vectors = A*v
 			 */
-			Matrix t_a = new Matrix(1, samplesNumber);
-			eigenVectors = new Matrix(sampleWidth, w.columns());
-			for (int i = 0; i < samples[0].columns(); i++)
-			{
-				/**
-				 * t_a: temporary row-vector
-				 * that t_a = column i of the covariance matrix
-				 */
-				for (int j = 0; j < samplesNumber; j++)
-					t_a.set(0, j, samples[j].at(0, i) - mean.at(0, i));
-				eigenVectors.setRow(i, t_a.multiply(v));
-			}
+			Matrix t_a = samples.clone();
+			for (int i=0; i<t_a.rows(); i++)
+				t_a.row(i).minus(mean);
+			Matrix x = t_a.t();
+			eigenVectors = x.multiply(v);
 		} else {
 			SingularValueDecomposition svd = new SingularValueDecomposition(cov, false);
 			svd.sort();
 			eigenVectors = svd.U();
 			eigenValues = svd.W().sqrt();
 		}
-		//transpose the eigen vectors to row vector
 		eigenVectors = eigenVectors.t();
 	}
 	
 	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.UnsupervisedExtractor#train(artiano.core.structure.Matrix[], double)
+	 * @see artiano.statistics.reducer.UnsupervisedReducer#train(artiano.core.structure.Matrix[], double)
 	 */
 	@Override
-	public void train(Matrix[] samples) {
-		if (samples[0].columns() == 1)
-			throw new IllegalArgumentException("GPCAExtractor train, accept row vectors only while samples is vectors.");
-		if (samples[0].rows() == 1)
-			isVectors = true;
-		else
-			isVectors = false;
-		samplesNumber = samples.length;
-		sampleWidth = samples[0].columns();
-		sampleHeight = samples[0].rows();
+	public void train(Matrix samples) {
+		samplesNumber = samples.rows();
+		sampleSize = samples.columns();
+		eigens = Math.min(samples.rows(), samples.columns());
 		computeEigens(samples);
 	}
-
-	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.FeatureExtractor#extract(double[])
-	 */
+	
 	@Override
-	public Matrix extract(Matrix sample) {
-		if (sample.rows() != sampleHeight || sample.columns() != sampleWidth)
-			throw new IllegalArgumentException("GPCAExtractor extract, size not match.");
+	public Matrix reduce(Matrix sample) {
+		if (sample.columns() != this.sampleSize)
+			throw new IllegalArgumentException("PrincipleComponentAnalysis reduce, size not match.");
 		Matrix feature;
-		if (isVectors)
-			feature = eigenVectors.multiply(sample.minus(mean, true).t()).t();
-		else
-			feature = eigenVectors.multiply(sample.minus(mean, true));
+		feature = eigenVectors.multiply(sample.minus(mean, true).t()).t();
 		return feature;
 	}
 
 	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.FeatureExtractor#getModel()
+	 * @see artiano.statistics.reducer.Reducer#getModel()
 	 */
 	@Override
 	public Matrix getModel() {
@@ -214,15 +182,12 @@ public class GPCAExtractor extends FeatureExtractor implements UnsupervisedExtra
 	}
 
 	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.FeatureExtractor#reconstruct(artiano.core.structure.Matrix)
+	 * @see artiano.statistics.reducer.Reducer#reconstruct(artiano.core.structure.Matrix)
 	 */
 	@Override
 	public Matrix reconstruct(Matrix feature) {
 		Matrix sample = null;
-		if (isVectors)
-			sample = feature.multiply(eigenVectors).add(mean);
-		else
-			sample = eigenVectors.t().multiply(feature).add(mean);
+		sample = feature.multiply(eigenVectors).add(mean);
 		return sample;
 	}
 	

@@ -93,7 +93,7 @@ public class Test {
 		System.out.println("test matrix:");
 		test.print();
 		//split inputs & outputs
-		inputs = train.at(Range.all(), new Range(0, 4)).normalizeRows();
+		inputs = train.at(Range.all(), new Range(0, 4)).normalizeRowsN11();
 		outputs = train.at(Range.all(), new Range(4, 7));
 		System.out.println("after normalize:");
 		inputs.print();
@@ -114,7 +114,7 @@ public class Test {
 			e2.printStackTrace();
 		}
 		
-		inputs = test.at(Range.all(), new Range(0, 4)).normalizeRows();
+		inputs = test.at(Range.all(), new Range(0, 4)).normalizeRowsN11();
 		outputs = test.at(Range.all(), new Range(4, 7));
 		//load
 		try {

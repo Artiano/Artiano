@@ -1,5 +1,5 @@
 /**
- * UnsupervisedLearning.java
+ * UnsupervisedNeuralLearning.java
  */
 package artiano.neural.learning;
 
@@ -13,7 +13,7 @@ import artiano.core.structure.Matrix;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public interface UnsupervisedLearning {
+public interface UnsupervisedNeuralLearning {
 	/**
 	 * run an epoch
 	 * @param inputs - samples of every input vector

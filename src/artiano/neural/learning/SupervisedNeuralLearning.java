@@ -1,5 +1,5 @@
 /**
- * SupervisedLearning.java
+ * SupervisedNeuralLearning.java
  */
 package artiano.neural.learning;
 
@@ -14,7 +14,7 @@ import artiano.core.structure.Matrix;
  * @function 
  * @since 1.0
  */
-public interface SupervisedLearning {
+public interface SupervisedNeuralLearning {
 	/**
 	 * run an iteration on every sample
 	 * @param inputs samples of every input vector

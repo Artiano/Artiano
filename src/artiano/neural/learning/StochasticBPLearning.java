@@ -15,7 +15,7 @@ import artiano.neural.neuron.ActivationNeuron;
  * @function 
  * @since 1.0
  */
-public class StochasticBPLearning implements SupervisedLearning {
+public class StochasticBPLearning implements SupervisedNeuralLearning {
 	
 	protected ActivationNetwork network = null;
 	protected double learningRate = 0.5;
@@ -141,6 +141,7 @@ public class StochasticBPLearning implements SupervisedLearning {
 		double e = 0.;
 		for (int i = 0; i < inputs.rows(); i++)
 			e += run(inputs.row(i), targetOutputs.row(i));
+		e /= inputs.rows();
 		network.squreError = e;
 		return e;
 	}

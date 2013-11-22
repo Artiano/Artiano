@@ -1,7 +1,7 @@
 /**
- * FeatureExtractor.java
+ * Reducer.java
  */
-package artiano.statistics.extractor;
+package artiano.statistics.reducer;
 
 import artiano.core.operation.Preservable;
 import artiano.core.structure.Matrix;
@@ -14,7 +14,7 @@ import artiano.core.structure.Matrix;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public abstract class FeatureExtractor extends Preservable{
+public abstract class Reducer extends Preservable{
 	
 	private static final long serialVersionUID = 1L;
 
@@ -23,7 +23,7 @@ public abstract class FeatureExtractor extends Preservable{
 	 * @param sample 输入样本。
 	 * @return 样本特征矩阵。
 	 */
-	public abstract Matrix extract(Matrix sample);
+	public abstract Matrix reduce(Matrix sample);
 	
 	/**
 	 * 根据提取得到的特征重建样本。

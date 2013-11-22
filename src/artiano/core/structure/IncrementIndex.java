@@ -3,7 +3,6 @@
  */
 package artiano.core.structure;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -15,11 +14,9 @@ import java.util.Random;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class IncrementIndex implements Serializable {
-	private static final long serialVersionUID = 7111176184812228832L;
-	
+public class IncrementIndex {
 	//default capacity
-	public static final int DEFAULT_CAPACITY = 100;
+	public static final int DEFAULT_CAPACITY = 10;
 	//not index
 	public static final int NOT_INDEX = -1;
 	//increment factor
@@ -47,6 +44,7 @@ public class IncrementIndex implements Serializable {
 	 */
 	public IncrementIndex copy(){
 		IncrementIndex inn = new IncrementIndex(this.size);
+		inn.size = this.size;
 		System.arraycopy(this.index, 0, inn.index, 0, size);
 		return inn;
 	}
@@ -90,6 +88,8 @@ public class IncrementIndex implements Serializable {
 	 * @return
 	 */
 	public int at(int i){
+		if (i>=size)
+			throw new IllegalArgumentException("index at, range out of bounds.");
 		return index[i];
 	}
 	/**
@@ -104,6 +104,25 @@ public class IncrementIndex implements Serializable {
 		}
 		index[size] = i;
 		size++;
+	}
+	/**
+	 * 移除尾部索引值
+	 */
+	public void pop(){
+		pop(1);
+	}
+	/**
+	 * 从尾部移除一段索引
+	 * @param length 需移除的长度
+	 */
+	public void pop(int length){
+		this.size -= length;
+	}
+	/**
+	 * 清除所有索引
+	 */
+	public void clear(){
+		this.size = 0;
 	}
 	/**
 	 * 判断索引是否存在

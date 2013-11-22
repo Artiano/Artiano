@@ -1,7 +1,7 @@
 /**
- * LDAExtractor.java
+ * LinearDiscriminantAnalysis.java
  */
-package artiano.statistics.extractor;
+package artiano.statistics.reducer;
 
 import artiano.core.structure.Matrix;
 
@@ -13,12 +13,12 @@ import artiano.core.structure.Matrix;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class LDAExtractor extends FeatureExtractor implements SupervisedExtractor {
+public class LinearDiscriminantAnalysis extends Reducer implements SupervisedReducer {
 	
 	private static final long serialVersionUID = 1L;
 	
 	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.SupervisedExtractor#train(artiano.core.structure.Matrix[], artiano.core.structure.Matrix)
+	 * @see artiano.statistics.reducer.SupervisedReducer#train(artiano.core.structure.Matrix[], artiano.core.structure.Matrix)
 	 */
 	@Override
 	public void train(Matrix[] samples, Matrix labels) {
@@ -27,16 +27,16 @@ public class LDAExtractor extends FeatureExtractor implements SupervisedExtracto
 	}
 	
 	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.FeatureExtractor#extract(artiano.core.structure.Matrix)
+	 * @see artiano.statistics.reducer.Reducer#extract(artiano.core.structure.Matrix)
 	 */
 	@Override
-	public Matrix extract(Matrix sample) {
+	public Matrix reduce(Matrix sample) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.FeatureExtractor#reconstruct(artiano.core.structure.Matrix)
+	 * @see artiano.statistics.reducer.Reducer#reconstruct(artiano.core.structure.Matrix)
 	 */
 	@Override
 	public Matrix reconstruct(Matrix feature) {
@@ -45,7 +45,7 @@ public class LDAExtractor extends FeatureExtractor implements SupervisedExtracto
 	}
 
 	/* (non-Javadoc)
-	 * @see artiano.statistics.extractor.FeatureExtractor#getModel()
+	 * @see artiano.statistics.reducer.Reducer#getModel()
 	 */
 	@Override
 	public Matrix getModel() {

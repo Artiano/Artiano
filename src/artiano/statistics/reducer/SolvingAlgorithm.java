@@ -1,7 +1,7 @@
 /**
  * SolvingAlgorithm.java
  */
-package artiano.statistics.extractor;
+package artiano.statistics.reducer;
 
 import artiano.core.structure.Matrix;
 
