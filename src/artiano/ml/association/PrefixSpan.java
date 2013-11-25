@@ -9,7 +9,7 @@ public class PrefixSpan<T extends Comparable<T>> {
 	private int minSupport;			//最小支持度		
 	private List<Sequence<T>> frequentSequence = 
 		new ArrayList<Sequence<T>>();  //得到的频繁序列模式
-	Map<T, List<Sequence<T>>> sequencesForItem;
+	private Map<T, List<Sequence<T>>> sequencesForItem;
 	
 	public PrefixSpan(List<Sequence<T>> sequenceList, int minSupport) {
 		super();

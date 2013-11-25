@@ -1,16 +1,18 @@
 package artiano.ml.association.test;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
+
 import artiano.ml.association.FPGrowth;
 
 public class FPGrowthTest {
 
-	
 	public void testReadTransRecord() {
-		FPGrowth tree = new FPGrowth();
 		List<List<String>> transactions =
-			tree.readTransactionRecord("src\\artiano\\ml\\association\\test\\data2.txt");
+			FPGrowthTest.readTransactionRecord("src\\artiano\\ml\\association\\test\\data2.txt");
 		for(List<String> transaction: transactions) {
 			for(String item : transaction) {
 				System.out.print(item + "\t");
@@ -86,12 +88,39 @@ public class FPGrowthTest {
 		FPGrowth fptree = new FPGrowth();
         fptree.setMinSupport(3);
         List<List<String>> transRecords = 
-        	fptree.readTransactionRecord("src\\artiano\\ml\\association\\test\\data2.txt");
+        	FPGrowthTest.readTransactionRecord("src\\artiano\\ml\\association\\test\\data2.txt");
         Map<String, Integer> frequentPatterns = 
         	fptree.fpGrowth(transRecords, null);
         Set<Entry<String, Integer>> entrySet =  frequentPatterns.entrySet();
         for(Entry<String, Integer> entry : entrySet) {
         	System.out.println(entry.getValue() + "\t" + entry.getKey());
         }
+	}
+
+	public static List<List<String>> readTransactionRecord(String fileName) {
+		List<List<String>> transaction = 
+			new ArrayList<List<String>>();
+		try {
+			FileReader fr = new FileReader(fileName);
+			BufferedReader br = new BufferedReader(fr);
+			String line;
+			List<String> record = new ArrayList<String>();			
+			while((line = br.readLine()) != null) {
+				if(line.trim().length() > 0) {
+					String[] str = line.split("[,，]");
+					record = new LinkedList<String>();
+					for(String w : str) {
+						record.add(w.trim());
+					}
+					transaction.add(record);
+				}
+			}		
+			br.close();
+			
+		} catch (IOException e) {
+			System.out.println("Read transaction records failed."
+	              + e.getMessage());
+		}		
+		return transaction;
 	}
 }

@@ -8,6 +8,7 @@ import artiano.core.operation.Preservable;
 import artiano.core.structure.Matrix;
 import artiano.core.structure.Range;
 import artiano.ml.BaseKDTree.BaseKDNode;
+import artiano.ml.clustering.structure.KDTree;
 
 /**
  * <p>Description: KMeans.</p>
