@@ -1,4 +1,4 @@
-package artiano.ml.association;
+package artiano.ml.association.structure;
 
 import java.util.ArrayList;
 import java.util.List;

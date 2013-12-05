@@ -329,8 +329,8 @@ System.out.println("tagret index: " + targetAttrIdx);
 	}
 	 
 	public static void main(String[] args) {											
-		//testNaiveBayesClassifier();
-		testDTreeClasifier();
+		testNaiveBayesClassifier();
+		//testDTreeClasifier();
 		//testKDTree();
 		//testKNearest();
 		//testDTreeClassifierUsingC4_5();

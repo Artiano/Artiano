@@ -1,7 +1,7 @@
 package artiano.ml.association;
 
-import java.io.*;
 import java.util.*;
+import artiano.ml.association.structure.FPTreeNode;
 
 /**
  * <p>Description: FPGrowth for finding frequent k-item set.</p>
@@ -26,35 +26,8 @@ public class FPGrowth {
 		this.minSupport = minSupport;
 	}
 
-	public List<List<String>> readTransactionRecord(String fileName) {
-		List<List<String>> transaction = 
-			new ArrayList<List<String>>();
-		try {
-			FileReader fr = new FileReader(fileName);
-			BufferedReader br = new BufferedReader(fr);
-			String line;
-			List<String> record = new ArrayList<String>();			
-			while((line = br.readLine()) != null) {
-				if(line.trim().length() > 0) {
-					String[] str = line.split("[,，]");
-					record = new LinkedList<String>();
-					for(String w : str) {
-						record.add(w.trim());
-					}
-					transaction.add(record);
-				}
-			}		
-			br.close();
-			
-		} catch (IOException e) {
-			System.out.println("Read transaction records failed."
-                  + e.getMessage());
-		}		
-		return transaction;
-	}
-	
 	//find frequent 1 item set
-	public List<FPTreeNode> buildHeaderTable(List<List<String>> transactions) {
+	private List<FPTreeNode> buildHeaderTable(List<List<String>> transactions) {
 		if(transactions.size() == 0) {
 			throw new IllegalArgumentException("Transaction empty.");
 		}
@@ -145,7 +118,7 @@ public class FPGrowth {
         return frequentPatterns;
     }
 
-	public FPTreeNode buildFPTree(List<List<String>> transRecords,
+	private FPTreeNode buildFPTree(List<List<String>> transRecords,
 			List<FPTreeNode> frequent1Iteset) {
 		FPTreeNode root = new FPTreeNode(); // 创建树的根节点
 		for (List<String> transRecord : transRecords) {
@@ -170,7 +143,7 @@ public class FPGrowth {
 		return root;
 	}
 
-	public LinkedList<String> sortByFrequent1Itemset(List<String> transRecord,
+	private LinkedList<String> sortByFrequent1Itemset(List<String> transRecord,
 			List<FPTreeNode> headerTable) {
 		LinkedList<String> sortedItemset = new LinkedList<String>();
 		for(int i=0; i<headerTable.size(); i++) {
@@ -183,7 +156,7 @@ public class FPGrowth {
 	}
 	
 	// 把record作为ancestor的后代插入树中
-    public void addNodes(FPTreeNode ancestor, LinkedList<String> record,
+    private void addNodes(FPTreeNode ancestor, LinkedList<String> record,
     		List<FPTreeNode> F1) {
     	while(record.size() > 0){
     		String item = record.poll();

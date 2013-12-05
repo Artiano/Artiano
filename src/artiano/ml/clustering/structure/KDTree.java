@@ -1,4 +1,4 @@
-package artiano.ml.clustering;
+package artiano.ml.clustering.structure;
 
 import java.util.*;
 

@@ -27,7 +27,7 @@ public class DTreeClassifier extends Classifier {
 			
 	/** Train Decision Tree.
 	 * @param trainSet training data
-	 * @param trainLabel index of target attribute in attributes
+	 * @param trainLabel label of training data
 	 * @param isAttributeContinuous array of boolean that indicate whether 
 	 *             corresponding attribute is continuous or discrete.
 	 * @return whether the training successes or not
@@ -62,6 +62,9 @@ public class DTreeClassifier extends Classifier {
 		
 	/**
 	 * Predict 
+	 * @param samples samples to test
+	 * @param k number of neighbors to get label, for KNearest algorithm.If not KNearest,
+	 * 		just assigning -1 to it.  
 	 * @return predications of label of data.
 	 */
 	public Table predict(Table dataSet, int k) {
@@ -148,9 +151,10 @@ public class DTreeClassifier extends Classifier {
 	
 	/**
 	 * Build a decision tree
-	 * @param p - root of decision tree
-	 * @param remainingData - remaining data to be classified.
-	 * @param remainingAttribute - remaining to be considered.
+	 * @param p root of decision tree
+	 * @param remainingData remaining data to be classified.
+	 * @param remainingAttribute remaining to be considered.
+	 * @param remainingTrainLabel remaining train label
 	 * @return root of the decision tree to build.
 	 */
 	private DTreeNode constructDecisionTree(DTreeNode p, 
@@ -186,8 +190,7 @@ public class DTreeClassifier extends Classifier {
 	private void constructSubTree(DTreeNode p,
 			ArrayList<ArrayList<String>> remainingData,
 			ArrayList<String> remainingAttribute,
-			Table remainingTrainLabel) {
-		
+			Table remainingTrainLabel) {		
 		int indexOfAttr = remainingAttribute.indexOf(p.attribute);
 		ArrayList<ArrayList<String>> attributeValueList = 
 			constructAttributeValueList(remainingData, remainingAttribute);	
@@ -284,9 +287,9 @@ public class DTreeClassifier extends Classifier {
 	
 	/**
 	 * Compute information gain of a specified attribute.
-	 * @param remainingData - remaining data to be classified.
-	 * @param attribute - attribute to compute information gain.
-	 * ***Attention: @param attrIndex - index of attribute to compute information gain.
+	 * @param remainingData remaining data to be classified.
+	 * @param attribute attribute to compute information gain.
+	 * @param remainingTrainLabel remaining train label
 	 * @return information gain of a specified attribute.
 	 */
 	private double computeInformationGain(ArrayList<ArrayList<String>> remainingData, 
@@ -329,6 +332,7 @@ public class DTreeClassifier extends Classifier {
 	 * @param remainingData - remaining data to be classified.
 	 * @param attrIndex - index of the attribute to compute entropy.
 	 * @param attrValue - value of the attribute
+	 * @param remainingTrainLabel remaining train label
 	 * @return entropy of the attribute
 	 */
 	private double getEntropy(ArrayList<ArrayList<String>> remainingData, 
@@ -357,7 +361,7 @@ public class DTreeClassifier extends Classifier {
 	
 	/**
 	 * Check whether all the labels in the data is the same.
-	 * @param remainingData - remaining data to be classified.
+	 * @param remainingTrainLabel remaining train label
 	 * @return whether all the label has the same value isYesStr
 	 */
 	private boolean allTheSameLabel(Table remainingTrainLabel) {
@@ -374,7 +378,7 @@ public class DTreeClassifier extends Classifier {
 	
 	/**
 	 *  Find the most common label in training data.
-	 * @param remainingData - remaining data to be classified.
+	 * @param remainingTrainLabel remaining train label
 	 * @return The most common label in remaining data
 	 */
 	private String mostCommonLabel(Table remainingTrainLabel) {
@@ -435,7 +439,8 @@ public class DTreeClassifier extends Classifier {
 		return attrValueCounts;
 	}
 
-	private ArrayList<Integer> countLabelsForSpecifiedAttrValue(ArrayList<ArrayList<String>> remainingData, 
+	private ArrayList<Integer> countLabelsForSpecifiedAttrValue(
+			ArrayList<ArrayList<String>> remainingData, 
 			int indexOfAttr, String attrValue, Table trainLabel) {
 		Map<String, Integer> attrValueCountsMap =
 				new LinkedHashMap<String, Integer>();

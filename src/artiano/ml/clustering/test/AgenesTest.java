@@ -1,13 +1,15 @@
 package artiano.ml.clustering.test;
 
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import artiano.core.structure.Matrix;
-import artiano.ml.clustering.KMeans;
+import java.util.List;
 
-public class Test {
-	
+import org.junit.Test;
+
+import artiano.core.structure.Matrix;
+import artiano.ml.clustering.*;
+import artiano.ml.clustering.structure.Cluster;
+
+public class AgenesTest {
+
 	//Training data(The first column is class label)
 	static double[] inputArr = { 											
 		14.1,2.02,2.4,18.8,103,2.75,2.92,.32,2.38,6.2,1.07,2.75,1060,
@@ -33,25 +35,21 @@ public class Test {
 		13.5,3.12,2.62,24,123,1.4,1.57,.22,1.25,8.60,.59,1.3,500,
 		12.79,2.67,2.48,22,112,1.48,1.36,.24,1.26,10.8,.48,1.47,480,
 		13.27,4.28,2.26,20,120,1.59,.69,.43,1.35,10.2,.59,1.56,835,
-		12.69,1.53,2.26,20.7,80,1.38,1.46,.58,1.62,3.05,.96,2.06,495											
+		12.69,1.53,2.26,20.7,80,1.38,1.46,.58,1.62,3.05,.96,2.06,495												
 	};  //1, 1, 1, 3, 3, 1, 1, 1, 2, 1, 2, 1, 3, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 2
 	
-	public static void main(String[] args) {		
+	@Test
+	public void testAgens() {
 		int attrNum = 13;
-		Matrix data = new Matrix(inputArr.length / attrNum, attrNum, inputArr );	
-		
-		KMeans kMeans = new KMeans();
-		Map<Matrix, Matrix> clusterMap = kMeans.kmeans(data, 3);  //k-means
-		Set<Entry<Matrix, Matrix>> entrySet = clusterMap.entrySet();
-		int count = 1;
-		for(Entry<Matrix, Matrix> entry: entrySet) {
-			System.out.println("Cluster " + count);
-			System.out.println("center: ");
-			entry.getKey().print();
-			System.out.println("Points in this cluster:");
-			entry.getValue().print();
-			System.out.println();
-			count++;
+		Matrix data = new Matrix(inputArr.length / attrNum, attrNum, inputArr );
+		//使用层次聚类算法Agenes进行聚类
+		List<Cluster> clusters = Agenes.cluster(data, 3);
+		System.out.println("聚类的结果如下:");
+		for(int i=0; i<clusters.size(); i++) {
+			System.out.println("Cluster " + (i+1) + ":");
+			Cluster cluster = clusters.get(i);			
+			cluster.getDataPoints().print();
 		}
 	}
+
 }
