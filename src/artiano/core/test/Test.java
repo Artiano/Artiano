@@ -53,7 +53,7 @@ public class Test {
 		Matrix x = m.at(Range.all(), new Range(0, 3));
 		printMatrix(x);
 		printMatrix(m.row(2));
-		printMatrix(m.col(2));
+		printMatrix(m.column(2));
 		m.minus(0, 0, 3);
 		printMatrix(m);
 		Matrix n = m.at(new Range(1, 3), new Range(2, 4));

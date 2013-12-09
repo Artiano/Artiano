@@ -76,8 +76,8 @@ public class Test {
     		}
     	}
 	    Plot3DPanel panel = new Plot3DPanel();
-	    double[] x = XY.col(0).toArray();
-	    double[] y = XY.col(1).toArray();
+	    double[] x = XY.column(0).toArray();
+	    double[] y = XY.column(1).toArray();
 	    double[] z = b;
 	    panel.addScatterPlot("scatter", x, y, z);
 	    double[] xx = {0,12};

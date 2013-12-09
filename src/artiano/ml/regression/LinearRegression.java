@@ -13,7 +13,7 @@ import artiano.math.algebra.CholeskyDecomposition;
  * 对线性方程组 y = w0 + w1 * x1 + w2 * x2 + ... + wk * xk,
  * 线性回归试图根据已有数据生成一个参数模型matrix。
  * 类由方法{@link #fit(Matrix, Matrix)}拟合出参数矩阵matrix，有：
- * matrix.at(0,0) --> w0, matrix.at(0, 1) --> w1, .., matrix.at(0)(k) --> wk.</li>
+ * matrix.at(0,0) --> w0, matrix.at(0, 1) --> w1, .., matrix.at(0,k) --> wk.</li>
  * </ul></p>
  * 
  * @author Nano.Michael

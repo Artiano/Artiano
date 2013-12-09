@@ -71,7 +71,7 @@ public abstract class BaseKDTree {
 		double[] variances = 
 				new double[dataSet.columns()];  //Store variances of each feature
 		for(int j=0; j<dataSet.columns(); j++) {
-			Matrix singlFeature = dataSet.col(j); 
+			Matrix singlFeature = dataSet.column(j); 
 			variances[j] = computeVariance(singlFeature);
 		}
 		

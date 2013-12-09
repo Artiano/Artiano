@@ -23,12 +23,6 @@ import java.util.Random;
 public class NominalAttribute extends Attribute {
 	/** 存储符号属性的取值范围 */
 	private List<Object> nominals = new ArrayList<Object>();
-	/** 符号属性的值类型 */
-	public enum NominalValueType{
-		NumericValued,
-		StringValued
-	}
-	
 	public NominalAttribute() {
 		this.type = "Nominal";
 	}

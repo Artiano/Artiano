@@ -3,6 +3,7 @@
  */
 package artiano.ml.regression;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import artiano.core.structure.Matrix;
 
 /**
@@ -20,7 +21,7 @@ public class PolynomialRegression extends Regression {
 	 */
 	@Override
 	public Matrix fit(Matrix x, Matrix y) {
-		return null;
+		throw new NotImplementedException();
 	}
 	
 	

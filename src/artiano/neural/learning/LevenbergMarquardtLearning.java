@@ -225,7 +225,7 @@ public class LevenbergMarquardtLearning implements SupervisedNeuralLearning {
 	protected boolean computeHessian(){
 		hessian = jacobian.t().multiply(jacobian);
 		for (int i = 0; i < hessian.rows(); i++)
-			hessian.add(i, i, regularizationFactor);
+			hessian.plus(i, i, regularizationFactor);
 		CholeskyDecomposition decomposition = new CholeskyDecomposition(hessian);
 		if (!decomposition.isDefinite())
 			return false;
