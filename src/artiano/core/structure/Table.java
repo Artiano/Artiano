@@ -87,6 +87,19 @@ public class Table implements Serializable {
 			index.push(i);
 	}
 	/**
+	 * 判断两个表是否是同型（即两个表的数据类型相同）的
+	 * @param t 待判定的表
+	 * @return
+	 */
+	public boolean sameType(Table t){
+		if (columns() != t.columns())
+			return false;
+		for (int i=0; i<columns(); i++)
+			if (!t.attribute(i).getClass().equals(attribute(i).getClass()))
+				return false;
+		return true;
+	}
+	/**
 	 * 设置表名
 	 * @param name
 	 */
@@ -219,6 +232,8 @@ public class Table implements Serializable {
 	 *            待附加的表
 	 */
 	public void append(Table table) {
+		if (sameType(table))
+			throw new IllegalArgumentException("Table append, attribute type not compatiable.");
 		for (int i = 0; i < table.columns(); i++)
 			attributes.get(i).getVector()
 					.append(table.attributes.get(i).getVector());

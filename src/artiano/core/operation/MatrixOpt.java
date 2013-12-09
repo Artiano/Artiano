@@ -64,7 +64,7 @@ public class MatrixOpt {
 			throw new IllegalArgumentException("MatrixOpt computMean, out of range.");
 		Matrix mean = new Matrix(matrices[0].rows(), matrices[0].columns());
 		for (int i = start; i < length; i++)
-			mean.add(matrices[i]);
+			mean.plus(matrices[i]);
 		mean.divide(matrices.length);
 		return mean;
 	}
@@ -167,7 +167,7 @@ public class MatrixOpt {
 		Matrix cov = new Matrix(mean.columns(), mean.columns());
 		for (int i = 0; i < matrices.length; i++){
 			Matrix t = matrices[i].minus(mean, true);
-			cov.add(t.t().multiply(t));
+			cov.plus(t.t().multiply(t));
 		}
 		cov.multiply(scale);
 		return cov;

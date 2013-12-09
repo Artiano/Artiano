@@ -38,6 +38,15 @@ public class Sequence<T extends Comparable<T>> {
 			this.sequence.add(s.sequence.get(i).clone());
 		}
 	}
+	
+	//构造只含有一项的序列
+	public Sequence(T item) {
+		this.support = 0;
+		this.sequence = new ArrayList<Element<T>>();
+		Element<T> element = new Element<T>();
+		element.addItem(item);		
+		this.sequence.add(element);
+	}
 
 	// 向序列中添加新的元素
 	public void addElement(Element<T> element) {

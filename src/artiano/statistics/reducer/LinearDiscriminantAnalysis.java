@@ -21,7 +21,7 @@ public class LinearDiscriminantAnalysis extends Reducer implements SupervisedRed
 	 * @see artiano.statistics.reducer.SupervisedReducer#train(artiano.core.structure.Matrix[], artiano.core.structure.Matrix)
 	 */
 	@Override
-	public void train(Matrix[] samples, Matrix labels) {
+	public void train(Matrix samples, Matrix labels) {
 		// TODO Auto-generated method stub
 		
 	}

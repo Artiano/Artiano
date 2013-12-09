@@ -187,7 +187,7 @@ public class PrincipleComponentAnalysis extends Reducer implements UnsupervisedR
 	@Override
 	public Matrix reconstruct(Matrix feature) {
 		Matrix sample = null;
-		sample = feature.multiply(eigenVectors).add(mean);
+		sample = feature.multiply(eigenVectors).plus(mean);
 		return sample;
 	}
 	

@@ -81,6 +81,77 @@ public class Matrix implements Serializable{
 		colRange = new Range(0, cols);
 	}
 	/**
+	 * 构造一个从以pitch为间隔从begin到end递增的向量。
+	 * @param begin 向量开始数据
+	 * @param pitch 间隔
+	 * @param end 向量结束
+	 * @return
+	 */
+	public static Matrix increment(double begin, double pitch, double end){
+		int r = (int)((end-begin)/pitch);
+		if (r<=0)
+			throw new IllegalArgumentException("Matrix increment, end must greater than begin.");
+		Matrix x = new Matrix(r, 1);
+		double pre = begin;
+		for (int i=0; i<x.rows; i++){
+			x.set(i, pre);
+			pre += pitch;
+		}
+		return x;
+	}
+
+	/**
+	 * 构造一个矩阵形如 A=u*I, I 是单位向量, u 是一个标量。
+	 * @param size 矩阵的边长。 (size=rows=columns)
+	 * @param scale 缩放比列。
+	 * @return A 
+	 * @see #unit(int)
+	 */
+	public static Matrix unit(int size, double scale){
+		Matrix x = new Matrix(size, size);
+		for (int i = 0; i < size; i++)
+			x.set(i, i, scale);
+		return x;
+	}
+
+	/**
+	 * 构造一个单位矩阵。
+	 * @param size 矩阵边长。(size=rows=columns)
+	 * @return 单位矩阵。
+	 * @see #unit(int, double)
+	 */
+	public static Matrix unit(int size){
+		return unit(size, 1.);
+	}
+
+	/**
+	 * 构造一个所有元素具有相同数据的矩阵，形如：A=N*scale，N为1矩阵，scale为缩放比例。
+	 * @param rows 矩阵行数。
+	 * @param cols 矩阵列数。
+	 * @param scale 缩放比例。
+	 * @return A 
+	 * @see #ones(int, int)
+	 */
+	public static Matrix ones(int rows, int cols, double scale){
+		Matrix x = new Matrix(rows, cols);
+		for (int i = 0; i < x.rows; i++)
+			for (int j = 0; j < x.cols; j++)
+				x.set(i, j, scale);
+		return x;
+	}
+
+	/**
+	 * 构造一个所有元素为1的矩阵。
+	 * @param rows 矩阵行数。
+	 * @param cols 矩阵列数。
+	 * @return A
+	 * @see #ones(int, int, double)
+	 */
+	public static Matrix ones(int rows, int cols){
+		return ones(rows, cols, 1.);
+	}
+
+	/**
 	 * 判断矩阵是否对称
 	 * @return
 	 */
@@ -194,7 +265,7 @@ public class Matrix implements Serializable{
 	/**
 	 * 将矩阵转换为1维数组，此时方法以行从左至右，以列从上至下顺序将矩阵转换为1维数组。
 	 * <br><b><i>NOTICE:</i></b>得到的将是矩阵中数组的拷贝，如果不想再另外开辟存储空间，请使用{@link #data()}方法，
-	 * 但是此方法返回矩阵全部元素，不能得到子矩阵（由方法：{@link #at(Range, Range)}，{@link #col(int)}，{@link #row(int)}
+	 * 但是此方法返回矩阵全部元素，不能得到子矩阵（由方法：{@link #at(Range, Range)}，{@link #column(int)}，{@link #row(int)}
 	 * 得到）的元素。
 	 * @return
 	 */
@@ -261,80 +332,10 @@ public class Matrix implements Serializable{
 	 * @param i 列下标。
 	 * @return 特定的列向量。
 	 */
-	public Matrix col(int i){
+	public Matrix column(int i){
 		return at(Range.all(), new Range(i, i+1));
 	}
 	
-	/**
-	 * 构造一个从以pitch为间隔从begin到end递增的向量。
-	 * @param begin 向量开始数据
-	 * @param pitch 间隔
-	 * @param end 向量结束
-	 * @return
-	 */
-	public static Matrix increment(double begin, double pitch, double end){
-		int r = (int)((end-begin)/pitch);
-		if (r<=0)
-			throw new IllegalArgumentException("Matrix increment, end must greater than begin.");
-		Matrix x = new Matrix(r, 1);
-		double pre = begin;
-		for (int i=0; i<x.rows; i++){
-			x.set(i, pre);
-			pre += pitch;
-		}
-		return x;
-	}
-	
-	/**
-	 * 构造一个矩阵形如 A=u*I, I 是单位向量, u 是一个标量。
-	 * @param size 矩阵的边长。 (size=rows=columns)
-	 * @param scale 缩放比列。
-	 * @return A 
-	 * @see #unit(int)
-	 */
-	public static Matrix unit(int size, double scale){
-		Matrix x = new Matrix(size, size);
-		for (int i = 0; i < size; i++)
-			x.set(i, i, scale);
-		return x;
-	}
-	
-	/**
-	 * 构造一个单位矩阵。
-	 * @param size 矩阵边长。(size=rows=columns)
-	 * @return 单位矩阵。
-	 * @see #unit(int, double)
-	 */
-	public static Matrix unit(int size){
-		return unit(size, 1.);
-	}
-	
-	/**
-	 * 构造一个所有元素具有相同数据的矩阵，形如：A=N*scale，N为1矩阵，scale为缩放比例。
-	 * @param rows 矩阵行数。
-	 * @param cols 矩阵列数。
-	 * @param scale 缩放比例。
-	 * @return A 
-	 * @see #ones(int, int)
-	 */
-	public static Matrix ones(int rows, int cols, double scale){
-		Matrix x = new Matrix(rows, cols);
-		for (int i = 0; i < x.rows; i++)
-			for (int j = 0; j < x.cols; j++)
-				x.set(i, j, scale);
-		return x;
-	}
-	
-	/**
-	 * 构造一个所有元素为1的矩阵。
-	 * @param rows 矩阵行数。
-	 * @param cols 矩阵列数。
-	 * @return A
-	 * @see #ones(int, int, double)
-	 */
-	public static Matrix ones(int rows, int cols){
-		return ones(rows, cols, 1.);
-	}
 	/**
 	 * 使用指定值填充矩阵
 	 * @param value 指定值
@@ -395,7 +396,6 @@ public class Matrix implements Serializable{
 	 * @param row  Row range
 	 * @param col Column range
 	 * @return A sub-matrix of the matrix
-	 * 
 	 * @see #copyTo(Matrix)
 	 */
 	public Matrix at(Range row, Range col){
@@ -488,7 +488,7 @@ public class Matrix implements Serializable{
 	 * @param i 列下标。
 	 * @param value 要设置的值。
 	 */
-	public void setCol(int i, Matrix value){
+	public void setColumn(int i, Matrix value){
 		if (value.cols != 1)
 			throw new IllegalArgumentException("Matrix setCol, accept column vector only.");
 		if (value.rows != rows)
@@ -514,30 +514,28 @@ public class Matrix implements Serializable{
 	 * <br><b><i>NOTICE:</i></b> 这个方法将用相加后的结果替换原始矩阵。
 	 * @param x 
 	 * @return 结果。
-	 * 
-	 * @see #add(Number)
-	 * @see #add(Matrix, boolean)
-	 * @see #add(Number, boolean)
-	 * @see #add(int, int, Number)
+	 * @see #plus(Number)
+	 * @see #plus(Matrix, boolean)
+	 * @see #plus(Number, boolean)
+	 * @see #plus(int, int, Number)
 	 */
-	public Matrix add(Matrix x){
-		return add(x,false);
+	public Matrix plus(Matrix x){
+		return plus(x,false);
 	}
 	
 	/**
 	 * 矩阵加法 (z = x + y)
 	 * @param x 
 	 * @param reserve 指示是否保留原始矩阵。如果<code>reserve==true</code>，方法同
-	 * {@link #add(Matrix)}
+	 * {@link #plus(Matrix)}
 	 * 否则，程序将保留原始矩阵。
 	 * @return 结果
-	 * 
-	 * @see #add(Matrix)
-	 * @see #add(Number)
-	 * @see #add(Number, boolean)
-	 * @see #add(int, int, Number)
+	 * @see #plus(Matrix)
+	 * @see #plus(Number)
+	 * @see #plus(Number, boolean)
+	 * @see #plus(int, int, Number)
 	 */
-	public Matrix add(Matrix x, boolean reserve){
+	public Matrix plus(Matrix x, boolean reserve){
 		if (rows != x.rows || cols != x.cols)
 			throw new IllegalArgumentException("Matrix add, size not match.");
 		Matrix y = reserve ? new Matrix(rows, cols): this;
@@ -551,16 +549,15 @@ public class Matrix implements Serializable{
 	 * 矩阵加法 (z=x+y, x 为标量)
 	 * @param x 
 	 * @param reserve 指示是否保留原始矩阵。如果<code>reserve==true</code>，方法同
-	 * {@link #add(Number)}
+	 * {@link #plus(Number)}
 	 * 否则，程序将保留原始矩阵。
 	 * @return 结果
-	 * 
-	 * @see #add(Matrix)
-	 * @see #add(Number)
-	 * @see #add(Matrix, boolean)
-	 * @see #add(int, int, Number)
+	 * @see #plus(Matrix)
+	 * @see #plus(Number)
+	 * @see #plus(Matrix, boolean)
+	 * @see #plus(int, int, Number)
 	 */
-	public Matrix add(Number x, boolean reserve){
+	public Matrix plus(Number x, boolean reserve){
 		Matrix y = reserve ? new Matrix(rows, cols): this;
 		for (int i = 0; i < rows; i++)
 			for (int j = 0; j < cols; j++)
@@ -573,14 +570,13 @@ public class Matrix implements Serializable{
 	 *  <br><b><i>NOTICE:</i></b> 这个方法将用相加后的结果替换原始矩阵。
 	 * @param x 
 	 * @return 结果。
-	 * 
-	 * @see #add(Matrix)
-	 * @see #add(Matrix, boolean)
-	 * @see #add(Number, boolean)
-	 * @see #add(int, int, Number)
+	 * @see #plus(Matrix)
+	 * @see #plus(Matrix, boolean)
+	 * @see #plus(Number, boolean)
+	 * @see #plus(int, int, Number)
 	 */
-	public Matrix add(Number x){
-		return add(x,false);
+	public Matrix plus(Number x){
+		return plus(x,false);
 	}
 	
 	/**
@@ -589,7 +585,7 @@ public class Matrix implements Serializable{
 	 * @param j 列下标。
 	 * @param value 需要加的数。
 	 */
-	public void add(int i, int j, Number value){
+	public void plus(int i, int j, Number value){
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
 			throw new IndexOutOfBoundsException("Matrix at, index out of range.");
 		d[(i + rowRange.begin()) * dCols + j + colRange.begin()] += value.doubleValue();
@@ -611,12 +607,11 @@ public class Matrix implements Serializable{
 	 * 矩阵减法 (z=x-y)
 	 * <br><b><i>NOTICE:</i></b> 方法将用结果替换原始矩阵。如果想保留原始矩阵，使用如下代码：
 	 * <pre><code>
-	 * Matrix z=x.subtract(y);
+	 * Matrix z=x.minus(y);
 	 * </code>
 	 * </pre>
 	 * @param x 
 	 * @return 结果
-	 * 
 	 * @see #minus(Number)
 	 * @see #minus(Matrix, boolean)
 	 * @see #minus(int, int, Number)
@@ -706,7 +701,7 @@ public class Matrix implements Serializable{
 		for (int i = 0; i < m; i++)
 			for (int j = 0; j < n; j++)
 				for (int k = 0; k < s; k++)
-					y.add(i, j ,at(i, k) * x.at(k, j));
+					y.plus(i, j ,at(i, k) * x.at(k, j));
 		return y;
 	}
 	
@@ -820,7 +815,7 @@ public class Matrix implements Serializable{
 			for (int i = 0; i < m; i++){
 				for (int j = i; j < n; j++){
 					for (int k = 0; k < s; k++){
-						y.add(i, j ,at(i, k) * at(j, k));
+						y.plus(i, j ,at(i, k) * at(j, k));
 					}
 					y.set(j, i, y.at(i, j));
 				}
@@ -833,7 +828,7 @@ public class Matrix implements Serializable{
 			for (int i = 0; i < m; i++){
 				for (int j = i; j < n; j++){
 					for (int k = 0; k < s; k++){
-						y.add(i, j ,at(k, i) * at(k, j));
+						y.plus(i, j ,at(k, i) * at(k, j));
 					}
 					y.set(j, i, y.at(i, j));
 				}
@@ -878,7 +873,7 @@ public class Matrix implements Serializable{
 	public Matrix rowMean(){
 		Matrix mean = new Matrix(1, cols);
 		for (int i = 0; i < rows; i++)
-			mean.add(row(i));
+			mean.plus(row(i));
 		mean.divide(rows);
 		return mean;
 	}
@@ -890,7 +885,7 @@ public class Matrix implements Serializable{
 	public Matrix colMean(){
 		Matrix mean = new Matrix(rows, 1);
 		for (int i = 0; i < cols; i++)
-			mean.add(col(i));
+			mean.plus(column(i));
 		mean.divide(cols);
 		return mean;
 	}

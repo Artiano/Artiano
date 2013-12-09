@@ -1,8 +1,6 @@
 package artiano.ml.association;
 
-import java.io.*;
 import java.util.*;
-
 import artiano.ml.association.structure.FPTreeNode;
 
 /**
@@ -28,33 +26,6 @@ public class FPGrowth {
 		this.minSupport = minSupport;
 	}
 
-	public List<List<String>> readTransactionRecord(String fileName) {
-		List<List<String>> transaction = 
-			new ArrayList<List<String>>();
-		try {
-			FileReader fr = new FileReader(fileName);
-			BufferedReader br = new BufferedReader(fr);
-			String line;
-			List<String> record = new ArrayList<String>();			
-			while((line = br.readLine()) != null) {
-				if(line.trim().length() > 0) {
-					String[] str = line.split("[,，]");
-					record = new LinkedList<String>();
-					for(String w : str) {
-						record.add(w.trim());
-					}
-					transaction.add(record);
-				}
-			}		
-			br.close();
-			
-		} catch (IOException e) {
-			System.out.println("Read transaction records failed."
-                  + e.getMessage());
-		}		
-		return transaction;
-	}
-	
 	//find frequent 1 item set
 	private List<FPTreeNode> buildHeaderTable(List<List<String>> transactions) {
 		if(transactions.size() == 0) {

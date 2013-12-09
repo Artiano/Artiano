@@ -219,7 +219,7 @@ public class SingularValueDecomposition {
 					for (j = l - 1; j < n; j++){
 						for (s = 0., k = i; k < m; k++) s += u.at(k, i) * u.at(k, j);
 						f = s / h;
-						for (k = i; k < m; k++) u.add(k, j, f * u.at(k, i));
+						for (k = i; k < m; k++) u.plus(k, j, f * u.at(k, i));
 					}
 					for (k = i; k < m; k++) u.multiply(k, i, scale);
 				}
@@ -240,7 +240,7 @@ public class SingularValueDecomposition {
 					for (k = l - 1; k < n; k++) rv1[k] = u.at(i, k) / h;
 					for (j = l - 1; j < m; j++) {
 						for (s = 0., k = l - 1; k < n; k++) s += u.at(j, k) * u.at(i, k);
-						for (k = l - 1; k < n; k++) u.add(j,k,s*rv1[k]);
+						for (k = l - 1; k < n; k++) u.plus(j,k,s*rv1[k]);
 					}
 					for (k = l - 1; k < n; k++) u.multiply(i, k, scale);
 				}
@@ -257,7 +257,7 @@ public class SingularValueDecomposition {
 							v.set(j, i, u.at(i, j)/u.at(i, l)/g);
 						for (j = l; j < n; j++){
 							for (s = 0., k = l; k < n; k++) s += u.at(i, k) * v.at(k, j);
-							for (k = l; k < n; k++) v.add(k, j, s*v.at(k, i));
+							for (k = l; k < n; k++) v.plus(k, j, s*v.at(k, i));
 						}
 					}
 					for (j = l; j < n; j++){
@@ -281,11 +281,11 @@ public class SingularValueDecomposition {
 				for (j = l; j < n; j++){
 					for (s = 0., k = l; k < m; k++) s += u.at(k, i) * u.at(k, j);
 					f = (s / u.at(i, i)) * g;
-					for ( k = i; k < m; k++) u.add(k,j,f*u.at(k, i));
+					for ( k = i; k < m; k++) u.plus(k,j,f*u.at(k, i));
 				}
 				for (j = i; j < m; j++) u.multiply(j, i, g);
 			}else for (j = i; j < m; j++) u.set(j, i, 0.);
-			u.add(i,i,1.);
+			u.plus(i,i,1.);
 		}
 		
 		//diagonal

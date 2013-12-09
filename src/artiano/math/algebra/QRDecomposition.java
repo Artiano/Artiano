@@ -63,7 +63,7 @@ public class QRDecomposition {
 				for (i = k; i < n; i++) a.divide(i, k, scale);
 				for (sum = 0., i = k; i < n; i++) sum += Math_.square(a.at(i, k));
 				sigma = Math_.sign(Math.sqrt(sum), a.at(k, k));
-				a.add(k, k, sigma);
+				a.plus(k, k, sigma);
 				c.set(k, sigma*a.at(k, k));
 				d.set(k, -scale*sigma);
 				for (j = k+1; j<n; j++){
