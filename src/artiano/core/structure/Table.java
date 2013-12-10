@@ -232,7 +232,7 @@ public class Table implements Serializable {
 	 *            待附加的表
 	 */
 	public void append(Table table) {
-		if (sameType(table))
+		if (!sameType(table))
 			throw new IllegalArgumentException("Table append, attribute type not compatiable.");
 		for (int i = 0; i < table.columns(); i++)
 			attributes.get(i).getVector()
