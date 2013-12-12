@@ -119,9 +119,9 @@ public class DBSCAN {
 		return finalClusters;
 	}
 	
+	//构造图的顶点
 	private List<Vertex> constructVertices(Map<Integer, Matrix> corePointsMap,
-			Set<Integer> indices) {
-		//构造图的顶点
+			Set<Integer> indices) {		
 		List<Vertex> corePoints = new ArrayList<Vertex>();
 		for(int index: indices) {
 			Vertex vertex = new Vertex(index, corePointsMap.get(index));
@@ -130,8 +130,8 @@ public class DBSCAN {
 		return corePoints;
 	}
 
-	private List<Edge> constructEdges(Set<Integer> indices) {
-		//构造图的边
+	//构造图的边
+	private List<Edge> constructEdges(Set<Integer> indices) {		
 		List<Edge> edges = new ArrayList<Edge>();		
 		int i = 0;
 		for(Integer index_1: indices) {
@@ -241,6 +241,7 @@ public class DBSCAN {
 		}
 	}
 		
+	//获取核心点
 	private Map<Integer, Matrix> getCorePoints(Matrix dataPoints) {
 		Map<Integer, Matrix> corePoints = new HashMap<Integer, Matrix>();
 		int numOfPoints = dataPoints.rows();
@@ -263,6 +264,7 @@ public class DBSCAN {
 		return noisePointList;
 	}
 	
+	//数据点的类型类
 	private final class PointType {
 		final static int UNASSIGNED = 0;	//没有指定时为UNASSIGNED
 		final static int CORE = 1;		//核心点

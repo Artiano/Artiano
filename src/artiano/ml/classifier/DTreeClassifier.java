@@ -7,7 +7,7 @@ import artiano.core.structure.*;
 import artiano.core.structure.Table.TableRow;
 
 /**
- * <p>Description: Decision Tree classifier using ID3 algorithm.</p>
+ * <p> 决策树分类器(使用ID3算法实现)</p>
  * @author JohnF Nash
  * @version 1.0.0
  * @date 2013-9-2
@@ -18,39 +18,39 @@ public class DTreeClassifier extends Classifier {
 	private static final long serialVersionUID = 1016638292310337476L;
 	
 	private ArrayList<ArrayList<String>> data = 
-			new ArrayList<ArrayList<String>>();
-	private ArrayList<String> attributeList = new ArrayList<String>();	
-	private DTreeNode root;		 //Root of the decision tree constructed.
+			new ArrayList<ArrayList<String>>();   //训练集
+	//数据属性列表
+	private ArrayList<String> attributeList = new ArrayList<String>(); 	
+	private DTreeNode root;		 //决策树的根节点
 	
 	public DTreeClassifier() {		
 	}
 			
-	/** Train Decision Tree.
-	 * @param trainSet training data
-	 * @param trainLabel label of training data
-	 * @param isAttributeContinuous array of boolean that indicate whether 
-	 *             corresponding attribute is continuous or discrete.
-	 * @return whether the training successes or not
+	/** 决策树分类
+	 * @param trainSet 训练集
+	 * @param trainLabel 数据类标号
+	 * @return 数据训练是否成功
 	 */
-	public boolean train(Table trainSet, Table trainLabel, 
-			boolean[] isAttributeContinuous) {		
-		//Check whether the parameters inputed is valid
+	public boolean train(Table trainSet, NominalAttribute trainLabel) {		
+		//检验待训练的数据是否合法
 		try {
 			isTrainDataInputedValid(trainSet, trainLabel);
 		} catch(Exception e) {			
 			return false;
 		}
 		initialize(trainSet);
-	
-		//Construct a decision tree
+		
+		//深度复制属性列表
 		ArrayList<String> copyOfAttList = new ArrayList<String>(attributeList);
+		// 构造决策树
 		root = constructDecisionTree(root, data, copyOfAttList, trainLabel);		
-		return true;   //Data training successes.
+		return true; 
 	}				
 	
+	//初始化属性列表及训练集
 	private void initialize(Table trainSet) {
 		int columns = trainSet.columns();
-		/* initialize attribute */
+		/* 初始化属性列表 */
 		attributeList = new ArrayList<String>();
 		for(int j=0; j<columns; j++) {
 			Attribute attr = trainSet.attribute(j);
@@ -61,28 +61,21 @@ public class DTreeClassifier extends Classifier {
 	}
 		
 	/**
-	 * Predict 
-	 * @param samples samples to test
-	 * @param k number of neighbors to get label, for KNearest algorithm.If not KNearest,
-	 * 		just assigning -1 to it.  
-	 * @return predications of label of data.
+	 * 预测 
+	 * @param samples 待分类数据集
+	 * @return 待分类数据的类标号
 	 */
-	public Table predict(Table dataSet, int k) {
-		if(dataSet == null) {  //Input empty
+	public NominalAttribute predict(Table dataSet) {
+		if(dataSet == null) { 
 			return null;
 		}
 		ArrayList<ArrayList<String>> data = tableToArrayList(dataSet);
-		Table predictionList = new Table();
-		for(int j=0; j<dataSet.columns(); j++) {
-			predictionList.addAttribute(new NominalAttribute());
-		}
-		
-		//List<String> predictionList = new ArrayList<String>(); 
+		NominalAttribute predictionList = new NominalAttribute();				
 		for(int i=0; i<data.size(); i++) {
-			List<String> singleItem = data.get(i);  //A sample
+			List<String> singleItem = data.get(i);  //一条数据
 			
 			DTreeNode current = root;
-			int matchNum = 0;		//Number of attribute matched.
+			int matchNum = 0;		//到目前为止已经匹配的属性数目
 			boolean searchComplete = false;
 			while(current.nextNodes.size() >= 1) {
 				String attribute = current.attribute;							
@@ -97,22 +90,20 @@ public class DTreeClassifier extends Classifier {
 				}
 								
 				searchComplete = false;
-				//Search each branch of an decision variable to match the sample
+				//搜索一个属性的每一个可能值，来匹配待分类数据
 				List<DTreeNode> childrenNodes = current.nextNodes;					
 				for(int j=0; j<childrenNodes.size(); j++) {
 					DTreeNode childNode = childrenNodes.get(j);
-					if(valueSearched.equals(childNode.previousDecision)) {  //Previous attribute match
-						if(childNode.nextNodes == null) {  //All same label or exactly matched.
-							TableRow tableRow = predictionList.new TableRow();
-							tableRow.set(0, childNode.label);
-							predictionList.push(tableRow);
+					//前一个属性得到匹配
+					if(valueSearched.equals(childNode.previousDecision)) {
+						//待分类的数据得到完全匹配
+						if(childNode.nextNodes == null) { 							
+							predictionList.push(childNode.label);
 							searchComplete = true;
 							break;
-						}
-						
-						current = childNode;	//Match with next branch of previous attribute.
-						matchNum++;						
-						
+						}						
+						current = childNode;	//准备匹配下一个属性的值
+						matchNum++;												
 						break;
 					}
 				}								
@@ -122,22 +113,21 @@ public class DTreeClassifier extends Classifier {
 				}					
 			}
 			 
-			if(matchNum == attributeList.size() ) {   //Search complete
-				if(! "".equals(current.label)) {
-					TableRow tableRow = predictionList.new TableRow();
-					tableRow.set(0, current.label);
-					predictionList.push(tableRow);
+			if(matchNum == attributeList.size() ) {   //匹配完成
+				if(! "".equals(current.label)) {					
+					predictionList.push(current.label);
 				} 		
 			} 
 		}		
 		return predictionList;
 	}
 
+	//将 Table类型的数据转化为 ArrayList类型的数据
 	private ArrayList<ArrayList<String>> tableToArrayList(Table dataSet) {
 		int rows = dataSet.rows();
 		int columns = dataSet.columns();
 		ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
-		/* initialize list data */
+		/* 初始化数据 */
 		for(int i=0; i<rows; i++) {
 			ArrayList<String> rowData = new ArrayList<String>();
 			TableRow tableRow = dataSet.row(i);
@@ -149,74 +139,78 @@ public class DTreeClassifier extends Classifier {
 		return data;
 	}
 	
+	
 	/**
-	 * Build a decision tree
-	 * @param p root of decision tree
-	 * @param remainingData remaining data to be classified.
-	 * @param remainingAttribute remaining to be considered.
-	 * @param remainingTrainLabel remaining train label
-	 * @return root of the decision tree to build.
+	 * 构造决策树
+	 * @param p 决策树的根节点
+	 * @param remainingData 剩下的有待分类的数据
+	 * @param remainingAttribute 还未进行匹配的属性
+	 * @param remainingTrainLabel 剩下的类标号
+	 * @return 构造的决策树的根节点
 	 */
 	private DTreeNode constructDecisionTree(DTreeNode p, 
 			ArrayList<ArrayList<String>> remainingData, 
 			ArrayList<String> remainingAttribute,
-			Table remainingTrainLabel) {		
+			NominalAttribute remainingTrainLabel) {		
 		if(p == null) {
 			p = new DTreeNode();
 		}
-						
+	
+		//剩下的数据的类标号相同，将当前节点的类标号置为剩下的那个类标号，决策树构造完成
 		if(allTheSameLabel(remainingTrainLabel)) {
-			String label = remainingTrainLabel.row(0).at(0).toString();
+			String label = remainingTrainLabel.get(0).toString();
 			p.label = label;
 			return p;
 		}			
 				
-		//All the attributes has been considered ,yet not complete the classification
+		 /* 所有的属性都已经进行匹配，但还没有完成分类，则将剩下的数据中出现次数最多的类标号
+		 	作为当前节点的类标号，并且停止构造决策树  */
 		if(remainingAttribute.size() == 0) {
 			p.label = mostCommonLabel(remainingTrainLabel);
 			return p;
 		}
 		
-		/* Find decision variable by finding the max information gain. */
+		/* 根据最大信息增益来决定哪个属性作为分裂属性 */
 		int max_index = 
 			getMaxInformationGainAttribute(remainingData, remainingAttribute, 
 					remainingTrainLabel);
 		p.attribute = remainingAttribute.get(max_index);
-		//Create sub tree														
+		// 构造子决策树												
 		constructSubTree(p, remainingData,remainingAttribute, remainingTrainLabel);								
 		return p;
 	}
 			
+	//构造子决策树
 	private void constructSubTree(DTreeNode p,
 			ArrayList<ArrayList<String>> remainingData,
 			ArrayList<String> remainingAttribute,
-			Table remainingTrainLabel) {		
+			NominalAttribute remainingTrainLabel) {		
 		int indexOfAttr = remainingAttribute.indexOf(p.attribute);
 		ArrayList<ArrayList<String>> attributeValueList = 
 			constructAttributeValueList(remainingData, remainingAttribute);	
 		ArrayList<String> attrValues = attributeValueList.get(indexOfAttr);
 		
-		//Update remaining attributes
+		//更新剩下的属性列表
 		remainingAttribute.remove(p.attribute);
 		ArrayList<String> newRemainingAttribute = remainingAttribute; 
 		
-		//Each value of the attribute represents a branch of the decision tree
+		//属性的每一个值都将作为当前节点的子树
 		int attrIndexInOrigin = this.attributeList.indexOf(p.attribute);
 		for(int j=0; j<attrValues.size() && j<4; j++) {		
 			ArrayList<ArrayList<String>> newRemainingData = 
 				getNewRemainingData(remainingData, attrIndexInOrigin, attrValues.get(j));
-			Table newRemainingTrainLabel = 
+			NominalAttribute newRemainingTrainLabel = 
 				getNewRemainingTrainLabel(remainingData, remainingTrainLabel,
 					attrIndexInOrigin,attrValues.get(j));
 			
-			DTreeNode new_node = new DTreeNode();  //Root of the sub tree
+			DTreeNode new_node = new DTreeNode();  //子树的根节点
 			new_node.previousDecision = attrValues.get(j);
-			if(newRemainingData.size() == 0) {	//Now has no sample of this branch
+			if(newRemainingData.size() == 0) {	//这个分支已经没有节点
 				new_node.label = mostCommonLabel(remainingTrainLabel);
 				if(p.nextNodes == null) {
 					p.nextNodes = new ArrayList<DTreeNode>();
 				}
-				p.nextNodes.add(new_node);    //Add root of the sub tree to the node
+				p.nextNodes.add(new_node);    //将子树的根节点加到节点p上
 				break;
 			} else {				
 				constructDecisionTree(new_node, newRemainingData, 
@@ -226,31 +220,27 @@ public class DTreeClassifier extends Classifier {
 			if(p.nextNodes == null) {
 				p.nextNodes = new ArrayList<DTreeNode>();
 			}
-			p.nextNodes.add(new_node);    //Add root of the sub tree to the node			
+			p.nextNodes.add(new_node);    //将子树的根节点加到节点p上			
 		}
 	}
 
-	private Table getNewRemainingTrainLabel(
+	//更新剩下的类标号
+	private NominalAttribute getNewRemainingTrainLabel(
 			ArrayList<ArrayList<String>> remainingData,
-			Table remainingTrainLabel, int indexOfAttr,
+			NominalAttribute remainingTrainLabel, int indexOfAttr,
 			String attrValue) {
-		Table newRemainingTrainLabel = new Table();
-		int columns = remainingTrainLabel.columns();
-		for(int m=0; m<columns; m++) {
-			String attName = remainingTrainLabel.attribute(m).getName();
-			newRemainingTrainLabel.addAttribute(new NominalAttribute(attName));
-		}		
+		NominalAttribute newRemainingTrainLabel = 
+			new NominalAttribute(remainingTrainLabel.getName());				
 		for(int i=0; i<remainingData.size(); i++) {
 			ArrayList<String> currentItem = remainingData.get(i);
-			if(attrValue.equals(currentItem.get(indexOfAttr))) {
-				TableRow tableRow = newRemainingTrainLabel.new TableRow();
-				tableRow.set(0, remainingTrainLabel.row(i).at(0));
-				newRemainingTrainLabel.push(tableRow);
+			if(attrValue.equals(currentItem.get(indexOfAttr))) {				
+				newRemainingTrainLabel.push(remainingTrainLabel.get(i));
 			}				
 		}
 		return newRemainingTrainLabel;
 	}
 			
+	//更新还未得到匹配的数据集
 	private ArrayList<ArrayList<String>> getNewRemainingData(
 			ArrayList<ArrayList<String>> remainingData, 
 			int indexOfAttr,String attrValue) {
@@ -265,15 +255,15 @@ public class DTreeClassifier extends Classifier {
 		return newRemainingData;
 	}
 	
-	/* Get index of attribute which has max information gain */
+	// 得到剩下的属性中拥有最大信息增益的那个属性在属性列表中的下标
 	private int getMaxInformationGainAttribute(
 			ArrayList<ArrayList<String>> remainingData,
 			ArrayList<String> remainingAttribute,
-			Table remainingTrainLabel) {
+			NominalAttribute remainingTrainLabel) {
 		double max_gain = 0;
-		int max_index = 0;	//Attribute index where the attribute information gain max  
+		int max_index = 0;	//拥有最大信息增益的属性的下标  
 		for(int i=0; i<remainingAttribute.size(); i++) {			
-			//Get information gain of the attribute
+			//获取当前属性的信息增益
 			double temp_gain = 
 				computeInformationGain(remainingData, remainingAttribute.get(i),
 						remainingTrainLabel);
@@ -286,14 +276,14 @@ public class DTreeClassifier extends Classifier {
 	}
 	
 	/**
-	 * Compute information gain of a specified attribute.
-	 * @param remainingData remaining data to be classified.
-	 * @param attribute attribute to compute information gain.
-	 * @param remainingTrainLabel remaining train label
-	 * @return information gain of a specified attribute.
+	 * 计算特定属性的信息增益
+	 * @param remainingData 还未被分类的数据集
+	 * @param attribute 当前要计算信息增益的属性
+	 * @param remainingTrainLabel 剩下的类标号
+	 * @return 属性的信息增益
 	 */
 	private double computeInformationGain(ArrayList<ArrayList<String>> remainingData, 
-			String attribute, Table remainingTrainLabel) {		
+			String attribute, NominalAttribute remainingTrainLabel) {		
 		double inforGain = 0;								
 		//Add entropy(S);
 		ArrayList<Integer> labelCounts =  
@@ -303,20 +293,19 @@ public class DTreeClassifier extends Classifier {
 			inforGain += -1 * temp * Math.log10(temp) / Math.log10(2);
 		}
 		
-		/* Count each appearances of values of the attribute */
+		//统计该属性的每一个值的出现次数
 		int indexOfAttr = attributeList.indexOf(attribute);
 		ArrayList<Integer> eachCount =				
 			countAttributeValuesApperances(remainingData, indexOfAttr);		
 				
-		 // Get remaining values of attribute in indexOfAttr
+		//获取下标为indexOfAttr的属性剩下的值
 		ArrayList<String> attrValues = new ArrayList<String>();
 		for(int i=0; i<remainingData.size(); i++) {
 			ArrayList<String> currentSample = remainingData.get(i);
 			if(!attrValues.contains(currentSample.get(indexOfAttr))) {
 				attrValues.add(currentSample.get(indexOfAttr));
 			}
-		}
-		
+		}		
 		for(int j=0; j<attrValues.size(); j++) {
 			double entropy = 
 				getEntropy(remainingData, indexOfAttr, attrValues.get(j),
@@ -328,21 +317,21 @@ public class DTreeClassifier extends Classifier {
 	}
 	
 	/**
-	 * Compute entropy of value of an attribute
-	 * @param remainingData - remaining data to be classified.
-	 * @param attrIndex - index of the attribute to compute entropy.
-	 * @param attrValue - value of the attribute
-	 * @param remainingTrainLabel remaining train label
-	 * @return entropy of the attribute
+	 * 计算属性的一个值的熵
+	 * @param remainingData - 还未被分类的数据集
+	 * @param attrIndex - 当前需要计算属性值的信息增益的属性在属性列表中的下标
+	 * @param attrValue - 当前使用的属性值
+	 * @param remainingTrainLabel 余下的类标号
+	 * @return 该属性值的信息增益
 	 */
 	private double getEntropy(ArrayList<ArrayList<String>> remainingData, 
-			int attrIndex, String attrValue, Table remainingTrainLabel) {
+			int attrIndex, String attrValue, NominalAttribute remainingTrainLabel) {
 		ArrayList<Integer> labelValueCounts =
 			countLabelsForSpecifiedAttrValue(remainingData, attrIndex, 
 					attrValue, remainingTrainLabel);		
 		
 		int attributeValueCount = 0;
-		/*If one label value count is 0, the entropy is 0.   */
+		//如果某个类标号的计数为0，则熵为0
 		for(int i=0; i<labelValueCounts.size(); i++) {
 			attributeValueCount += labelValueCounts.get(i);
 			if(labelValueCounts.get(i) == 0) {
@@ -350,8 +339,8 @@ public class DTreeClassifier extends Classifier {
 			}
 		}
 		
-		/* Compute entropy */		
-		double entropy = 0;		//Entropy of value of the attribute		
+		/* 计算熵 */		
+		double entropy = 0;		//该属性值的熵		
 		for(int i=0; i<labelValueCounts.size(); i++) {
 			double temp = labelValueCounts.get(i) * 1.0 / attributeValueCount;
 			entropy += -1 * temp * Math.log10(temp) / Math.log10(2);
@@ -360,15 +349,15 @@ public class DTreeClassifier extends Classifier {
 	}
 	
 	/**
-	 * Check whether all the labels in the data is the same.
-	 * @param remainingTrainLabel remaining train label
-	 * @return whether all the label has the same value isYesStr
+	 * 检查数据集相应的类标号是不是全部相同
+	 * @param remainingTrainLabel 剩余的类标
+	 * @return 数据集的类表是不是完全相同，是则返回true;否则，返回false
 	 */
-	private boolean allTheSameLabel(Table remainingTrainLabel) {
-		String firstLabel = remainingTrainLabel.row(0).at(0).toString();
-		int rows = remainingTrainLabel.rows();
-		for(int i=1; i<rows; i++) {
-			String currentLabel = remainingTrainLabel.row(i).at(0).toString();
+	private boolean allTheSameLabel(NominalAttribute remainingTrainLabel) {
+		Object firstLabel = remainingTrainLabel.get(0);
+		int size = remainingTrainLabel.size();
+		for(int i=1; i<size; i++) {
+			Object currentLabel = remainingTrainLabel.get(i);
 			if(!firstLabel.equals(currentLabel)) {
 				return false;
 			}
@@ -377,15 +366,15 @@ public class DTreeClassifier extends Classifier {
 	}
 	
 	/**
-	 *  Find the most common label in training data.
-	 * @param remainingTrainLabel remaining train label
-	 * @return The most common label in remaining data
+	 *  搜索数据集中出现最频繁的类标
+	 * @param remainingTrainLabel 剩余的类标
+	 * @return 数据集中出现最频繁的类标
 	 */
-	private String mostCommonLabel(Table remainingTrainLabel) {
+	private String mostCommonLabel(NominalAttribute remainingTrainLabel) {
 		Map<String, Integer> labelMap = new HashMap<String, Integer>();
-		int rows = remainingTrainLabel.rows();
+		int rows = remainingTrainLabel.size();
 		for(int i=0; i<rows; i++) {			
-			String label = remainingTrainLabel.row(i).at(0).toString();
+			String label = remainingTrainLabel.get(i).toString();
 			if(!labelMap.containsKey(label)) {
 				labelMap.put(label, 1);
 			} else {
@@ -404,12 +393,13 @@ public class DTreeClassifier extends Classifier {
 		return comomLabel;
 	}
 	
+	//统计属性的每一个值的出现次数
 	private ArrayList<Integer> countAttributeValuesApperances(
-			Table remainingTrainLabel) {
+			NominalAttribute remainingTrainLabel) {
 		Map<String, Integer> attrValueCountsMap =
 				new HashMap<String, Integer>();
-		for(int i=0; i<remainingTrainLabel.rows(); i++) {
-			String attrValue = remainingTrainLabel.row(i).at(0).toString();
+		for(int i=0; i<remainingTrainLabel.size(); i++) {
+			String attrValue = remainingTrainLabel.get(i).toString();
 			if(!attrValueCountsMap.containsKey(attrValue)) {
 				attrValueCountsMap.put(attrValue, 1);
 			} else {
@@ -421,6 +411,7 @@ public class DTreeClassifier extends Classifier {
 		return attrValueCounts;
 	}
 	
+	//统计属性的每一个值的出现次数
 	private ArrayList<Integer> countAttributeValuesApperances(
 			ArrayList<ArrayList<String>> remainingData, int indexOfAttr) {
 		Map<String, Integer> attrValueCountsMap =
@@ -439,9 +430,10 @@ public class DTreeClassifier extends Classifier {
 		return attrValueCounts;
 	}
 
+	//统计特定属性取某一特定值是对应的数据集中，各个类标的出现次数
 	private ArrayList<Integer> countLabelsForSpecifiedAttrValue(
 			ArrayList<ArrayList<String>> remainingData, 
-			int indexOfAttr, String attrValue, Table trainLabel) {
+			int indexOfAttr, String attrValue, NominalAttribute trainLabel) {
 		Map<String, Integer> attrValueCountsMap =
 				new LinkedHashMap<String, Integer>();
 		for(int i=0; i<remainingData.size(); i++) {
@@ -450,7 +442,7 @@ public class DTreeClassifier extends Classifier {
 				continue;
 			}
 			
-			String label = trainLabel.row(i).at(0).toString();
+			String label = trainLabel.get(0).toString();
 			if(!attrValueCountsMap.containsKey(label)) {
 				attrValueCountsMap.put(label, 1);
 			} else {
@@ -461,24 +453,30 @@ public class DTreeClassifier extends Classifier {
 			new ArrayList<Integer>(attrValueCountsMap.values());
 		return attrValueCounts;		
 	}
-	
-	/* Check whether the data inputed is valid. */
-	private void isTrainDataInputedValid(Table trainSet, Table trainLabel) {
+		
+	/**
+	 *	检查输入的数据是否合法 
+	 * @param trainSet 训练集
+	 * @param trainLabel 类标
+	 * @throws IllegalArgumentException
+	 *      trainData or trainLabel is null,  data in parameter trainingLabel 
+	 *      does not match with data in parameter trainingData
+	 */
+	private void isTrainDataInputedValid(Table trainSet, NominalAttribute trainLabel) {
 		if(trainSet == null || trainLabel == null) {
 			throw new IllegalArgumentException("Parameter inputed can not be null.");
 		}
 						
-		if(!(trainLabel.rows() == trainSet.rows() && trainLabel.columns() == 1) 
-		  && !(trainLabel.columns() == trainSet.rows() && trainLabel.rows() == 1)) {
+		if(!(trainLabel.size() == trainSet.rows())) {
 			throw new IllegalArgumentException("Size of trainLabel does not match"
 					+ " that of trainSet.");
 		}					
 	}
 	
 	/**
-	 * Construct attributeValueList(not repeat) using training data
-	 * @param data - training data
-	 * @param attributeList - list of attributes
+	 * 构造不含有重复的属性列表 attributeValueList
+	 * @param data - 数据集
+	 * @param attributeList - 属性列表
 	 */
 	private ArrayList<ArrayList<String>> constructAttributeValueList(
 			ArrayList<ArrayList<String>> data, 
@@ -501,14 +499,14 @@ public class DTreeClassifier extends Classifier {
 		return attributeValueList;
 	}
 		
-	/* Inner class for tree node. */
+	/* 决策树节点类 */
 	private static class DTreeNode implements Serializable {		
 		private static final long serialVersionUID = 1L;
 		
-		String attribute = "";	  //Attribute for this node
-		String previousDecision = "";   //previous attribute decision
-		String label = "";	//Value of target attribute for this node(for leaf nodes)		
-		ArrayList<DTreeNode> nextNodes;		//Pointers to next decisions	
+		String attribute = "";	  //节点对应的属性
+		String previousDecision = "";   //前一个属性决策的值
+		String label = "";	//类标(对于叶子节点)		
+		ArrayList<DTreeNode> nextNodes;		//子决策树的引用	
 	}
 
 }

@@ -13,21 +13,26 @@ public class KNearest extends Classifier {
 	private static final long serialVersionUID = 2277585000325381124L;
 	
 	private KDTree kdTree;			//kd-tree	
+	private int k = 2;				//近邻的数目
 	
-	/* Empty constructor */
 	public KNearest() {	
 	}
 	
+	public int getK() {
+		return k;
+	}
+
+	public void setK(int k) {
+		this.k = k;
+	}
+
 	/**
-	 * Train the model
-	 * @param trainData - train data
-	 * @param trainLabel - train labels
-	 * @param isAttributeContinuous  array of boolean that indicate whether 
-	 *             corresponding attribute is continuous or discrete.
-	 * @return - whether the train successes
+	 * 训练数据
+	 * @param trainData - 训练集
+	 * @param trainLabel - 类标
+	 * @return - 训练是否成功
 	 */
-	public boolean train(Table trainData, Table trainLabel, 
-			boolean[] isAttributeContinuous) {
+	public boolean train(Table trainData, NominalAttribute trainLabel) {
 		try {
 			isTrainingDataValid(trainData, trainLabel);						
 		} catch(NullPointerException e) {
@@ -35,44 +40,35 @@ public class KNearest extends Classifier {
 		} catch(IllegalArgumentException e) {
 			e.printStackTrace();
 			return false;
-		}				
-		
-		kdTree = new KDTree(trainData, trainLabel);  //construct kd-tree 		
+		}						
+		kdTree = new KDTree(trainData, trainLabel);  //构造KD-Tree 		
 		return true;
 	}
 
 	/**
-	 * Finds the neighbors and predicts responses for input vectors.
-	 * @param samples - samples to get classification
-	 * @param k - number of used nearest neighbors
-	 * @return - Vector with results of prediction (regression or classification) 
-	 * 				for each input sample.
+	 * 使用构造的KD树对输入的数据进行分类
+	 * @param samples 待分类的数据集
+	 * @return 输入数据的类标构成的向量
 	 */
-	public Table predict(Table samples, int k) {
+	public NominalAttribute predict(Table samples) {
 		Matrix sampleMat = samples.toMatrix();
-		Table results = new Table();
-		results.addAttribute(new NominalAttribute("label"));
+		NominalAttribute results = new NominalAttribute("label");
 		for(int i=0; i<samples.rows(); i++) {
-			TableRow tableRow = results.new TableRow();
-			tableRow.set(0, findNearestForSingleSample(sampleMat.row(i), k));
-			results.push(tableRow);
+			results.push(findKNearestForSingleSample(sampleMat.row(i), k));
 		}
 		return results;									
 	}
 
 	/**
-	 * Find the most frequent label for a sample
-	 * @param samples - samples to get classification
-	 * @param k - number of used nearest neighbors
-	 * @return - The most frequent label
+	 * 找到数据集的分类
+	 * @param samples - 待分类数据
+	 * @return - 数据所划分的类标
 	 */
-	private Object findNearestForSingleSample(Matrix samples, int k) {
-		List<KDNode> nearestNode = kdTree.findKNearest(samples, k);
-		
+	private Object findKNearestForSingleSample(Matrix samples, int k) {
+		List<KDNode> nearestNode = kdTree.findKNearest(samples, k);		
 		//Count each label
-		Map<Object, Integer> eachLabelCount = countEackLabel(nearestNode);
-		
-		//Find the most frequent label
+		Map<Object, Integer> eachLabelCount = countEackLabel(nearestNode);		
+		//找出最频繁的类标
 		Set<Entry<Object, Integer>> entrySet = eachLabelCount.entrySet();
 		Object mostFreqLabel = null;
 		int maxCount = 0;
@@ -81,15 +77,14 @@ public class KNearest extends Classifier {
 				maxCount = entry.getValue();
 				mostFreqLabel = entry.getKey();
 			}
-		}
-		
+		}		
 		return mostFreqLabel;
 	}
 
 	/**
-	 * Get count of each label
-	 * @param nearestNode - k-nearest neighbors 
-	 * @return count of each label
+	 * 统计每一个类标出现的次数
+	 * @param nearestNode - k-nearest邻居 
+	 * @return 类标计数
 	 */
 	private Map<Object, Integer> countEackLabel(List<KDNode> nearestNode) {
 		Map<Object, Integer> eachLabelCount = 
@@ -107,20 +102,21 @@ public class KNearest extends Classifier {
 	}			 
 	
 	/**
-	 * Check the validation of training data inputed.
+	 * 检查输入的训练数据是否合法
 	 * 
-	 * @throws NullPointerException - trainData or trainLabel is null.
 	 * @throws IllegalArgumentException
-	 *            - Data in parameter trainingLabel does not match with 
-	 *              data in parameter trainingData
+	 *      trainData or trainLabel is null,  data in parameter trainingLabel 
+	 *      does not match with data in parameter trainingData
 	 */
-	private void isTrainingDataValid(Table trainData, Table trainLabel) {
-		// Check whether train data is valid
-		if (trainData == null || trainLabel == null) {
-			throw new NullPointerException("Training data is null");
+	private void isTrainingDataValid(Table trainData, NominalAttribute trainLabel) {
+		if (trainData == null) {
+			throw new IllegalArgumentException("训练集为空!");
+		}
+		if(trainLabel == null) {
+			throw new IllegalArgumentException("类标为空!");
 		}
 
-		/* Check whether all data in trainData is numeric */
+		/* 检查训练数据是否全为数值型  */
 		int rows = trainData.rows();
 		int columns = trainData.columns();
 		for(int i=0; i<rows; i++) {
@@ -128,15 +124,13 @@ public class KNearest extends Classifier {
 			for(int j=0; j<columns; j++) {
 				Object obj = tableRow.at(j);
 				if(! (obj instanceof Double)) {
-					throw new IllegalArgumentException("Train data can only be"
-							+ " numeric.");
+					throw new IllegalArgumentException("训练数据只能为数值型!");
 				}
 			}
 		}
 		
-		if(trainData.rows() != trainLabel.rows()) {
-			throw new IllegalArgumentException("Size of TrainingLabel does not match " +
-					"with that of trainingData.");
+		if(trainData.rows() != trainLabel.size()) {
+			throw new IllegalArgumentException("训练集与类标的大小不一致!");
 		}
 	}
 	

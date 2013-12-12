@@ -4,7 +4,7 @@ import java.util.*;
 import artiano.ml.association.structure.FPTreeNode;
 
 /**
- * <p>Description: FPGrowth for finding frequent k-item set.</p>
+ * <p>Description: 寻找频繁序列算法:FPGrowth算法</p>
  * @author JohnF Nash
  * reference: http://blog.csdn.net/abcjennifer/article/details/7928082
  * @version 1.0.0
@@ -14,19 +14,31 @@ import artiano.ml.association.structure.FPTreeNode;
  */
 public class FPGrowth {
 	
-	private int minSupport;		
+	private int minSupport;		//最小支持度计数
 	private Map<String, Integer> frequentPatterns = 
-		new HashMap<String, Integer>();
+		new HashMap<String, Integer>();  //频繁模式
 	
+	/**
+	 * 获取最小支持度计数
+	 * @return 最小支持度计数
+	 */
 	public int getMinSupport() {
 		return minSupport;
 	}
 
+	/**
+	 * 设置最小支持度计数
+	 * @param minSupport 最小支持度计数
+	 */
 	public void setMinSupport(int minSupport) {
 		this.minSupport = minSupport;
 	}
 
-	//find frequent 1 item set
+	/**
+	 * 找出频繁一项集
+	 * @param transactions 事物数据库
+	 * @return 内容为频繁1项集的FPNode
+	 */
 	private List<FPTreeNode> buildHeaderTable(List<List<String>> transactions) {
 		if(transactions.size() == 0) {
 			throw new IllegalArgumentException("Transaction empty.");
@@ -59,8 +71,10 @@ public class FPGrowth {
 	}
 	
 	/**
-	 * FP-Growth算法
-	 * @return Map of frequent patterns and their count.
+	 * FP-Growth算法 
+	 * @param transRecords 事物数据库
+	 * @param postPattern 频繁模式前缀
+	 * @return
 	 */
     public Map<String, Integer> fpGrowth(List<List<String>> transRecords,
             List<String> postPattern) {        	
@@ -118,6 +132,12 @@ public class FPGrowth {
         return frequentPatterns;
     }
 
+    /**
+     * 构造FP-Tree
+     * @param transRecords 事物数据库
+     * @param frequent1Iteset 频繁1项集
+     * @return 构造的FP-Tree的根节点
+     */
 	private FPTreeNode buildFPTree(List<List<String>> transRecords,
 			List<FPTreeNode> frequent1Iteset) {
 		FPTreeNode root = new FPTreeNode(); // 创建树的根节点
@@ -173,8 +193,7 @@ public class FPGrowth {
                     f1.setNextHomonym(child);
                     break;
                 }
-            }
-    		
+            }    		
     		addNodes(child, record, F1);
     	}
     }

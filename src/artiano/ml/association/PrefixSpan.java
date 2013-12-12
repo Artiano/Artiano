@@ -11,12 +11,21 @@ public class PrefixSpan<T extends Comparable<T>> {
 		new ArrayList<Sequence<T>>();  //得到的频繁序列模式
 	private Map<T, List<Sequence<T>>> sequencesForItem;
 	
+	/**
+	 * 构造函数
+	 * @param sequenceList 最初的序列模式
+	 * @param minSupport 最小支持度
+	 */
 	public PrefixSpan(List<Sequence<T>> sequenceList, int minSupport) {
 		super();
 		this.sequenceList = Collections.unmodifiableList(sequenceList);
 		this.minSupport = minSupport;
 	}
 
+	/**
+	 * 找出序列模式
+	 * @return 序列模式
+	 */
 	public List<Sequence<T>> getSeuqencePattern() {
 		//找出频繁单项
 		List<T> frequentSingleItem = getFrequentSingleItem();
@@ -49,7 +58,12 @@ public class PrefixSpan<T extends Comparable<T>> {
 		}		
 		return this.frequentSequence;
 	}
-
+	
+	/**
+	 * 构造单项构成的序列 
+	 * @param item 单项
+	 * @return 单项构成的序列序列
+	 */
 	private Sequence<T> constructSequenceWithItem(T item) {
 		List<Element<T>> elementList = new ArrayList<Element<T>>();
 		Element<T> ele = new Element<T>();
@@ -59,7 +73,14 @@ public class PrefixSpan<T extends Comparable<T>> {
 		return sequence;
 	}
 	
-	//找出所有已某一频繁单项作为开始的频繁序列(频繁模式)
+	/**
+	 * 找出所有已某一频繁单项作为开始的频繁序列(频繁模式) 
+	 * @param sequence 序列
+	 * @param length 当前频发序列的长度
+	 * @param projectedDB 投影数据库
+	 * @param frequentSequencesOfItem 频繁序列
+	 * @return 所有的频繁序列
+	 */
 	private List<Sequence<T>> getFreqSequencesForFreqItem(Sequence<T> sequence, int length,
 			List<Sequence<T>> projectedDB, List<Sequence<T>> frequentSequencesOfItem) {
 		int sizeOfProjectedDB = projectedDB.size();

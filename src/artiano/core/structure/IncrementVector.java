@@ -3,6 +3,8 @@
  */
 package artiano.core.structure;
 
+import java.io.Serializable;
+
 /**
  * <p>基础数据结构，自增长类型向量，用来存放所有表示属性的值。</p>
  * @author Nano.Michael
@@ -11,8 +13,9 @@ package artiano.core.structure;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class IncrementVector {
-		
+public class IncrementVector implements Serializable {
+	private static final long serialVersionUID = -4168269174447845594L;
+	
 	/** 属性向量中值的个数  */
 	protected int size = 0;
 	/** 向量容量的增长因子  */

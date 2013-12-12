@@ -1,12 +1,7 @@
 package artiano.ml.classifier;
 
 import java.util.*;
-
-import artiano.core.structure.Matrix;
-import artiano.core.structure.NominalAttribute;
-import artiano.core.structure.Range;
-import artiano.core.structure.Table;
-import artiano.core.structure.Table.TableRow;
+import artiano.core.structure.*;
 import artiano.ml.BaseKDTree;
 
 /**
@@ -19,39 +14,36 @@ import artiano.ml.BaseKDTree;
  */
 public class KDTree extends BaseKDTree {
 	
-	/* Empty constructor*/
 	public KDTree() {		
 	}
 	
-	public KDTree(Table dataSet, Table dataLabel) {
+	public KDTree(Table dataSet, NominalAttribute dataLabel) {
 		Matrix dataSetMat = dataSet.toMatrix(); 
 		root = buildKDTree(dataSetMat, dataLabel);
 	}
 	
 	/**
-	 *  Build a kd-tree.
-	 * @param dataSet - data set 
-	 * @return root of the decision tree.
-	 *
+	 *  构造KD-Tree
+	 * @param dataSet - 数据集 
+	 * @return 构造的决策树的根节点
 	 */
-	public KDNode buildKDTree(Matrix dataSet, Table dataLabel) {
+	public KDNode buildKDTree(Matrix dataSet, NominalAttribute dataLabel) {
 		if(dataSet.rows() < 1) {
 			throw new IllegalArgumentException("Empty data set!");
-		}		
-				
-		KDNode root = new KDNode(dataSet, dataLabel); //Initialize the root		
-		expandSubKDTree(root);   //KD Tree expand		
+		}						
+		KDNode root = new KDNode(dataSet, dataLabel); //初始化根节点		
+		expandSubKDTree(root);   //构造子树		
 		return root;
 	}
 	
-	/**
-	 * Delete tree node with specified data.  
-	 * @param node - the node to be deleted.
-	 * @return whether deleting successes. 
+	/**  
+	 * 删除指定的节点
+	 * @param node - 将要删除的节点
+	 * @return 删除成功与否。成功，则返回true;否则，返回false 
 	 */
 	@Override
 	public boolean delete(BaseKDNode nodeToDelete) {
-		//The node to delete is the last node in the tree
+		//将要删除的节点是树中唯一的一个节点
 		if(root.treeData.rows() == 1) {	  
 			root = null;
 			return true;
@@ -59,36 +51,29 @@ public class KDTree extends BaseKDTree {
 		
 		Matrix newTreeData = 
 				new Matrix(root.treeData.rows() - 1, root.treeData.columns());
-//		Matrix newTreeLabel = 
-//		new Matrix(((KDNode)root).treeLabel.rows() - 1, ((KDNode)root).treeLabel.columns());
-		Table newTreeLabel = new Table(); 			
-		newTreeLabel.addAttribute(new NominalAttribute("label"));
+		NominalAttribute newTreeLabel = new NominalAttribute("label");
 		
-		/* Broad first search to get newTreeData and newTreeLabel */
+		//广度优先遍历来获取newTreeData和newTreeLabel
 		int count = 0;
 		Queue<KDNode> nodeQueue = new LinkedList<KDNode>();
 		nodeQueue.add(((KDNode)root));
 		while(!nodeQueue.isEmpty()) {
 			KDNode node = nodeQueue.poll();
-			if(node != nodeToDelete) {  //not the node to delete
+			if(node != nodeToDelete) {    //不是要删除的节点
 				newTreeData.setRow(count, node.nodeData);				
-				//newTreeLabel.setRow(count, node.nodeLabel);
-				TableRow tableRow = newTreeLabel.new TableRow(); 
-				tableRow.set(0, node.nodeLabel);
-				newTreeLabel.push(tableRow);
+				newTreeLabel.push(node.nodeLabel);
 				count++;
 			}						
 			
 			if(node.left != null) {
 				nodeQueue.add((KDNode) node.left);
-			}
-			
+			}			
 			if(node.right != null) {
 				nodeQueue.add((KDNode) node.right);
 			}
 		}
 		
-		if(count == root.treeData.rows()) {  //Not found the node to be deleted
+		if(count == root.treeData.rows()) {  //没有找到要删除的节点
 			return false;
 		} else {
 			root = buildKDTree(newTreeData, newTreeLabel);			
@@ -97,30 +82,28 @@ public class KDTree extends BaseKDTree {
 	}		
 	
 	/**
-	 * Search nearest of target
-	 * @param target - the data point to search its nearest
-	 * @return nearest data point
+	 * 找到与指定数据最接近的节点
+	 * @param root 根节点
+	 * @param target 将要寻找最近邻居的手
+	 * @return 最近邻居
 	 */
 	public KDNode findNearest(KDNode root, Matrix target) {
-		/* 1. Binary search to get search path */
+		/* 1. 二分查找来获取查找路径 */
 		KDNode current = root;		
-		int featureIndex = current.featureIndex;
-		
+		int featureIndex = current.featureIndex;		
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		Stack<KDNode> searchPath = new Stack();		
 		while(current != null) {										
-			searchPath.push(current);	//Push searched node to the stack			
-		
-			featureIndex = current.featureIndex;  //Get next partition index
-			
-			//Binary search
+			searchPath.push(current);	//将找到的节点放入栈中					
+			featureIndex = current.featureIndex;  //获取下一次分裂的维下标			
+			//二分查找
 			if(target.at(featureIndex) <= current.partitionValue) {
 				current = (KDNode) current.left;
 			} else {
 				current = (KDNode) current.right;
 			}
 		}
-		KDNode nearestNode = searchPath.peek();	//Node data
+		KDNode nearestNode = searchPath.peek();	//节点数据
 		double max_dist = distance(nearestNode.nodeData, target);
 		double min_dist = max_dist;		
 		
@@ -132,10 +115,8 @@ public class KDTree extends BaseKDTree {
 			if(min_dist > distance2) {
 				min_dist = distance2;
 				nearestNode = back_point;				
-			}
-			
-			featureIndex = back_point.featureIndex;  //Partition feature
-			
+			}			
+			featureIndex = back_point.featureIndex;  //作为数据分类的属性			
 			double dist1 = 
 				distance(target.column(featureIndex), 
 					back_point.nodeData.column(featureIndex));
@@ -165,28 +146,25 @@ public class KDTree extends BaseKDTree {
 	}
 	
 	/**
-	 * KD Tree expand.
-	 * @param kdNode - node of sub KDTree
+	 * 构造子树
+	 * @param kdNode - 子树的根节点
 	 */
-	private void expandSubKDTree(KDNode kdNode) {
-		//Leaf node
-		if(kdNode == null) {	
+	private void expandSubKDTree(KDNode kdNode) {		
+		if(kdNode == null) {	//叶子节点
 			return;
-		}
-		
-		partition_features(kdNode);  //Create left and right children.
-		
-		//Expand left sub tree of kdNode
+		}		
+		partition_features(kdNode);  //构造左子树和右子树		
+		//构造左子树
 		if(kdNode.left != null) {
 			expandSubKDTree((KDNode) kdNode.left);
 		}		
-		//Expand right sub tree of kdNode
+		//构造右子树
 		if(kdNode.right != null) {
 			expandSubKDTree((KDNode) kdNode.right);
 		}
 	}
 	
-	//Create left and right children.
+	//将当前数据划分为左右两颗子树
 	private void partition_features(KDNode kdNode) {
 		if(kdNode.treeData == null) {   //Leaf node
 			return;
@@ -201,82 +179,73 @@ public class KDTree extends BaseKDTree {
 		
 		/* Assign data to left child and right child of kdNode. */
 		Matrix data = kdNode.treeData;
-		Table labels = kdNode.treeLabel;
-		kdNode.nodeData = 
-				data.row(data.rows() / 2);		
-		kdNode.nodeLabel = labels.row(data.rows()/2).at(0);
+		NominalAttribute labels = kdNode.treeLabel;
+		kdNode.nodeData = data.row(data.rows() / 2);		
+		kdNode.nodeLabel = labels.get(data.rows()/2);
 		kdNode.partitionValue = 
-				data.at(data.rows()/2, partitionFeatureIndex);  //Partition key value.
+			data.at(data.rows()/2, partitionFeatureIndex);  //Partition key value.
 				
-		/* Get left sub tree data */
+		/* 给左子树赋值 */
 		int leftDataRowNum = data.rows() / 2; 		
 		Matrix leftData = null;
-		Table leftLabel = null;
+		NominalAttribute leftLabel = null;
 		if(leftDataRowNum > 0) {
 			leftData = new Matrix(leftDataRowNum, data.columns());
-			leftLabel = new Table();
-			leftLabel.addAttribute(new NominalAttribute("label"));
-			for(int i=0; i< leftDataRowNum; i++) {
-				TableRow tableRow = leftLabel.new TableRow(); 
-				tableRow.set(0, labels.at(i, 0));
-				leftLabel.push(tableRow);
+			leftLabel = new NominalAttribute("label");
+			for(int i=0; i< leftDataRowNum; i++) { 
+				leftLabel.push(labels.get(i));
 				for(int j=0; j<data.columns(); j++) {
 					leftData.set(i, j, data.at(i, j));					
 				}
 			}
 		}		
 		
-		/* Get right sub tree data */
+		/* 给右子树赋值  */
 		int rightDataRowNum = data.rows() - leftDataRowNum - 1;
 		Matrix rightData = null;
-		Table rightLabel = null;
+		NominalAttribute rightLabel = null;
 		if(rightDataRowNum > 0) {
 			rightData = new Matrix(rightDataRowNum, data.columns());
-			rightLabel = new Table();
-			rightLabel.addAttribute(new NominalAttribute("label"));
-			for(int i=0; i<rightDataRowNum; i++) {
-				TableRow tableRow = leftLabel.new TableRow(); 
-				tableRow.set(0, labels.at(leftDataRowNum+i+1, 0));
-				rightLabel.push(tableRow);
+			rightLabel = new NominalAttribute("label");
+			for(int i=0; i<rightDataRowNum; i++) { 
+				rightLabel.push(labels.get(leftDataRowNum+i+1));
 				for(int j=0; j<data.columns(); j++) {
 					rightData.set(i, j, data.at(leftDataRowNum+i+1, j));
 				}
 			}
 		}		
 		
-		//Set children of kdNode 
+		//kdNode指向子树的引用 
 		KDNode leftChild =  new KDNode(leftData, leftLabel);
 		KDNode rightChild = new KDNode(rightData, rightLabel);
 		if(leftChild.treeData != null) {
 			kdNode.left = leftChild;
-		}
-		
+		}		
 		if(rightChild.treeData != null) {
 			kdNode.right = rightChild;
 		}		
 	}	
 	
 	/**
-	 * Sort data set by feature with specified index 
-	 * @param dataSet - data set
-	 * @param featureIndex - index of feature used to sort the data set 
+	 * 根据分裂属性将数据集进行排列 
+	 * @param dataSet - 数据集
+	 * @param featureIndex - 分裂属性在属性列表中的下标 
 	 */
 	private void sortFeatureByIndex(KDNode node, final int featureIndex) {
 		Matrix dataSet = node.treeData;
-		Table dataLabel = node.treeLabel;		
+		NominalAttribute dataLabel = node.treeLabel;		
 		
 		List<Matrix> dataList = new ArrayList<Matrix>();
 		List<Object> labelList =  new ArrayList<Object>();
 		for(int i=0; i<dataSet.rows(); i++) {
 			dataList.add(dataSet.at(new Range(i,i+1), new Range(0, dataSet.columns())));
-			labelList.add(dataLabel.row(i).at(0));
+			labelList.add(dataLabel.get(i));
 		}
 				
-		//Sort treeData
+		//对treeData按照特征属性值由小到大进行排序
 		boolean needNextPass = true;		
-		for(int k=1; k<dataList.size() && needNextPass; k++){
-			//Array may be sorted and next pass not needed
-			needNextPass = false;			
+		for(int k=1; k<dataList.size() && needNextPass; k++){			
+			needNextPass = false;	//Array may be sorted and next pass not needed		
 			for(int i=0; i<dataList.size()-k; i++){
 				Matrix mat1 = dataList.get(i);				
 				Matrix mat2 = dataList.get(i + 1);				
@@ -290,13 +259,12 @@ public class KDTree extends BaseKDTree {
 					Object labelMat2 = labelList.get(i + 1);
 					labelList.set(i, labelMat2);
 					labelList.set(i + 1, labelMat1);
-					needNextPass = true;  //Next pass still needed
+					needNextPass = true;  //还没排好序
 				}				
 			}
 		}		
 		
-		//Attention: cannot use assign element in dataList to row of dataSet(point to same memeory...)
-		//Get sorted tree data matrix
+		//获取排好序的tree data矩阵
 		double[] data = new double[dataSet.rows() * dataSet.columns()];		
 		for(int i=0; i<dataList.size(); i++) {
 			Matrix current = dataList.get(i);
@@ -308,37 +276,31 @@ public class KDTree extends BaseKDTree {
 				new Matrix(dataSet.rows(), dataSet.columns(), data);
 		node.treeData = sortedTreeData;
 		
-		//Get sorted tree label matrix
-		Table table = new Table();
-		table.addAttribute(new NominalAttribute());
-		for(int i=0; i<dataLabel.rows(); i++) {
-			TableRow tableRow = table.new TableRow();
-			Object currentLabel = labelList.get(i);
-			tableRow.set(0, currentLabel);
-			table.push(tableRow);			
+		//获取排好序的类标矩阵
+		NominalAttribute label = new NominalAttribute();
+		for(int i=0; i<dataLabel.size(); i++) {
+			label.push(labelList.get(i));			
 		}
-		node.treeLabel = table; 				
+		node.treeLabel = label; 				
 	}
 	
 	/**
-	 * Find k-nearest of target data point
-	 * @param target - the data point to search its k-nearest
-	 * @param k - number of nearest to get
+	 * 找到目标数据点的k近邻
+	 * @param target - 目标数据点
 	 * @return - k-nearest data point of target data point
 	 */
 	public List<KDNode> findKNearest(Matrix target, int k) {
-		List<KDNode> kNearest = new ArrayList<KDNode>();
-		
+		List<KDNode> kNearest = new ArrayList<KDNode>();		
 		if(root == null) {
 			return null;
 		}			
 										
 		KDTree tree = new KDTree();
 		Matrix copyData = root.treeData.clone();
-		Table copyLabel = (((KDNode)root).treeLabel) ;
+		NominalAttribute copyLabel = (((KDNode)root).treeLabel) ;
 		tree.root = tree.buildKDTree(copyData, copyLabel);
 						
-		//Find (1+1)-th nearest respectively.
+		//依次寻找1,2,...., k近邻
 		for(int i=0; i<k; i++) {
 			KDNode nearestNode = tree.findNearest(((KDNode)tree.root), target);		
 			nearestNode.nodeData.print();
@@ -348,12 +310,12 @@ public class KDTree extends BaseKDTree {
 		return kNearest;
 	}	
 	
-	//Node of KDTree	
+	//KD-Tree节点	
 	public static class KDNode extends BaseKDNode {		
-		public Table treeLabel;	//class labels of the sub tree
-		Object nodeLabel;		//class label of this node.
+		public NominalAttribute treeLabel;	//子树的类标
+		Object nodeLabel;		//该节点的类标
 		
-		KDNode(Matrix data, Table treeLabel) {
+		KDNode(Matrix data, NominalAttribute treeLabel) {
 			super(data);
 			this.treeLabel = treeLabel;
 		}

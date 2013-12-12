@@ -13,7 +13,7 @@ import artiano.core.structure.Matrix;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public abstract class CovarianceMethod {
+public abstract class CovarianceComputingMethod {
 	private Matrix mean = null;
 	private Matrix[] means = null;
 	private Matrix sb = null;

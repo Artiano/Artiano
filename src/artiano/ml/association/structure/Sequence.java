@@ -55,7 +55,7 @@ public class Sequence<T extends Comparable<T>> {
 
 	/**
 	 * 
-	 * @param index
+	 * @param index 下标
 	 * @return 返回指定下标处的元素(如果下表越界，返回空的Element对象)
 	 */
 	public Element<T> getElement(int index) {

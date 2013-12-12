@@ -10,6 +10,11 @@ public class GSP<T extends Comparable<T>> {
 	private List<Sequence<T>> result;   //最终的序列模式
 	private int minSupport;				//最小支持度
 	
+	/**
+	 * 构造函数
+	 * @param sequenceList 最初的序列模式
+	 * @param minSupport 最小支持度
+	 */
 	public GSP(List<Sequence<T>> sequenceList, int minSupport) {
 		this.sequenceList = Collections.unmodifiableList(sequenceList);
 		this.minSupport = minSupport;
@@ -21,26 +26,19 @@ public class GSP<T extends Comparable<T>> {
     public List<Sequence<T>> getSequences() {
     	//获取一项候选模式
     	intializeOneItemSequence();
-    	System.out.println("序列模式L(1) 为：" + sequencePattern);
-        System.out.println(".................................................");
         for(int i=0; i<sequencePattern.size(); i++) {
         	generateCandidatePattern();      //产生进行连接操作后的候选集
         	if (candidatePattern.size() == 0) {
                 break;
             }     
-        	System.out.println("剪枝前候选集的大小为：" + candidatePattern.size()
-        			+ " 候选集c为：" + candidatePattern.toString());
-        	pruning();         //剪枝
-        	System.out.println("剪枝后候选集的大小为：" + candidatePattern.size()
-        			+ " 候选集c为：" + candidatePattern);        	
-            generateL();      //产生序列模式
-            System.out.println("序列模式L(" + (i + 2) + ") 为：" + sequencePattern.toString());
-            this.addToResult(sequencePattern);
-            System.out.println(".................................................");            
+        	pruning();         //剪枝        	
+            generateL();      //产生序列模式            
+            this.addToResult(sequencePattern);            
         }          
     	return this.sequencePattern;
     }
     
+    //获取频繁一项集
     private void intializeOneItemSequence() {
     	Map<T, Integer> itemCountMap = countEachItem();    	    	
     	getOneItemSequence(itemCountMap);    //减掉小于最小支持度的项
@@ -62,6 +60,7 @@ public class GSP<T extends Comparable<T>> {
         this.addToResult(sequencePattern);
 	}
 
+	//统计各项出现的次数
 	private Map<T, Integer> countEachItem() {
 		Map<T, Integer> itemCountMap = new HashMap<T, Integer>();
     	for(Sequence<T> sequence : sequenceList) {
@@ -80,9 +79,9 @@ public class GSP<T extends Comparable<T>> {
 		return itemCountMap;
 	}
 
+	//对于种子集sequencePattern进行连接操作
 	private void generateCandidatePattern() {
-		this.candidatePattern = new ArrayList<Sequence<T>>();
-		//对于种子集sequencePattern进行连接操作
+		this.candidatePattern = new ArrayList<Sequence<T>>();		
 		int size = sequencePattern.size();
 		for(int i=0; i<size; i++) {
 			for(int j=i; j<size; j++) {

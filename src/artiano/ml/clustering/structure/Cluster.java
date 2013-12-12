@@ -3,8 +3,8 @@ package artiano.ml.clustering.structure;
 import artiano.core.structure.Matrix;
 
 public class Cluster {
-	private Matrix dataPoints;
-	private String clusterName;					
+	private Matrix dataPoints;		//簇内的数据集
+	private String clusterName;		//簇的名字			
 	
 	public Cluster(Matrix dataPoints) {
 		this(dataPoints, "");
@@ -27,15 +27,15 @@ public class Cluster {
 		mergeTwoCluster(cluster1, cluster2, newClusterName);
 	}
 
+	//合并两个簇为一个簇并指定新簇的名字
 	private void mergeTwoCluster(Cluster cluster1, Cluster cluster2,
 			String newClusterName) {
-		Matrix data_1 = cluster1.dataPoints.clone();   //Attention:clone
+		Matrix data_1 = cluster1.dataPoints.clone();   //clone
 		Matrix data_2 = cluster2.dataPoints.clone();
 		int cols_1 = data_1.columns();
 		int cols_2 = data_2.columns();	
 		if(cols_1 != cols_2) {
-			throw new IllegalArgumentException("Cols of dataPoints in cluster1"
-					+ " doesn't equal to that of cluster2.");
+			throw new IllegalArgumentException("cluster1与cluster2中数据点的维数不一致!");
 		}				
 		this.dataPoints = new Matrix(data_1.rows(), data_1.columns(), data_1.data()); 
 		dataPoints.mergeAfterRow(data_2);

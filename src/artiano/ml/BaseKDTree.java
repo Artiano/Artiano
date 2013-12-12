@@ -7,12 +7,12 @@ import artiano.core.structure.Matrix;
 
 public abstract class BaseKDTree {
 	
-	protected BaseKDTree.BaseKDNode root;  //Root of the kd-tree		
+	protected BaseKDTree.BaseKDNode root;  //KD-Tree的根节点		
 
 	/**
-	 * Compute variance.
-	 * @param data - data matrix(column vector) to compute variance.
-	 * @return variance of the data
+	 * 计算方差
+	 * @param data - 数据矩阵
+	 * @return 矩阵的方差
 	 */
 	protected double computeVariance(Matrix data) {
 		double aver = computeAverage(data);  //Get average of numbers
@@ -24,9 +24,9 @@ public abstract class BaseKDTree {
 	}
 
 	/**
-	 * Compute average of numbers.
-	 * @param data - data matrix(column vector) to compute average
-	 * @return average of the data.
+	 * 计算向量矩阵的平均值
+	 * @param data - 矩阵
+	 * @return 平均值
 	 */
 	private double computeAverage(Matrix data) {
 		double sum = 0;
@@ -36,7 +36,7 @@ public abstract class BaseKDTree {
 		return sum / data.rows();
 	}
 
-	//Broad first search of kd-tree 
+	//广度优先遍历KD-Tree 
 	public void bfs() {
 		Queue<BaseKDNode> queue = new LinkedList<BaseKDNode>();
 		queue.add(root);
@@ -64,18 +64,18 @@ public abstract class BaseKDTree {
 
 	/**
 	 * Get index of feature which has max variance.
-	 * @param dataSet - data set 
-	 * @return - index of feature which has max variance
+	 * 获取方差最大的属性在数据中的维下标
+	 * @param dataSet - 数据集 
+	 * @return - 属性的维下标
 	 */
 	protected int getPartitionFeatureIndex(Matrix dataSet) {
-		double[] variances = 
-				new double[dataSet.columns()];  //Store variances of each feature
+		double[] variances = new double[dataSet.columns()];  
 		for(int j=0; j<dataSet.columns(); j++) {
 			Matrix singlFeature = dataSet.column(j); 
 			variances[j] = computeVariance(singlFeature);
 		}
 		
-		/* Get index of feature which has max variance. */
+		/* 获取拥有最大方差的属性的下标 */
 		double maxVariance = variances[0];
 		int maxIndex = 0;
 		for(int i=1; i<variances.length; i++) {
@@ -88,17 +88,16 @@ public abstract class BaseKDTree {
 	}
 
 	/**
-	 * Compute distance of two data points
-	 * @param point1 - data point
-	 * @param point2 - data point
-	 * @return
+	 * 计算两个数据点之间的欧式距离
+	 * @param point1 - 数据点
+	 * @param point2 - 数据点
+	 * @return 两个数据点之间的欧式距离
 	 */
 	protected double distance(Matrix point1, Matrix point2) {
 		if(point1.columns() != point2.columns() || 
 				point1.rows() != 1 || point2.rows() != 1) {
 			throw new IllegalArgumentException(
-				"Dimension of point1 and point2 should be the same " +
-				"and their can only be one row.");
+				"两个数据点列的维数应该一致且行行为1!");
 		}
 		
 		double distance = 0;
@@ -108,21 +107,21 @@ public abstract class BaseKDTree {
 		return Math.sqrt(distance);
 	}
 
-	/**
-	 * Delete tree node with specified data.  
-	 * @param node - the node to be deleted.
-	 * @return whether deleting successes. 
+	/**  
+	 * 删除指定节点
+	 * @param node 将要删除的节点 
+	 * @return 节点删除是否成功 
 	 */
 	protected abstract boolean delete(BaseKDNode nodeToDelete);	
 			
-	//Node of KDTree	
+	//KDTree的节点	
 	public static class BaseKDNode {		
-		public int featureIndex;	//partition key index
-		public double partitionValue;		//partition key value
-		public Matrix treeData;    //data of the sub tree		
-		public Matrix nodeData;	//data of this node
-		public BaseKDNode left;	//Left child
-		public BaseKDNode right;   //Right child
+		public int featureIndex;	//分类属性的下标
+		public double partitionValue;		//分类属性的值
+		public Matrix treeData;    //子树的数据		
+		public Matrix nodeData;	//节点的数据
+		public BaseKDNode left;	//左孩子
+		public BaseKDNode right;   //右孩子
 				
 		public BaseKDNode(Matrix data) {
 			this.treeData = data;
