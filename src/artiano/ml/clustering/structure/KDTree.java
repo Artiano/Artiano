@@ -121,8 +121,8 @@ public class KDTree extends BaseKDTree {
 			featureIndex = back_point.featureIndex;  //作为数据分类的属性
 			
 			double dist1 = 
-				distance(target.col(featureIndex), 
-					back_point.nodeData.col(featureIndex));
+				distance(target.column(featureIndex), 
+					back_point.nodeData.column(featureIndex));
 			if(dist1 < max_dist) {  //Get next sub space
 				if(target.at(featureIndex) <= back_point.partitionValue) {
 					kd_point = back_point.right;

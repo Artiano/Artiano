@@ -71,7 +71,7 @@ public abstract class BaseKDTree {
 	protected int getPartitionFeatureIndex(Matrix dataSet) {
 		double[] variances = new double[dataSet.columns()];  
 		for(int j=0; j<dataSet.columns(); j++) {
-			Matrix singlFeature = dataSet.col(j); 
+			Matrix singlFeature = dataSet.column(j); 
 			variances[j] = computeVariance(singlFeature);
 		}
 		

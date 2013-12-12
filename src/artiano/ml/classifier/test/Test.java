@@ -356,8 +356,8 @@ public class Test {
 	public static void main(String[] args) {											
 		//testNaiveBayesClassifier();
 		//testDTreeClasifier();
-		//testKDTree();
+		testKDTree();
 		//testKNearest();
-		testDTreeClassifierUsingC4_5();
+		//testDTreeClassifierUsingC4_5();
 	}
 }

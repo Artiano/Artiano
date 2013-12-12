@@ -129,7 +129,7 @@ public class EigenValueDecomposition {
 						z[ip] -= h;
 						z[iq] += h;
 						d.minus(0, ip, h);
-						d.add(0, iq, h);
+						d.plus(0, iq, h);
 						a.set(ip, iq, 0.);
 						for (j=0; j<ip; j++)
 							rotate(a, s, tau, j, ip, j, iq);

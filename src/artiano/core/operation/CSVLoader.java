@@ -34,6 +34,8 @@ public class CSVLoader {
 	public static final String FILE_EXTENSION = ".csv";
 	/** 默认一次读取的行数 */
 	public static final int DEFAULT_READ_STEP = 2000;
+	/** 分隔符 */
+	private String separator = ",";
 	/** 文件行数 */
 	private int rows = 0;
 	/** 表的列数 */
@@ -73,6 +75,13 @@ public class CSVLoader {
 	 */
 	public int columns(){
 		return this.columns;
+	}
+	/**
+	 * 设置分隔符
+	 * @param separator 待设置的分隔符
+	 */
+	public void setSeparator(String separator){
+		this.separator = separator;
 	}
 	/**
 	 * 设置文件路径
@@ -120,7 +129,7 @@ public class CSVLoader {
 		if (rows < 0)
 			rows = DEFAULT_READ_STEP;
 		while (r <= rows && (line = reader.readLine()) != null){
-			values = line.split(",");
+			values = line.split(separator);
 			r++;
 			currentRow++;
 			for (int i=0; i<columns; i++){
@@ -170,7 +179,7 @@ public class CSVLoader {
 	 */
 	private String[] readHeader() throws IOException{
 		String line = reader.readLine();
-		String[] names = line.split(",");
+		String[] names = line.split(separator);
 		return names;
 	}
 	/**

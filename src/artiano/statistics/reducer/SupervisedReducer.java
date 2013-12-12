@@ -6,7 +6,7 @@ package artiano.statistics.reducer;
 import artiano.core.structure.Matrix;
 
 /**
- * <p>Description:</p>
+ * <p>受监督的降维器（特征提取器）</p>
  * @author Nano.Michael
  * @version 1.0.0
  * @date 2013-8-26
@@ -15,10 +15,9 @@ import artiano.core.structure.Matrix;
  */
 public interface SupervisedReducer {
 	/**
-	 * train an extractor with labels
-	 * @param samples - samples to train
-	 * @param labels - the labels related with samples
-	 * @param roc - rate of contribution
+	 * 使用特定的标签训练一个降维器
+	 * @param samples 待训练的样本
+	 * @param labels 样本的标签
 	 */
-	public void train(Matrix[] samples, Matrix labels);
+	public void train(Matrix samples, Matrix labels);
 }

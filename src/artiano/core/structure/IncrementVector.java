@@ -6,7 +6,7 @@ package artiano.core.structure;
 import java.io.Serializable;
 
 /**
- * <p>基础数据结构，属性值向量，用来存放所有表示属性的值。</p>
+ * <p>基础数据结构，自增长类型向量，用来存放所有表示属性的值。</p>
  * @author Nano.Michael
  * @version 1.0.0
  * @date 2013-10-30
@@ -29,7 +29,7 @@ public class IncrementVector implements Serializable {
 	 * 构造一个属性值向量，此时向量的容量为1
 	 */
 	public IncrementVector(){
-		this(100);
+		this(DEFAULT_CAPACITY);
 	}
 	
 	/**
@@ -190,6 +190,18 @@ public class IncrementVector implements Serializable {
 	public void pop(){
 		this.data[size-1] = null;
 		size--;
+	}
+	
+	/**
+	 * 获取值所在下标，若值不在向量中，则返回-1
+	 * @param value 待寻找的值
+	 * @return
+	 */
+	public int indexOf(Object value){
+		for (int i=0; i<size; i++)
+			if (data[i].equals(value))
+				return i;
+		return -1;
 	}
 	
 	/**
