@@ -5,8 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public abstract class AbstractGraph<V> implements Graph<V> {
-	protected List<V> vertices;		//Store vertices
-	protected List<List<Integer>> neighbors;	//Adjacency lists		
+	protected List<V> vertices;		//顶点
+	protected List<List<Integer>> neighbors;	//邻接表		
 	
 	/** Construct a graph from edges and vertices stored in arrays */
 	protected AbstractGraph(int[][] edges, V[] vertices){
@@ -76,12 +76,12 @@ public abstract class AbstractGraph<V> implements Graph<V> {
  		}
  	}
 
- 	/** Return the number of vertices in the graph */
+ 	/** 返回图中顶点的数目 */
  	public int getSize(){
  		return vertices.size();
  	}
  	
- 	/** Return the vertices in the graph */
+ 	/** 返回途中的顶点集合 */
  	public List<V> getVertices(){
  		List<V> verticesCopy = new ArrayList<V>();
  		for(int i=0; i<vertices.size(); i++){
@@ -91,41 +91,39 @@ public abstract class AbstractGraph<V> implements Graph<V> {
  		return verticesCopy;
  	}
  	
- 	/** Return the object for the specified index */
+ 	/** 返回图中指定下标的顶点  */
  	public V getVertex(int index){
  		return vertices.get(index);
  	}
  	
- 	/** Return the index of the specified vertex */
+ 	/** 返回图中指定顶点的下标  */
  	public int getIndex(V v){
  		return vertices.indexOf(v);
  	}
  	
- 	/** Return the neighbors of vertex with the specified index */
+ 	/** 返回图中指定下标处的顶点的相邻顶点  */
  	public List<Integer> getNeighbors(int index){
  		return neighbors.get(index);
  	}
  	
- 	/** Return the degree for a specified vertex */
+ 	/** 返回图中指定下标的顶点  */
  	public int getDegree(int v){
  		return neighbors.get(v).size();
  	}
  	
- 	/** Return the adjacency matrix */
+ 	/** 返回图中指定下标处的顶点的相邻顶点  */
  	public int[][] getAdjacencyMatrix(){
- 		int[][] adjacencyMatrix = new int[getSize()][getSize()];
- 		
+ 		int[][] adjacencyMatrix = new int[getSize()][getSize()]; 		
  		for(int i=0; i<neighbors.size(); i++){
  			for(int j=0; j<neighbors.get(i).size(); j++){
  				int v = neighbors.get(i).get(j);
  				adjacencyMatrix[i][v] = 1;
  			}
- 		}
- 		
+ 		} 		
  		return adjacencyMatrix;
  	}
 
- 	/** Print the adjacency matrix */
+ 	/** 打印图的邻接矩阵 */
  	public void printAdjacencyMatrix(){
  		int[][] adjacencyMatrix = getAdjacencyMatrix();
  		for(int i=0; i<adjacencyMatrix.length; i++){
@@ -137,7 +135,7 @@ public abstract class AbstractGraph<V> implements Graph<V> {
  		System.out.println(); 		
  	}
 
- 	/** Print the edges */
+ 	/** 打印图的边 */
  	public void printEdges(){
  		for(int u=0; u<neighbors.size(); u++){
  			System.out.print("Vertex "+u+": ");
@@ -148,7 +146,7 @@ public abstract class AbstractGraph<V> implements Graph<V> {
  		}
  	} 	 	
  	
- 	/** Get connected parts of the graph */
+ 	/** 得到图的连通部分 */
  	public List<List<Integer>> getConnectedBranches(){
  		int v = 0 ;
  		List<List<Integer>> connectedParts = 
@@ -177,19 +175,18 @@ public abstract class AbstractGraph<V> implements Graph<V> {
  		int numberOfVertices = getSize();
  		for(int i=0; i<numberOfVertices; i++){
  			if(! verticesSearched.contains(i)){ 
- 				return i;		//The graph isn't connected
+ 				return i;		//该图不是连通图
  			}
- 		}
- 		
+ 		} 
 		return -1;		//The graph is connected 		
  	}
  	
  	/** Edge inner class inside the AbstractGraph class */
  	public static class Edge {
- 		public int u;	//Starting vertex of the edge
- 		public int v;	//Ending vertex of the edge		
+ 		public int u;	//边的起点对应的顶点的下标
+ 		public int v;	//边的终点对应的顶点的下标		
  		
- 		/** Construct an edge for (u, v) */
+ 		/** 构造边(u, v) */
  		public Edge(int u, int v) {
 			super();
 			this.u = u;
@@ -197,39 +194,35 @@ public abstract class AbstractGraph<V> implements Graph<V> {
 		}
  	}
  	
- 	/** Obtain a DFS tree starting from vertex */
+ 	/** 从下标为v的顶点处开始深度优先搜索图 */
  	public Tree dfs(int v){
  		List<Integer> searchOrders = new ArrayList<Integer>();
  		int[] parent = new int[vertices.size()];
  		for(int i=0; i<parent.length; i++){
  			parent[i] = -1; 			
- 		}
- 		
- 		//Mark visited vertices
- 		boolean[] isVisited = new boolean[vertices.size()];
- 		
- 		//Recursively search
- 		dfs(v, parent, searchOrders, isVisited);
- 		
+ 		} 		
+ 		//标志顶点是否已经被遍历
+ 		boolean[] isVisited = new boolean[vertices.size()]; 		
+ 		//递归搜索
+ 		dfs(v, parent, searchOrders, isVisited); 		
  		return new Tree(v, parent, searchOrders);
  	}
  	
- 	/** Recursive method for DFS search */
+ 	/** 深度优先搜索 */
  	private void dfs(int v, int[] parent, List<Integer> searchOrders,
  			boolean[] isVisited){
- 		//Store the visited vertex
+ 		//将当前访问到的顶点加到搜索到的顶点列表中
  		searchOrders.add(v);
- 		isVisited[v] = true;	//Vertex v is visited
- 		
+ 		isVisited[v] = true;	//顶点v已经被访问 		
  		for(int i : neighbors.get(v)){
  			if(! isVisited[i]){
  				parent[i] = v;
- 				dfs(i, parent, searchOrders, isVisited);	//Recursive search
+ 				dfs(i, parent, searchOrders, isVisited);	//递归搜索
  			}
  		}
  	}
  	
- 	/** Starting bfs search from vertex */
+ 	/** 从下标为v的顶点开始进行广度优先遍历 */
  	public Tree bfs(int v){
  		List<Integer> searchOrders = new ArrayList<Integer>();
  		int[] parent = new int[vertices.size()];
@@ -241,25 +234,23 @@ public abstract class AbstractGraph<V> implements Graph<V> {
  			new LinkedList<Integer>();
  		boolean[] isVisited = new boolean[vertices.size()];
  		queue.offer(v);
- 		isVisited[v] = true;	//Mark is visited
+ 		isVisited[v] = true;	//标记为已经访问
  		
  		while(! queue.isEmpty()){
  			int u = queue.poll();	//Dequeue to u
- 			searchOrders.add(u);	//u searched
- 			
+ 			searchOrders.add(u);	//u searched 			
  			for(int w: neighbors.get(u)){
  				if(! isVisited[w]){
  					queue.offer(w);		//Enqueue w
  					parent[w] = u;
- 					isVisited[w] = true;	//Mark is visited
+ 					isVisited[w] = true;	//标记为已经访问
  				} 				
  			} 			
- 		}
- 		
+ 		} 		
  		return new Tree(v, parent, searchOrders);
  	}
  	
- 	/** Tree inner class inside the AbstractGraph class */
+ 	/** Tree内部类 */
  	public class Tree {
  		private int root ;	//The root of the tree
  		private int[] parent;	//Store the parent of each vertex
@@ -272,7 +263,7 @@ public abstract class AbstractGraph<V> implements Graph<V> {
 			this.searchOrders = searchOrders;
 		}
  		
- 		/** Return the root of the tree */
+ 		/** 返回树的根节点 */
  		public int getRoot(){
  			return root;
  		} 
@@ -282,23 +273,22 @@ public abstract class AbstractGraph<V> implements Graph<V> {
  			return parent[v];
  		}
  		
- 		/** Return an array representing search order */
+ 		/** 返回遍历中得到的顶点列表 */
  		public List<Integer> getSearchOrders(){
  			List<Integer> copyOfSearchOrders = 
  				new  ArrayList<Integer>();
  			for(Integer integer : searchOrders){
  				copyOfSearchOrders.add(integer);
- 			}
- 			
+ 			} 			
  			return copyOfSearchOrders;
  		}
  		
- 		/** Return the number of vertices found */
+ 		/** 返回查找到的顶点的数目 */
  		public int getNumberOfVerticesFound(){
  			return searchOrders.size();
  		}
  		
- 		/** Return the path of vertices from a vertex index to the root */
+ 		/** 得到从根节点到下标为index的节点的路径  */
  		public List<V> getPath(int index){
  			ArrayList<V> path = new ArrayList<V>();
  			
@@ -310,7 +300,7 @@ public abstract class AbstractGraph<V> implements Graph<V> {
  			return path;
  		}
  		
- 		/** Print a path from the root to vertex */
+ 		/** 输出从根节点到下标为index的节点的路径 */
  		public void printPath(int index){
  			List<V> path = getPath(index);
  			System.out.print("A path from "+vertices.get(root)+" to "+

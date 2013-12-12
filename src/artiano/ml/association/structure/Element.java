@@ -3,7 +3,7 @@ package artiano.ml.association.structure;
 import java.util.*;
 
 public class Element<T extends Comparable<T>> {
-	private List<T> itemset;
+	private List<T> itemset;    //项集
 
 	public Element() {
 		this.itemset = new ArrayList<T>();

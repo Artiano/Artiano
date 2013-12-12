@@ -3,6 +3,7 @@
  */
 package artiano.core.structure;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -14,7 +15,9 @@ import java.util.Random;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class IncrementIndex {
+public class IncrementIndex implements Serializable {
+	private static final long serialVersionUID = 7693583697434755230L;
+	
 	//default capacity
 	public static final int DEFAULT_CAPACITY = 10;
 	//not index

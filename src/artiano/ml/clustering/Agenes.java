@@ -8,7 +8,6 @@ import artiano.ml.clustering.structure.Cluster;
 public class Agenes {
 	/**
 	 * 对数据点使用Agenes算法进行聚类(类间相似度使用MIN进行描述)
-	 * 
 	 * @param dataPoints  要进行聚类的数据点
 	 * @param clusterNumber 要得到的类的数目
 	 * @return 最终的聚类
@@ -103,14 +102,12 @@ public class Agenes {
 
 	private static void isDataValid(Matrix dataPoints, int clusterNumber) {
 		if (dataPoints == null || dataPoints.rows() == 0) {
-			throw new IllegalArgumentException("DataPoints empty!");
+			throw new IllegalArgumentException("数据集为空!");
 		}
 		if (clusterNumber <= 1) {
-			throw new IllegalArgumentException("ClusterNumber shouldn't be"
-					+ " less that 2.");
+			throw new IllegalArgumentException("最终得到的簇的数目clusterNumber不能少于2!");
 		} else if (clusterNumber > dataPoints.rows()) {
-			throw new IllegalArgumentException("ClusterNumber shouldn't be"
-					+ " bigger than number of data points.");
+			throw new IllegalArgumentException("最终得到的簇的数目clusterNumber不能多于数据点的数目!");
 		}
 	}
 }

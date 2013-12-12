@@ -1,93 +1,103 @@
 package artiano.ml.classifier;
+
 import java.io.*;
 import java.util.*;
 
-import artiano.core.operation.Preservable;
+import artiano.core.structure.*;
+import artiano.core.structure.Table.TableRow;
 
 /**
- * <p>Description: Decision Tree classifier using C4.5 algorithm.</p>
+ * <p>决策树分类器(使用C4.5算法实现)</p>
  * @author JohnF Nash
  * @version 1.0.0
  * @date 2013-10-15
  * @function 
  * @since 1.0.0
  */
-public class DTreeClassifierUsingC4_5 extends Preservable{
-	private static final long serialVersionUID = 1L;
+public class DTreeClassifierUsingC4_5 extends Classifier{
+	private static final long serialVersionUID = 4166947748580616301L;
 	
 	private ArrayList<ArrayList<String>> data = 
-			new ArrayList<ArrayList<String>>();
+			new ArrayList<ArrayList<String>>();       //训练集
 	private ArrayList<String> attributeList = 
-			new ArrayList<String>(); 	// Attribute list	
+			new ArrayList<String>(); 	//数据属性列表	
 	private boolean[] isAttributeContinuous;
-	private String targetAttribute;  //target attribute
-	private DTreeNode root;		 //Root of the decision tree constructed.
+//	private String targetAttribute;  //target attribute
+	private DTreeNode root;		 //Root of the decision tree constructed.	
 	
-	/**
-	 * Constructor with training data
-	 * @param data - training data
-	 * @param attributeList - list of attributes
-	 * @param targetAttribute - label of data
-	 */
-	public DTreeClassifierUsingC4_5(ArrayList<ArrayList<String>> data, 
-			ArrayList<String> attributeList, String targetAttribute) {
-		this.data = data;
-		this.attributeList = attributeList;
-		this.targetAttribute = targetAttribute;
-		isAttributeContinuous = new boolean[attributeList.size()];
-		for(int i=0; i<isAttributeContinuous.length; i++) {
-			isAttributeContinuous[i] = false;
-		}		
+	public DTreeClassifierUsingC4_5() {		
 	}
 	
 	/**
-	 * Constructor with training data
-	 * @param data - training data
-	 * @param attributeList - list of attributes
-	 * @param targetAttribute - label of data
-	 * @param isAttributeContinuous - array of boolean that indicate whether 
-	 *             corresponding attribute is continuous or discrete.
+	 * 决策树分类
+	 * @return 数据训练是否成功，成功则返回true;否则,返回false
 	 */
-	public DTreeClassifierUsingC4_5(ArrayList<ArrayList<String>> data, 
-			ArrayList<String> attributeList, String targetAttribute, 
-			boolean[] isAttributeContinuous) {
-		this.data = data;
-		this.attributeList = attributeList;
-		this.targetAttribute = targetAttribute;
-		this.isAttributeContinuous = isAttributeContinuous;		
-	}
-	
-	/**
-	 * Train decision tree
-	 * @return whether the training successes or not
-	 */
-	public boolean train() {		
-		//Check whether the parameters inputed is valid
+	public boolean train(Table trainSet, NominalAttribute trainLabel) {		
+		//检查输入的训练集及类标是否合法
 		try {
 			isTrainDataInputedValid();
 		} catch(Exception e) {			
 			return false;
-		}					
-		//Construct a decision tree
-		root = constructDecisionTree(root, data, attributeList);		
-		return true;   //Data training successes.
+		}
+		intitialize(trainSet, trainLabel);  //初始化
+		//深度复制trainLabel
+		NominalAttribute copyOfTrainLabel = deepCloneTrainLabel(trainLabel);
+		//构造决策树		
+		root = constructDecisionTree(root, data, attributeList, copyOfTrainLabel);		
+		return true;   //数据训练成功
+	}
+
+	//深度复制trainLabel
+	private NominalAttribute deepCloneTrainLabel(NominalAttribute trainLabel) {
+		NominalAttribute copyOfTrainLabel =
+			new NominalAttribute(trainLabel.getName(), trainLabel.getVector().copy());
+		List<Object> nominals = trainLabel.getNominals();
+		for(int i=0; i<nominals.size(); i++) {
+			copyOfTrainLabel.addNominal(nominals.get(i));
+		}
+		return copyOfTrainLabel;
 	}				
 		
+	private void intitialize(Table trainSet, NominalAttribute trainLabel) {
+		//初始化targetAttribute
+	//	this.targetAttribute = trainLabel.getName();
+		int columns = trainSet.columns();
+		//初始化data
+		this.data = tableToArrayList(trainSet);
+		//初始化 attributeList
+		for(int j=0; j<columns; j++) {
+			Attribute attr = trainSet.attribute(j);
+			String attrName = attr.getName();
+			attributeList.add(attrName);			
+		}
+		//attributeList.add(this.targetAttribute);
+		//初始化isAttributeContinuous
+		isAttributeContinuous = new boolean[columns];
+		for(int j=0; j<columns; j++) {
+			Attribute attr = trainSet.attribute(j);
+			if(attr instanceof NominalAttribute) {  //离散型数据
+				isAttributeContinuous[j] = false;
+			} else if(attr instanceof NumericAttribute) {	//连续性数据
+				isAttributeContinuous[j] = true;
+			}
+		}		
+	}
+	
 	/**
 	 * Classify data 
 	 * @return classifications predicted of data.
 	 */
-	public List<String> classify(List<List<String>> data) {
+	public NominalAttribute predict(Table data) {
 		if(data == null) {  //Input empty
-			return new ArrayList<String>();
+			return new NominalAttribute();
 		}
-		
-		List<String> predictionList = new ArrayList<String>(); //Store predictions
-		for(int i=0; i<data.size(); i++) {
-			List<String> singleItem = data.get(i);  //A sample
+		ArrayList<ArrayList<String>> samples = tableToArrayList(data);		
+		NominalAttribute predictionAttr = new NominalAttribute("label"); //Store predictions
+		for(int i=0; i<data.rows(); i++) {
+			List<String> singleItem = samples.get(i);  //A sample
 			
 			DTreeNode current = root;
-			int matchNum = 0;		//Number of attribute matched.
+//			int matchNum = 0;		//Number of attribute matched.
 			boolean searchComplete = false;
 			while(current.nextNodes.size() >= 1) {
 				String attribute = current.attribute;							
@@ -111,13 +121,13 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 						DTreeNode childNode = childrenNodes.get(j);
 						if(valueSearched.equals(childNode.previousDecision)) {  //Previous attribute match
 							if(childNode.nextNodes == null) {  //All same label or exactly matched.
-								predictionList.add(childNode.label);
+								predictionAttr.push(childNode.label);
 								searchComplete = true;
 								break;
 							}
 							
 							current = childNode;	//Match with next branch of previous attribute.
-							matchNum++;						
+	//						matchNum++;						
 							
 							break;
 						}
@@ -129,7 +139,7 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 					
 				} else {
 					searchComplete = false;										
-					matchNum++;
+		//			matchNum++;
 					
 					//Search each branch of an decision variable to match the sample
 					List<DTreeNode> childrenNodes = current.nextNodes;
@@ -142,41 +152,42 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 						current = current.nextNodes.get(1);											
 					}									
 					if(current.nextNodes == null) {	
-						predictionList.add(current.label);
+						predictionAttr.push(current.label);
 						break;
 					}
 				}				
 			}
-			 
+			/* 
 			if(matchNum == attributeList.size() - 1 ) {   //Search complete.				
-				predictionList.add(current.label);
+				predictionAttr.push(current.label);
 			} else {  				
 				int attributeIndex = this.attributeList.indexOf(current.attribute);
 				if(!searchComplete && !isAttributeContinuous[attributeIndex]) {					
-					predictionList.add(null);   //Not exactly matched
+					//predictionAttr.push(null);   //Not exactly matched
 				}							
-			}
+			} */
 		}
 		
-		return predictionList;
+		return predictionAttr;
 	}
 	
 	/**
-	 * Build a decision tree
-	 * @param p - root of decision tree
-	 * @param remainingData - remaining data to be classified.
-	 * @param remainingAttribute - remaining to be considered.
-	 * @return root of the decision tree to build.
+	 * 构造决策树
+	 * @param p 决策树的根节点
+	 * @param remainingData 剩下的待使用的数据
+	 * @param remainingAttribute 剩下的待使用的属性
+	 * @return 构造的决策树的根节点
 	 */
 	private DTreeNode constructDecisionTree(DTreeNode p, 
 			ArrayList<ArrayList<String>> remainingData, 
-			ArrayList<String> remainingAttribute) {		
+			ArrayList<String> remainingAttribute, 
+			NominalAttribute remainingTrainLabel) {		
 		if(p == null) {
 			p = new DTreeNode();
 		}
 		
-		/* Check whether all the data has same label. If so, terminate. */		
-		ArrayList<ArrayList<String>> attributeValueList = 
+				
+/*		ArrayList<ArrayList<String>> attributeValueList = 
 				constructAttributeValueList(remainingData, remainingAttribute);
 		int targetAttrIndex = remainingAttribute.indexOf(targetAttribute);
 		if(targetAttrIndex == -1) {
@@ -184,42 +195,53 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 		}
 		
 		ArrayList<String> targetAttributeValues = 
-			attributeValueList.get(targetAttrIndex);		
+			attributeValueList.get(targetAttrIndex);
+		
 		for(int i=0; i<targetAttributeValues.size(); i++) {
 			String label = targetAttributeValues.get(i);
-			if(allTheSameLabel(remainingData, label)) {
-				p.label = label;
-				return p;
-			}
-		}		
+			
+*/		// 检查是不是剩下的数据的类标都相同，如果是，则决策树构造完成
+		if(allTheSameLabel(remainingTrainLabel)) {
+			p.label = remainingTrainLabel.get(0).toString();
+			return p;
+		}
+//		}		
 				
 		//All the attributes has been considered ,yet not complete the classification
-		if(remainingAttribute.size() == 1) {
+		if(remainingAttribute.size() == 0 
+			 && remainingData.size() > 0) {
 			final int indexOfAttr = attributeList.indexOf(p.attribute);
+			System.out.println("attr: " + p.attribute + ", index: " + indexOfAttr);
+			if(indexOfAttr < 0) {
+				return p;
+			}
 			if(!isAttributeContinuous[indexOfAttr]) {
-				p.label = mostCommonLabel(remainingData);
+				p.label = mostCommonLabel(remainingTrainLabel);
 			}				
 			return p;
 		}
 		
 		/* Find decision variable by finding the max information gain. */
 		int max_index = 
-			getMaxGainRatioAttribute(remainingData, remainingAttribute);
+			getMaxGainRatioAttribute(remainingData, remainingAttribute, remainingTrainLabel);
 		p.attribute = remainingAttribute.get(max_index);
 		
 		//Create sub tree
 		final int indexOfAttr = attributeList.indexOf(p.attribute);		
 		if(!isAttributeContinuous[indexOfAttr]) {													
-			constructDiscreteAttributeSubTree(p, remainingData,remainingAttribute);			
+			constructDiscreteAttributeSubTree(p, remainingData,
+					remainingAttribute, remainingTrainLabel);			
 		} else {  			
-			constructContinuousSubTree(p, remainingData, remainingAttribute);
+			constructContinuousSubTree(p, remainingData, 
+					remainingAttribute, remainingTrainLabel);
 		}						
 		return p;
 	}
 	
 	private void constructContinuousSubTree(DTreeNode p,
-		ArrayList<ArrayList<String>> remainingData, ArrayList<String> remainingAttribute) {					
-						
+		ArrayList<ArrayList<String>> remainingData, 
+		ArrayList<String> remainingAttribute,
+		NominalAttribute remainingTrainLabel) {										
 		ArrayList<ArrayList<String>> copyOfData = 
 			new ArrayList<ArrayList<String>>(remainingData);
 		final int indexOfAttr = this.attributeList.indexOf(p.attribute);
@@ -238,61 +260,74 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 			}
 		});	
 				
-		int targetAttrIndex = remainingAttribute.indexOf(targetAttribute);
-		ArrayList<ArrayList<String>> newAttributeValueList = 
-				constructAttributeValueList(remainingData, remainingAttribute);
-		Set<String> labelValuesSet = 
-			new HashSet<String>(newAttributeValueList.get(targetAttrIndex));
-		ArrayList<String> remainingLabelValues = 
-			new ArrayList<String>(labelValuesSet);
+//		int targetAttrIndex = remainingAttribute.indexOf(targetAttribute);
+//		ArrayList<ArrayList<String>> newAttributeValueList = 
+//				constructAttributeValueList(remainingData, remainingAttribute);
+//		Set<String> labelValuesSet = 
+//			new HashSet<String>(newAttributeValueList.get(targetAttrIndex));
+//		ArrayList<String> remainingLabelValues = 
+//			new ArrayList<String>(labelValuesSet);
 		
-		int maxInfoGainIndex = getMaxAttributeInfoGainIndex(
-				copyOfData, remainingLabelValues);										
+		int maxInfoGainIndex = 
+			getMaxAttributeInfoGainIndex(copyOfData, remainingTrainLabel);										
 		if(remainingData.size() == 0) {
-			p.label = mostCommonLabel(remainingData);
+			p.label = mostCommonLabel(remainingTrainLabel);
 		}
 		
 		ArrayList<ArrayList<String>> leftChildData = 
 			new ArrayList<ArrayList<String>>();
+		NominalAttribute leftChildTrainLabel = 
+			new NominalAttribute(remainingTrainLabel.getName(), new IncrementVector());
 		for(int i=0; i<=maxInfoGainIndex; i++) {
 			leftChildData.add(copyOfData.get(i));
+			leftChildTrainLabel.push(remainingTrainLabel.get(i));
+			leftChildTrainLabel.addNominal(remainingTrainLabel.get(i));
 		}			
 		
 		ArrayList<ArrayList<String>> rightChildData = 
 			new ArrayList<ArrayList<String>>();
+		NominalAttribute rightChildTrainLabel = 
+			new NominalAttribute(remainingTrainLabel.getName(), new IncrementVector());
 		for(int i=maxInfoGainIndex+1; i<copyOfData.size(); i++) {
 			rightChildData.add(copyOfData.get(i));
+			rightChildTrainLabel.push(remainingTrainLabel.get(i));
+			rightChildTrainLabel.addNominal(remainingTrainLabel.get(i));
 		}
 						
 		double leftData = 
 			Double.parseDouble(copyOfData.get(maxInfoGainIndex).get(indexOfAttr));
 		double rightData = 
 			Double.parseDouble(copyOfData.get(maxInfoGainIndex + 1).get(indexOfAttr));
-		double middle = (leftData + rightData) / 2;					
+		double middle = (leftData + rightData) / 2;
+		System.out.println(p.attribute + ", left:  " + leftData 
+			+ ", right: " + rightData);
 		
 		//Update remaining attributes		
 		ArrayList<String> newRemainingAttribute = 
 			new ArrayList<String>(remainingAttribute);	
-		newRemainingAttribute.remove(indexOfAttr);
+		//newRemainingAttribute.remove(indexOfAttr);
+		newRemainingAttribute.remove(this.attributeList.get(indexOfAttr));
 		
 		DTreeNode leftChildNode = new DTreeNode();  //Root of the sub tree
 		leftChildNode.previousDecision = middle + "";
 		leftChildNode.attribute = p.attribute;
-		leftChildNode.label = mostCommonLabel(leftChildData);		
+		leftChildNode.label = mostCommonLabel(leftChildTrainLabel);		
 		if(leftChildData.size() == 0) {	//Now has no sample of this branch
-			leftChildNode.label = mostCommonLabel(remainingData);
+			leftChildNode.label = mostCommonLabel(remainingTrainLabel);
 		} else {				
-			constructDecisionTree(leftChildNode, leftChildData, newRemainingAttribute);    
+			constructDecisionTree(leftChildNode, leftChildData, 
+					newRemainingAttribute, leftChildTrainLabel);    
 		}
 		
 		DTreeNode rightChildNode = new DTreeNode();  //Root of the sub tree
 		rightChildNode.attribute = p.attribute;
 		rightChildNode.previousDecision = middle + "";
-		rightChildNode.label = mostCommonLabel(rightChildData);
+		rightChildNode.label = mostCommonLabel(rightChildTrainLabel);
 		if(rightChildData.size() == 0) {	//Now has no sample of this branch
-			rightChildNode.label = mostCommonLabel(remainingData);
+			rightChildNode.label = mostCommonLabel(remainingTrainLabel);
 		} else {				
-			constructDecisionTree(rightChildNode, rightChildData, newRemainingAttribute);    
+			constructDecisionTree(rightChildNode, rightChildData, 
+					newRemainingAttribute, rightChildTrainLabel);    
 		}	
 		
 		if(p.nextNodes == null) {
@@ -304,8 +339,8 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 	
 	private void constructDiscreteAttributeSubTree(DTreeNode p,
 			ArrayList<ArrayList<String>> remainingData,
-			ArrayList<String> remainingAttribute) {
-				
+			ArrayList<String> remainingAttribute,
+			NominalAttribute remainingTrainLabel) {				
 		int indexOfAttr = remainingAttribute.indexOf(p.attribute);
 		ArrayList<ArrayList<String>> attributeValueList = 
 			constructAttributeValueList(remainingData, remainingAttribute);	
@@ -321,18 +356,22 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 		for(int j=0; j<attrValues.size() && j<4; j++) {		
 			ArrayList<ArrayList<String>> newRemainingData = 
 				getNewRemainingData(remainingData, attrIndexInOrigin, attrValues.get(j));
+			NominalAttribute newRemainingTrainLabel = 
+				getNewRemainingTrainLabel(newRemainingData, attrIndexInOrigin,
+						attrValues.get(j), remainingTrainLabel); 
 			
 			DTreeNode new_node = new DTreeNode();  //Root of the sub tree
 			new_node.previousDecision = attrValues.get(j);
 			if(newRemainingData.size() == 0) {	//Now has no sample of this branch
-				new_node.label = mostCommonLabel(remainingData);
+				new_node.label = mostCommonLabel(remainingTrainLabel);
 				if(p.nextNodes == null) {
 					p.nextNodes = new ArrayList<DTreeNode>();
 				}
 				p.nextNodes.add(new_node);    //Add root of the sub tree to the node
 				break;
 			} else {				
-				constructDecisionTree(new_node, newRemainingData, newRemainingAttribute);    
+				constructDecisionTree(new_node, newRemainingData, 
+						newRemainingAttribute, newRemainingTrainLabel);    
 			}
 			
 			if(p.nextNodes == null) {
@@ -341,7 +380,7 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 			p.nextNodes.add(new_node);    //Add root of the sub tree to the node			
 		}
 	}
-	
+/*	
 	private int getMaxAttributeInfoGainIndex(
 			ArrayList<ArrayList<String>> copyOfData,
 			ArrayList<String> remainingLabelValues) {		
@@ -402,6 +441,75 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 				maxInfoGainIndex = i;
 			}
 		}
+		
+		
+		return maxInfoGainIndex;
+	}
+*/	
+	private int getMaxAttributeInfoGainIndex(
+			ArrayList<ArrayList<String>> remainingData,
+			NominalAttribute remainingTrainLabel) {		
+		int maxInfoGainIndex = 0;
+		double maxInfoGain = 0;
+//		 int targetAttrIndex = this.attributeList.indexOf(targetAttribute);
+		for(int i=0; i<remainingData.size()-1; i++) {
+			//ArrayList<String> leftData = copyOfData.get(i);
+			//ArrayList<String> rightData = copyOfData.get(i+1);				
+			String leftLabel = remainingTrainLabel.get(i).toString(); 
+					//leftData.get(targetAttrIndex);
+			String rightLabel = remainingTrainLabel.get(i+1).toString(); 
+					//rightData.get(targetAttrIndex);
+			if(leftLabel.equals(rightLabel)) {
+				continue;
+			}
+			
+			List<Object> nominals = remainingTrainLabel.getNominals();
+			double leftInfoGain = 0;
+			double[] leftEachLabelCount = new double[nominals.size()]; 
+					//new double[remainingLabelValues.size()];
+			Arrays.fill(leftEachLabelCount, 0);
+			for(int j=0; j<=i; j++) {
+				//ArrayList<String> currentData = copyOfData.get(j);
+				int labelValueIndex = nominals.indexOf(remainingTrainLabel.get(i)); 
+					//remainingLabelValues.indexOf(currentData.get(targetAttrIndex));
+				leftEachLabelCount[labelValueIndex]++;
+			}
+						
+			for(int j=0; j<nominals.size(); j++) {
+				if(leftEachLabelCount[j] == 0) {
+					continue;
+				}
+				double refactor = ((double)leftEachLabelCount[j]) / (i+1);
+				leftInfoGain += -1 * refactor * Math.log(refactor) / Math.log(2);
+			}
+			
+			double[] rightEachLabelCount = new double[nominals.size()];
+			Arrays.fill(rightEachLabelCount, 0);
+			for(int j=i+1; j<remainingData.size(); j++) {
+				//ArrayList<String> currentData = copyOfData.get(j);
+				int labelValueIndex = nominals.indexOf(remainingTrainLabel.get(j));
+					//remainingLabelValues.indexOf(currentData.get(targetAttrIndex));
+				rightEachLabelCount[labelValueIndex]++;
+			}
+			
+			double rightInfoGain = 0;
+			int rightTotalCount = (remainingData.size()-i-1);
+			for(int j=0; j<nominals.size(); j++) {
+				if(rightEachLabelCount[j] == 0) {
+					continue;
+				}
+				double refactor = 
+					((double)rightEachLabelCount[j]) / rightTotalCount;
+				rightInfoGain += -1 * refactor * Math.log(refactor) / Math.log(2);
+			}
+			
+			double infoGain = ((double)(i+1)) / remainingData.size() * leftInfoGain + 
+					((double)rightTotalCount) / remainingData.size() * rightInfoGain;
+			if(infoGain > maxInfoGain) {
+				maxInfoGain = infoGain;
+				maxInfoGainIndex = i;
+			}
+		}		
 		return maxInfoGainIndex;
 	}
 	
@@ -418,19 +526,42 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 		return newRemainingData;
 	}
 	
+	private NominalAttribute getNewRemainingTrainLabel(
+			ArrayList<ArrayList<String>> remainingData, int indexOfAttr,
+			String attrValue, NominalAttribute remainingTrainLabel) {
+		NominalAttribute newRemainingTrainLabel = 
+			new NominalAttribute(remainingTrainLabel.getName(), new IncrementVector());
+		for(int i=0; i<remainingData.size(); i++) {
+			ArrayList<String> currentItem = remainingData.get(i);
+			if(attrValue.equals(currentItem.get(indexOfAttr))) {
+				newRemainingTrainLabel.push(remainingTrainLabel.get(i));
+				newRemainingTrainLabel.addNominal(remainingTrainLabel.get(i));
+			}
+		}	
+		return newRemainingTrainLabel;
+	}
 	
 	private int getMaxGainRatioAttribute(ArrayList<ArrayList<String>> remainingData,
-			ArrayList<String> remainingAttribute) {
+			ArrayList<String> remainingAttribute, NominalAttribute remainingTrainLabel) {
 		double max_gain = 0;
 		int max_index = 0;	//Attribute index where the attribute information gain max  
 		for(int i=0; i<remainingAttribute.size(); i++) {
-			if(remainingAttribute.get(i).equals(targetAttribute)) {
+		/*	if(remainingAttribute.get(i).equals(targetAttribute)) {
 				continue;
 			}
-			
+		*/	
 			//Get information gain of the attribute
-			double temp_gain = 
-				computeGainRatio(remainingData, remainingAttribute.get(i));
+			double temp_gain;
+			if(isAttributeContinuous[i]) {
+				//getMaxAttributeInfoGainIndex(remainingData, remainingTrainLabel);
+				int attrIndex = this.attributeList.indexOf(remainingAttribute.get(i));
+				temp_gain = 
+					getGainRatioForContinuousAttribute(remainingData,
+						remainingTrainLabel, attrIndex);
+			} else {
+				temp_gain = 
+					computeGainRatio(remainingData, remainingAttribute.get(i), remainingTrainLabel);
+			}			
 			if(max_gain < temp_gain) {
 				max_gain = temp_gain;
 				max_index = i;
@@ -447,12 +578,13 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 	 * @return information gain of a specified attribute.
 	 */
 	private double computeGainRatio(ArrayList<ArrayList<String>> remainingData, 
-			String attribute) {		
-		double inforGain = computeInformationGain(remainingData, attribute);										
+			String attribute, NominalAttribute remainingTrainLabel) {		
+		double inforGain = 
+			computeInformationGain(remainingData, attribute, remainingTrainLabel);										
 		double splitInfo = computeSplitInformation(remainingData, attribute);						
 		return inforGain / splitInfo;
 	}
-
+	
 	private double computeSplitInformation(
 			ArrayList<ArrayList<String>> remainingData, String attribute) {
 		/* Count each appearances of values of the attribute */
@@ -475,7 +607,7 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 		double splitInfo = 0;		
 		for(int j=0; j<attrValues.size(); j++) {		
 			double refactor = ((double)eachCount.get(j)) / allCount;
-			splitInfo += -1 * refactor * (Math.log(refactor / Math.log(2.0)));
+			splitInfo += -1 * refactor * Math.log(refactor) / Math.log(2.0);
 		}
 		return splitInfo;
 	}
@@ -488,14 +620,22 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 	 * @return information gain of a specified attribute.
 	 */
 	private double computeInformationGain(ArrayList<ArrayList<String>> remainingData, 
-			String attribute) {		
+			String attribute, NominalAttribute remainingTrainLabel) {		
 		double inforGain = 0;								
 		//Add entropy(S);
-		int targetIndex = attributeList.indexOf(targetAttribute);
-		ArrayList<Integer> labelCounts = 
-			countAttributeValuesApperances(remainingData, targetIndex);
-		for(int i=0; i<labelCounts.size(); i++) {
-			double temp = labelCounts.get(i) * 1.0 / remainingData.size();
+//		int targetIndex = attributeList.indexOf(targetAttribute);
+//		ArrayList<Integer> labelCounts = 
+//			countAttributeValuesApperances(remainingData, targetIndex);
+		Map<Object, Integer> countMap = countEachLabelValue(remainingTrainLabel);
+		//Integer[] counts = (Integer[]) countMap.values().toArray();
+		List<Integer> countList = new ArrayList<Integer>(countMap.values());
+	/*	for(int i=0; i<counts.length; i++) {
+			double temp = counts[i] * 1.0 / remainingData.size();
+			inforGain += -1 * temp * Math.log10(temp) / Math.log10(2);
+		}
+	*/
+		for(int i=0; i<countList.size(); i++) {
+			double temp = countList.get(i) * 1.0 / remainingData.size();
 			inforGain += -1 * temp * Math.log10(temp) / Math.log10(2);
 		}
 		
@@ -517,7 +657,8 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 		
 		for(int j=0; j<attrValues.size(); j++) {
 			double entropy = 
-				getEntropy(remainingData, indexOfAttr, attrValues.get(j));			
+				getEntropy(remainingData, indexOfAttr, attrValues.get(j),
+					remainingTrainLabel);			
 			inforGain += 
 				(-1.0 * eachCount.get(j)) / remainingData.size() * entropy;
 		}		
@@ -532,27 +673,132 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 	 * @return entropy of the attribute
 	 */
 	private double getEntropy(ArrayList<ArrayList<String>> remainingData, 
-			int attrIndex, String attrValue) {
-		int targetAttrIndex = attributeList.indexOf(targetAttribute);
-		ArrayList<Integer> labelValueCounts =
-			countAttributeValuesApperances(remainingData, targetAttrIndex);		
-		
+			int attrIndex, String attrValue, NominalAttribute remainingTrainLabel) {
+//		int targetAttrIndex = attributeList.indexOf(targetAttribute);
+//		ArrayList<Integer> labelValueCounts =
+//			countAttributeValuesApperances(remainingData, targetAttrIndex);		
+		Map<Object, Integer> countMap =
+			countEachLabelValue(remainingData, attrIndex, 
+					attrValue, remainingTrainLabel);
+				//countEachLabelValue(remainingTrainLabel);
+		//Integer[] counts = (Integer[]) countMap.values().toArray();
+		List<Integer> countList = new ArrayList<Integer>(countMap.values());
 		int attributeValueCount = 0;
 		/*If one label value count is 0, the entropy is 0.   */
-		for(int i=0; i<labelValueCounts.size(); i++) {
-			attributeValueCount += labelValueCounts.get(i);
-			if(labelValueCounts.get(i) == 0) {
+		for(int i=0; i<countList.size(); i++) {
+			attributeValueCount += countList.get(i);
+			if(countList.get(i) == 0) {
 				return 0;
 			}
 		}
 		
 		/* Compute entropy */		
 		double entropy = 0;		//Entropy of value of the attribute		
-		for(int i=0; i<labelValueCounts.size(); i++) {
-			double temp = labelValueCounts.get(i) * 1.0 / attributeValueCount;
+		for(int i=0; i<countList.size(); i++) {
+			double temp = countList.get(i) * 1.0 / attributeValueCount;
 			entropy += -1 * temp * Math.log10(temp) / Math.log10(2);
 		}		
 		return entropy;
+	}
+	
+	private double getGainRatioForContinuousAttribute(
+			ArrayList<ArrayList<String>> remainingData,
+			NominalAttribute remainingTrainLabel, 
+			final int attrIndex) {
+		ArrayList<ArrayList<String>> copyOfData = 
+			new ArrayList<ArrayList<String>>(remainingData);
+		Collections.sort(copyOfData, new Comparator<ArrayList<String>>() {
+			@Override
+			public int compare(ArrayList<String> o1, ArrayList<String> o2) {
+				double value1 = Double.parseDouble(o1.get(attrIndex));
+				double value2 = Double.parseDouble(o2.get(attrIndex));
+				if(value1 > value2) {
+					return 1;
+				} else if(value1 == value2) {
+					return 0;
+				} else {
+					return -1;
+				}
+			}
+		});
+			
+		int maxInfoGainIndex = 0;
+		double maxInfoGain = 0;
+		for(int i=0; i<remainingData.size()-1; i++) {
+			//ArrayList<String> leftData = copyOfData.get(i);
+			//ArrayList<String> rightData = copyOfData.get(i+1);				
+			String leftLabel = remainingTrainLabel.get(i).toString(); 
+					//leftData.get(targetAttrIndex);
+			String rightLabel = remainingTrainLabel.get(i+1).toString(); 
+					//rightData.get(targetAttrIndex);
+			if(leftLabel.equals(rightLabel)) {
+				continue;
+			}
+			
+			List<Object> nominals = remainingTrainLabel.getNominals();
+			double leftInfoGain = 0;
+			double[] leftEachLabelCount = new double[nominals.size()]; 
+					//new double[remainingLabelValues.size()];
+			Arrays.fill(leftEachLabelCount, 0);
+			for(int j=0; j<=i; j++) {
+				//ArrayList<String> currentData = copyOfData.get(j);
+				int labelValueIndex = nominals.indexOf(remainingTrainLabel.get(j)); 
+					//remainingLabelValues.indexOf(currentData.get(targetAttrIndex));
+				leftEachLabelCount[labelValueIndex]++;
+			}
+						
+			for(int j=0; j<nominals.size(); j++) {
+				if(leftEachLabelCount[j] == 0) {
+					continue;
+				}
+				double refactor = ((double)leftEachLabelCount[j]) / (i+1);
+				leftInfoGain += -1 * refactor * Math.log(refactor) / Math.log(2);
+			}
+			
+			double[] rightEachLabelCount = new double[nominals.size()];
+			Arrays.fill(rightEachLabelCount, 0);
+			for(int j=i+1; j<remainingData.size(); j++) {
+				//ArrayList<String> currentData = copyOfData.get(j);
+				int labelValueIndex = nominals.indexOf(remainingTrainLabel.get(j));
+					//remainingLabelValues.indexOf(currentData.get(targetAttrIndex));
+				rightEachLabelCount[labelValueIndex]++;
+			}
+			
+			double rightInfoGain = 0;
+			int rightTotalCount = (remainingData.size()-i-1);
+			for(int j=0; j<nominals.size(); j++) {
+				if(rightEachLabelCount[j] == 0) {
+					continue;
+				}
+				double refactor = 
+					((double)rightEachLabelCount[j]) / rightTotalCount;
+				rightInfoGain += -1 * refactor * Math.log(refactor) / Math.log(2);
+			}
+			
+			double infoGain = ((double)(i+1)) / remainingData.size() * leftInfoGain + 
+					((double)rightTotalCount) / remainingData.size() * rightInfoGain;
+			if(infoGain > maxInfoGain) {
+				maxInfoGain = infoGain;
+				maxInfoGainIndex = i;
+			}
+		}		
+
+/*		double leftMaxValue = 
+			Double.parseDouble(copyOfData.get(maxInfoGainIndex).get(attrIndex));
+		double rightMinValue = 
+				Double.parseDouble(copyOfData.get(maxInfoGainIndex+1).get(attrIndex));
+		double middle = (leftMaxValue + rightMinValue) / 2;
+*/		
+		double splitInfo = 0;	
+		double refactor_1 = 
+			((double)(maxInfoGainIndex+1)) / remainingData.size();
+		splitInfo += -1 * refactor_1 * Math.log(refactor_1) / Math.log(2.0);
+		double refactor_2 = 
+				((double)(remainingData.size()-maxInfoGainIndex-1)) / remainingData.size();
+		splitInfo += -1 * refactor_2 * Math.log(refactor_2) / Math.log(2.0);
+		
+		double gainRatio = maxInfoGain / splitInfo;   //增益率
+		return gainRatio;				
 	}
 	
 	/**
@@ -561,12 +807,27 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 	 * @param label - value that indicate the value of label
 	 * @return whether all the label has the same value isYesStr
 	 */
-	private boolean allTheSameLabel(ArrayList<ArrayList<String>> remainingData, 
+/*	private boolean allTheSameLabel(ArrayList<ArrayList<String>> remainingData, 
 			String label) {
 		for(int i=0; i<remainingData.size(); i++) {
 			ArrayList<String> singleData = remainingData.get(i);   //a single test sample
 			int targetAttrIndex = attributeList.indexOf(targetAttribute);
 			if(!label.equals(singleData.get(targetAttrIndex))) {
+				return false;				
+		    } 	
+		}		
+		return true;
+	}
+*/	
+	/**
+	 * 检查剩下的数据集对应的类标是不是完全相同
+	 * @param remainingTrainLabel 剩下的类标
+	 * @return 剩下的数据集对应的类标是不是完全相同,是则返回true;否则,返回false
+	 */
+	private boolean allTheSameLabel(NominalAttribute remainingTrainLabel) {
+		Object label = remainingTrainLabel.get(0);
+		for(int i=1; i<remainingTrainLabel.size(); i++) {						
+			if(!label.equals(remainingTrainLabel.get(i))) {
 				return false;				
 		    } 	
 		}		
@@ -578,7 +839,7 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 	 * @param remainingData - remaining data to be classified.
 	 * @return The most common label in remaining data
 	 */
-	private String mostCommonLabel(ArrayList<ArrayList<String>> remainingData) {
+/*	private String mostCommonLabel(ArrayList<ArrayList<String>> remainingData) {
 		int targetAttrIndex = attributeList.indexOf(targetAttribute);
 		Map<String, Integer> labelMap = new HashMap<String, Integer>();
 		for(int i=0; i<remainingData.size(); i++) {
@@ -601,11 +862,67 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 		}
 		return comomLabel;
 	}
+*/
+	/**
+	 *  找出剩下的数据中出现次数最多的类标
+	 * @param remainingTrainLabel - 剩下的数据对应的类标
+	 * @return 剩下的数据中出现次数最多的类标
+	 */
+	private String mostCommonLabel(NominalAttribute remainingTrainLabel) {
+		//统计各个类标出现的次数
+		Map<Object, Integer> labelMap = countEachLabelValue(remainingTrainLabel);
+		//找出出现次数最多的类标
+		String comomLabel = "";
+		int maxCount = 0;
+		for(Map.Entry<Object, Integer> entry : labelMap.entrySet()) {
+			if(entry.getValue().intValue() > maxCount) {
+				maxCount = entry.getValue().intValue();
+				comomLabel = entry.getKey().toString();				
+			}
+		}
+		return comomLabel;
+	}
+
+	//统计各个类标出现的次数
+	private Map<Object, Integer> countEachLabelValue(
+			NominalAttribute remainingTrainLabel) {		
+		Map<Object, Integer> labelMap = new LinkedHashMap<Object, Integer>();
+		for(int i=0; i<remainingTrainLabel.size(); i++) {
+			String label = remainingTrainLabel.get(i).toString();
+			if(!labelMap.containsKey(label)) {
+				labelMap.put(label, 1);
+			} else {
+				labelMap.put(label, labelMap.get(label) + 1);
+			}
+		}
+		return labelMap;
+	}
+
+	private Map<Object, Integer> countEachLabelValue(
+			ArrayList<ArrayList<String>> remainingData,
+			int attrIndex, String attrValue, 
+			NominalAttribute remainingTrainLabel) {		
+		Map<Object, Integer> labelMap = new LinkedHashMap<Object, Integer>();
+		for(int i=0; i<remainingData.size(); i++) {
+			String currentAttrValue = remainingData.get(i).get(attrIndex);
+			if(!currentAttrValue.equals(attrValue)) {
+				continue;
+			}
+			String label = remainingTrainLabel.get(i).toString();
+			if(!labelMap.containsKey(label)) {
+				labelMap.put(label, 1);
+			} else {
+				labelMap.put(label, labelMap.get(label) + 1);
+			}
+		}
+		return labelMap;
+	}
+
 	
 	private ArrayList<Integer> countAttributeValuesApperances(
 			ArrayList<ArrayList<String>> remainingData, int indexOfAttr) {
 		Map<String, Integer> attrValueCountsMap =
-				new HashMap<String, Integer>();
+				new LinkedHashMap<String, Integer>();
 		for(int i=0; i<remainingData.size(); i++) {
 			ArrayList<String> singleData = remainingData.get(i);
 			String attrValue = singleData.get(indexOfAttr);
@@ -623,10 +940,10 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 	/* Check whether the data inputed is valid. */
 	private void isTrainDataInputedValid() {		
 		//Check whether the parameters inputed is valid		
-		if(attributeList.indexOf(targetAttribute) < 0) {
+	/*	if(attributeList.indexOf(targetAttribute) < 0) {
 			throw new IllegalArgumentException("Parameter targetAttrIndex out of range.");
 		}
-		
+	*/	
 		if(data == null || attributeList == null) {
 			throw new IllegalArgumentException("Parameter inputed can not be null.");
 		}
@@ -659,13 +976,30 @@ public class DTreeClassifierUsingC4_5 extends Preservable{
 		return attributeValueList;
 	}
 	
-	/* Inner class for tree node. */
+	//将 Table类型的数据转化为 ArrayList类型的数据
+	private ArrayList<ArrayList<String>> tableToArrayList(Table dataSet) {
+		int rows = dataSet.rows();
+		int columns = dataSet.columns();
+		ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
+		/* 初始化数据 */
+		for(int i=0; i<rows; i++) {
+			ArrayList<String> rowData = new ArrayList<String>();
+			TableRow tableRow = dataSet.row(i);
+			for(int j=0; j<columns; j++) {
+				rowData.add(tableRow.at(j).toString());
+			}
+			data.add(rowData);
+		}
+		return data;
+	}
+	
+	/* 决策树节点类 */
 	private static class DTreeNode implements Serializable {		
 		private static final long serialVersionUID = 1L;
 		
-		String attribute = "";	  //Attribute for this node
-		String previousDecision = "";   //previous attribute decision
-		String label = "";	//Value of target attribute for this node(for leaf nodes)		
-		ArrayList<DTreeNode> nextNodes;		//Pointers to next decisions	
-	} 
+		String attribute = "";	  //节点对应的属性
+		String previousDecision = "";   //前一个属性决策的值
+		String label = "";	//类标(对于叶子节点)		
+		ArrayList<DTreeNode> nextNodes;		//子决策树的引用	
+	}
 }

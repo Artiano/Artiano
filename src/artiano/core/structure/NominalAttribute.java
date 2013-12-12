@@ -3,11 +3,7 @@
  */
 package artiano.core.structure;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  * <p>
@@ -21,6 +17,8 @@ import java.util.Random;
  * @since 1.0.0
  */
 public class NominalAttribute extends Attribute {
+	private static final long serialVersionUID = 7943037598867848231L;
+	
 	/** 存储符号属性的取值范围 */
 	private List<Object> nominals = new ArrayList<Object>();
 	/** 符号属性的值类型 */

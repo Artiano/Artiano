@@ -3,39 +3,39 @@ package artiano.ml.clustering.structure;
 import java.util.List;
 
 public interface Graph<V> {
-	/** Return the number of vertices in the graph */
+	/** 返回图中顶点的数目 */
 	public int getSize();
 	
-	/** Return the vertices in the graph */
+	/** 返回图中的顶点集合  */
 	public java.util.List<V> getVertices();
 	
-	/** Return the object for the specified vertex index */
+	/** 返回图中指定下标的顶点  */
 	public V getVertex(int index);
 	
-	/** Return the index for the specified vertex index */
+	/** 返回图中指定顶点的下标  */
 	public int getIndex(V v);
 	
-	/** Return the neighbors of vertex with  */
+	/** 返回图中指定下标处的顶点的相邻顶点  */
 	public java.util.List<Integer> getNeighbors(int index);
 	
-	/** Return the degree for a specified vertex */
+	/** 返回指定顶点的度数 */
 	public int getDegree(int index);
 	
-	/** Return the adjacency Matrix */
+	/** 返回图的邻接矩阵 */
 	public int[][] getAdjacencyMatrix();
 	
-	/** Print the adjacency Matrix */
+	/** 打印图的邻接矩阵 */
 	public void printAdjacencyMatrix();
 	
-	/** Print the edges */
+	/** 打印图的边 */
 	public void printEdges();
 	
-	/** Get connected parts of the graph */
+	/** 得到图的连通部分 */
 	public List<List<Integer>> getConnectedBranches();
 	
-	/** Obtain a depth-first search tree */
+	/** 获取图的深度优先查找树 */
  	public AbstractGraph<V>.Tree dfs(int v);
  	
- 	/** Obtain a broad-first search tree */
+ 	/** 获取图的广度优先遍历树 */
  	public AbstractGraph<V>.Tree bfs(int v);
 }
