@@ -190,7 +190,7 @@ public class Table implements Serializable {
 	/**
 	 * 从表中移除属性
 	 * 
-	 * @param i
+	 * @param j
 	 *            声明的下标
 	 * @return 被移除的属性
 	 */

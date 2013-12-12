@@ -636,7 +636,7 @@ public class Matrix implements Serializable{
 	 */
 	public Matrix minus(Matrix x, boolean reserve){
 		if (x.rows != rows || x.cols != cols)
-			throw new IllegalArgumentException("Matrix subtract, size not match.");
+			throw new IllegalArgumentException("Matrix minus, size not match.");
 		Matrix y = reserve ? new Matrix(rows, cols): this;
 		for (int i = 0; i < rows; i++)
 			for (int j = 0; j < cols; j++)
@@ -648,7 +648,7 @@ public class Matrix implements Serializable{
 	 * 矩阵减法 (z=x-y, y 为标量)
 	 * <br><b><i>NOTICE:</i></b> 方法将用结果替换原始矩阵。如果想保留原始矩阵，使用如下代码：
 	 * <pre><code>
-	 * Matrix z=x.subtract(y);
+	 * Matrix z=x.minus(y);
 	 * </code>
 	 * </pre>
 	 * @param x 
@@ -667,8 +667,7 @@ public class Matrix implements Serializable{
 	 * 矩阵减法 (z=x-y, x is a scale)
 	 * @param x
 	 * @param reserve 指示是否保留原始矩阵， 如果参数 <code>reserve==true</code>，方法将保留原始矩阵。
-	 * 否则，方法同:
-	 * @see #minus(Number)
+	 * 否则，方法同:{@link #minus(Number)}
 	 * @return 结果
 	 * @see #minus(Matrix)
 	 * @see #minus(Matrix, boolean)
@@ -709,8 +708,7 @@ public class Matrix implements Serializable{
 	 * 矩阵数乘
 	 * @param x
 	 * @param reserve 指示是否保留原始矩阵， 如果参数 <code>reserve==true</code>，方法将保留原始矩阵。
-	 * 否则，方法同:
-	 * @see #multiply(Number)
+	 * 否则，方法同:{@link #multiply(Number)}
 	 * @return 结果
 	 * @see #multiply(Matrix)
 	 * @see #multiply(Number)
@@ -764,6 +762,8 @@ public class Matrix implements Serializable{
 	public void divide(int i, int j, Number x){
 		if (i < 0 || i >= rows || j < 0 || j >= cols)
 			throw new IndexOutOfBoundsException("Matrix at, index out of range.");
+		if (x.doubleValue() == 0.)
+			throw new ArithmeticException("Matrix divide, divisor is 0.");
 		set(i, j, at(i, j)/x.doubleValue());
 	}
 	
