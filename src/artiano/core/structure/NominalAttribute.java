@@ -76,7 +76,7 @@ public class NominalAttribute extends Attribute {
 	 * @param nominal
 	 * @return
 	 */
-	public int getNominalCount(Object nominal) {
+	public int countOfNominal(Object nominal) {
 		int count = 0;
 		for (int i = 0; i < vector.size(); i++) {
 			if (nominal.equals(get(i)))
@@ -106,7 +106,7 @@ public class NominalAttribute extends Attribute {
 	 *            符号取值与数值取值之间的映射关系
 	 * @return
 	 */
-	public NumericAttribute toNumeric(Map<String, Double> nominalToNumericMap) {
+	public NumericAttribute toNumeric(Map<Object, Double> nominalToNumericMap) {
 		// check valid
 		if (nominalToNumericMap.size() < this.nominals.size())
 			throw new IllegalArgumentException("map not completed.");

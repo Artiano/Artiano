@@ -200,7 +200,7 @@ public class CSVLoader {
 			System.out.println("read: ");
 			table.print();
 			System.out.println("delete with missing: ");
-			table.deleteWithMissing();
+			table.deleteMissing();
 			table.print();
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -21,10 +21,6 @@ public abstract class Attribute implements Serializable {
 	
 	/** 属性缺失取值 */
 	public static final double MISSING_VALUE = Double.NaN;
-	/** 符号属性缺失取值 */
-	public static final String NOMINAL_MISSING_VALUE = "?";
-	/** 数值属性缺失取值 */
-	public static final double NUMERIC_MISSING_VALUE = Double.NaN;
 	/** 属性类型 */
 	protected String type = "";
 	/** 属性名称 */

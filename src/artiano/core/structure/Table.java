@@ -30,11 +30,15 @@ public class Table implements Serializable {
 	private IncrementIndex index = new IncrementIndex();
 
 	/**
-	 * 构造一个表
+	 * 构造一个空表
 	 */
 	public Table() {
 	}
 
+	/**
+	 * 使用指定名称构造一个表
+	 * @param name 指定名称
+	 */
 	public Table(String name){
 		this.name = name;
 	}
@@ -87,11 +91,11 @@ public class Table implements Serializable {
 			index.push(i);
 	}
 	/**
-	 * 判断两个表是否是同型（即两个表的数据类型相同）的
-	 * @param t 待判定的表
-	 * @return
+	 * 判断与指定表{@code t}是否兼容。所谓兼容，指的是两个表的属性向量的类型依次是否相同
+	 * @param t 指定表
+	 * @return 如果兼容则返回{@code true}
 	 */
-	public boolean sameType(Table t){
+	public boolean comptible(Table t){
 		if (columns() != t.columns())
 			return false;
 		for (int i=0; i<columns(); i++)
@@ -119,7 +123,7 @@ public class Table implements Serializable {
 	 * 
 	 * @return
 	 */
-	public IncrementIndex getIndex() {
+	public IncrementIndex indices() {
 		return this.index;
 	}
 
@@ -210,11 +214,37 @@ public class Table implements Serializable {
 	 * 
 	 * @param i
 	 *            声明的下标
+	 * @return 指定属性
 	 */
 	public Attribute attribute(int i) {
 		return attributes.get(i);
 	}
 
+	/**
+	 * 依据属性名称获取表属性<br>
+	 * <b><i>NOTICE:</b></i><br>
+	 * <ul><li>如果表中存在多个名称为"name"的属性，则返回第一个名称为"name"的属性</li>
+	 * <li>如果表中不存在名称为"name"的属性，则返回{@code null}</li></ul>
+	 * @param name 属性名称
+	 * @return 指定属性
+	 */
+	public Attribute attribute(String name) {
+		for (Iterator<Attribute> it=attributes(); it.hasNext();) {
+			Attribute att = it.next();
+			if (att.getName().equals(name))
+				return att;
+		}
+		return null;
+	}
+	
+	/**
+	 * 创建表中属性的迭代器
+	 * @return
+	 */
+	public Iterator<Attribute> attributes() {
+		return attributes.iterator();
+	}
+	
 	/**
 	 * 创建一个行
 	 * 
@@ -232,7 +262,7 @@ public class Table implements Serializable {
 	 *            待附加的表
 	 */
 	public void append(Table table) {
-		if (!sameType(table))
+		if (!comptible(table))
 			throw new IllegalArgumentException("Table append, attribute type not compatiable.");
 		for (int i = 0; i < table.columns(); i++)
 			attributes.get(i).getVector()
@@ -383,9 +413,39 @@ public class Table implements Serializable {
 		return t;
 	}
 	/**
+	 * 表中是否有缺失值
+	 * @return 如果有缺失值则返回{@code true}
+	 */
+	public boolean hasMissing() {
+		for (int i=0; i<rows(); i++)
+			if (row(i).hasMissing())
+				return true;
+		return false;
+	}
+	/**
+	 * 禁用有缺失值的行<p>
+	 * <b><i>NOTICE:</b></i>与方法{@link #deleteMissing()}不同，此方法禁用有缺失值的行，
+	 * 而不是删除。因此，在新形成的表中，表的索引将不再引用缺失值的行。</p>
+	 * @return 禁用缺失值后的表
+	 */
+	public Table disableMissing(){
+		Table t = new Table();
+		t.attributes = this.attributes;
+		t.name = this.name;
+		//new index
+		t.index = new IncrementIndex(this.index.size());
+		for (int i=0; i<rows(); i++){
+			if (!row(i).hasMissing())
+				t.index.push(this.index.at(i));
+		}
+		t.rows = t.index.size();
+		return t;
+	}
+	
+	/**
 	 * 删除表中缺失的数据，并重置表
 	 */
-	public void deleteWithMissing(){
+	public void deleteMissing(){
 		for (int i=0; i<rows(); i++){
 			TableRow row = row(i);
 			if (row.hasMissing()){
@@ -609,20 +669,20 @@ public class Table implements Serializable {
 		}
 		System.out.println("random generated attributes--------------");
 		System.out.println("indices:");
-		table.getIndex().print();
+		table.indices().print();
 		System.out.println("elements:");
 		table.print();
 		// resample (10%)
 		Table[] t = table.resample(0.1);
 		System.out.println("after resampled (10%)--------------------");
 		System.out.println("indices (sorted):");
-		t[0].getIndex().sort();
-		t[0].getIndex().print();
+		t[0].indices().sort();
+		t[0].indices().print();
 		System.out.println("elements:");
 		t[0].print();
 		System.out.println("remainded-----------------------");
 		System.out.println("indices:");
-		t[1].getIndex().print();
+		t[1].indices().print();
 		System.out.println("rows=" + table.rows());
 		t[1].print();
 		// split
@@ -644,8 +704,14 @@ public class Table implements Serializable {
 		table.push(Attribute.MISSING_VALUE, Attribute.MISSING_VALUE);
 		System.out.println("after push ?--------------");
 		table.print();
+		System.out.println("after disable missing------------");
+		Table t3 = table.disableMissing();
+		t3.print();
+		System.out.println("after delete missing-------------");
+		table.deleteMissing();
+		table.print();
 	}
-
+	
 }
 
 
