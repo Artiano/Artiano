@@ -4,6 +4,7 @@
 package artiano.core.structure;
 
 import java.io.Serializable;
+import java.util.Iterator;
 
 /**
  * <p>基础数据结构，自增长类型向量，用来存放所有表示属性的值。</p>
@@ -13,7 +14,7 @@ import java.io.Serializable;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class IncrementVector implements Serializable {
+public class IncrementVector implements Serializable, Iterable<Object> {
 	private static final long serialVersionUID = -4168269174447845594L;
 	
 	/** 属性向量中值的个数  */
@@ -24,6 +25,46 @@ public class IncrementVector implements Serializable {
 	protected Object[] data = null;
 	/** 默认容量 */
 	public static final int DEFAULT_CAPACITY = 50;
+	
+	public class VectorIterator implements Iterator<Object> {
+		/** 计数器 */
+		private int counter = 0;
+		/** 需迭代的向量 */
+		private IncrementVector v = null;
+		
+		/**
+		 * 构造一个向量迭代器
+		 * @param v 需迭代的向量
+		 */
+		public VectorIterator(IncrementVector v) {
+			this.v = v;
+		}
+		
+		/* (non-Javadoc)
+		 * @see java.util.Iterator#hasNext()
+		 */
+		@Override
+		public boolean hasNext() {
+			return (counter < v.size());
+		}
+
+		/* (non-Javadoc)
+		 * @see java.util.Iterator#next()
+		 */
+		@Override
+		public Object next() {
+			return v.at(counter++);
+		}
+
+		/* (non-Javadoc)
+		 * @see java.util.Iterator#remove()
+		 */
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+		
+	}
 	
 	/**
 	 * 构造一个属性值向量，此时向量的容量为1
@@ -204,6 +245,23 @@ public class IncrementVector implements Serializable {
 		return -1;
 	}
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Iterable#iterator()
+	 */
+	@Override
+	public Iterator<Object> iterator() {
+		return new VectorIterator(this);
+	}
+	
+	/**
+	 * 修剪向量以使得向量容量等于向量长度
+	 */
+	public void trim() {
+		Object[] objects = new Object[size()];
+		System.arraycopy(data, 0, objects, 0, size());
+		this.data = objects;
+	}
+	
 	/**
 	 * 辅助方法，输出属性值向量中的所有元素到控制台
 	 */
@@ -255,6 +313,7 @@ public class IncrementVector implements Serializable {
 		System.out.println("after remove:");
 		vector3.print();
 	}
+	
 }
 
 

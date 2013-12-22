@@ -17,7 +17,7 @@ import java.util.*;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class Table implements Serializable {
+public class Table implements Serializable, Iterable<Table.TableRow> {
 	private static final long serialVersionUID = -375665745092267557L;
 
 	/** 表名 */
@@ -28,6 +28,150 @@ public class Table implements Serializable {
 	private int rows = 0;
 	/** 行索引，用于快速访问以及重采样共享数据 */
 	private IncrementIndex index = new IncrementIndex();
+	/** 类属性在表中的下标 */
+	private Attribute classAttribute = null;
+
+	/**
+	 * <p>
+	 * 表的一行，作为临时对象使用
+	 * </p>
+	 * 
+	 * @author Nano.Michael
+	 * @version 1.0.0
+	 * @date 2013-10-30
+	 * @author (latest modification by Nano.Michael)
+	 * @since 1.0.0
+	 */
+	public class TableRow {
+		/** 表的一行 */
+		Object[] row = new Object[columns()];
+
+		/** 只能在Table中构造行 */
+		public TableRow() {
+		}
+
+		/**
+		 * 获取行的大小
+		 * 
+		 * @return
+		 */
+		public int size() {
+			return columns();
+		}
+
+		/**
+		 * 得到当前行的类属性值
+		 * 
+		 * @return 当前行的类属性值
+		 */
+		public Object classValue() {
+			if (!hasClass())
+				throw new UnsupportedOperationException("class not set!");
+			return at(classIndex());
+		}
+
+		/**
+		 * 获取行在下标i处的值
+		 * 
+		 * @param i
+		 *            声明的下标
+		 * @return 行在下标i处的值
+		 */
+		public Object at(int i) {
+			return row[i];
+		}
+
+		/**
+		 * 行中是否缺失数据
+		 * 
+		 * @return
+		 */
+		public boolean hasMissing() {
+			for (int i = 0; i < columns(); i++)
+				if (at(i).equals(Attribute.MISSING_VALUE))
+					return true;
+			return false;
+		}
+
+		/**
+		 * 设置行在下标i处的值
+		 * 
+		 * @param i
+		 *            声明的下标
+		 * @param value
+		 *            待设置的值
+		 */
+		public void set(int i, Object value) {
+			row[i] = value;
+		}
+
+		/**
+		 * 设置一行的值
+		 * 
+		 * @param objects
+		 *            待设置的值
+		 */
+		public void set(Object... objects) {
+			for (int i = 0; i < columns(); i++)
+				row[i] = objects[i];
+		}
+
+		/**
+		 * 辅助方法，将行打印到控制台
+		 */
+		public void print() {
+			for (int i = 0; i < columns(); i++)
+				System.out.print(at(i) + " ");
+			System.out.println();
+		}
+	}
+
+	public class TableIterator implements Iterator<TableRow> {
+		/** 计数器 */
+		private int counter = 0;
+		/** 待迭代的表 */
+		private Table t = null;
+
+		/**
+		 * 构造一个表迭代器
+		 * 
+		 * @param table
+		 *            待迭代的表
+		 */
+		public TableIterator(Table table) {
+			t = table;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.Iterator#hasNext()
+		 */
+		@Override
+		public boolean hasNext() {
+			return counter < t.rows();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.Iterator#next()
+		 */
+		@Override
+		public TableRow next() {
+			return t.row(counter++);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.Iterator#remove()
+		 */
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
 
 	/**
 	 * 构造一个空表
@@ -37,12 +181,14 @@ public class Table implements Serializable {
 
 	/**
 	 * 使用指定名称构造一个表
-	 * @param name 指定名称
+	 * 
+	 * @param name
+	 *            指定名称
 	 */
-	public Table(String name){
+	public Table(String name) {
 		this.name = name;
 	}
-	
+
 	/**
 	 * 使用声明的属性列表构造一个表
 	 * 
@@ -90,34 +236,41 @@ public class Table implements Serializable {
 		for (int i = 0; i < rows; i++)
 			index.push(i);
 	}
+
 	/**
 	 * 判断与指定表{@code t}是否兼容。所谓兼容，指的是两个表的属性向量的类型依次是否相同
-	 * @param t 指定表
+	 * 
+	 * @param t
+	 *            指定表
 	 * @return 如果兼容则返回{@code true}
 	 */
-	public boolean comptible(Table t){
+	public boolean compatible(Table t) {
 		if (columns() != t.columns())
 			return false;
-		for (int i=0; i<columns(); i++)
+		for (int i = 0; i < columns(); i++)
 			if (!t.attribute(i).getClass().equals(attribute(i).getClass()))
 				return false;
 		return true;
 	}
+
 	/**
 	 * 设置表名
+	 * 
 	 * @param name
 	 */
-	public void setName(String name){
+	public void setName(String name) {
 		this.name = name;
 	}
+
 	/**
 	 * 获取表名
+	 * 
 	 * @return
 	 */
-	public String getName(){
+	public String getName() {
 		return this.name;
 	}
-	
+
 	/**
 	 * 获取索引
 	 * 
@@ -143,6 +296,15 @@ public class Table implements Serializable {
 	 */
 	public int columns() {
 		return attributes.size();
+	}
+
+	/**
+	 * 判断表是否为空
+	 * 
+	 * @return 若为空返回{@code true}
+	 */
+	public boolean isEmpty() {
+		return rows == 0;
 	}
 
 	/**
@@ -204,9 +366,26 @@ public class Table implements Serializable {
 		for (int i = 0; i < columns(); i++)
 			if (minSize > this.attributes.get(i).getVector().size())
 				minSize = this.attributes.get(i).getVector().size();
-		//update rows & index
+		// update rows & index
 		rows = minSize;
 		return att;
+	}
+
+	/**
+	 * 移除属性名称为{@code name}的属性
+	 * 
+	 * @param name
+	 *            指定属性名称
+	 * @return 被移除的属性
+	 */
+	public Attribute removeAttribute(String name) {
+		for (Attribute att : attributes) {
+			if (att.getName().equals(name)) {
+				attributes.remove(att);
+				return att;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -223,28 +402,150 @@ public class Table implements Serializable {
 	/**
 	 * 依据属性名称获取表属性<br>
 	 * <b><i>NOTICE:</b></i><br>
-	 * <ul><li>如果表中存在多个名称为"name"的属性，则返回第一个名称为"name"的属性</li>
-	 * <li>如果表中不存在名称为"name"的属性，则返回{@code null}</li></ul>
-	 * @param name 属性名称
+	 * <ul>
+	 * <li>如果表中存在多个名称为"name"的属性，则返回第一个名称为"name"的属性</li>
+	 * <li>如果表中不存在名称为"name"的属性，则返回{@code null}</li>
+	 * </ul>
+	 * 
+	 * @param name
+	 *            属性名称
 	 * @return 指定属性
 	 */
 	public Attribute attribute(String name) {
-		for (Iterator<Attribute> it=attributes(); it.hasNext();) {
+		for (Iterator<Attribute> it = attributes(); it.hasNext();) {
 			Attribute att = it.next();
 			if (att.getName().equals(name))
 				return att;
 		}
 		return null;
 	}
-	
+
+	/**
+	 * 得到属性{@code att}在表中的下标<br>
+	 * <b><i>NOTICE:</b></i>
+	 * <ul>
+	 * <li>若表中存在指定属性，则返回此属性在表中的下标</li>
+	 * <li>若表中不存在指定属性，则返回{@code -1}</li>
+	 * </ul>
+	 * 
+	 * @param att
+	 *            指定属性
+	 * @return 属性在表中的下标
+	 */
+	public int indexOf(Attribute att) {
+		return attributes.indexOf(att);
+	}
+
+	/**
+	 * 得到名称为{@code name}的属性在表中的下标<br>
+	 * <b><i>NOTICE:</b></i>
+	 * <ul>
+	 * <li>若表中存在指定属性，则返回此属性在表中的下标</li>
+	 * <li>若表中不存在指定属性，则返回{@code -1}</li>
+	 * </ul>
+	 * 
+	 * @param name
+	 *            指定属性名称
+	 * @return 指定属性在表中的下标
+	 */
+	public int indexOf(String name) {
+		for (int i = 0; i < attributes.size(); i++)
+			if (attributes.get(i).getName().equals(name))
+				return i;
+		return -1;
+	}
+
+	/**
+	 * 判断表是否设置了类属性<br>
+	 * 下列两种情况之一出现都将被视为没有设置：
+	 * <ul>
+	 * <li>类属性{@code classAttribute}为{@code null}</li>
+	 * <li>类属性虽不为{@code null}，但在表的属性列表中不存在{@code classAttribute}的
+	 * 属性（有可能在设置了类属性之后执行了移除{@link #removeAttribute(int)}的操作）</li>
+	 * </ul>
+	 * 
+	 * @return 若没有设置返回{@code false}
+	 */
+	public boolean hasClass() {
+		return attributes.contains(classAttribute);
+	}
+
+	/**
+	 * 判断指定属性{@code att}是否是类属性<br>
+	 * 当且仅当属性<code>att==classAttribute</code>为{@code true}时（而非
+	 * <code>att.equals(classAttribute)</code>为{@code true}）， 才判定属性{@code att}
+	 * 为类属性
+	 * 
+	 * @param att
+	 *            指定属性
+	 * @return 若相等则返回{@code true}
+	 */
+	public boolean isClassAttribute(Attribute att) {
+		return att == classAttribute;
+	}
+
+	/**
+	 * 获取类属性下标<br>
+	 * <b><i>NOTICE:</b></i> 如果没有设置，将返回-1
+	 * 
+	 * @return 类属性的下标
+	 */
+	public int classIndex() {
+		if (!hasClass())
+			throw new UnsupportedOperationException("class attribute not set!");
+		return attributes.indexOf(classAttribute);
+	}
+
+	/**
+	 * 根据属性在表中的下标设置类属性
+	 * 
+	 * @param idx
+	 *            指定下标
+	 * @see #setClassAttribute(String)
+	 */
+	public void setClassAttribute(int idx) {
+		if (idx < 0 || idx >= columns())
+			throw new IllegalArgumentException("index out of range.");
+		this.classAttribute = attribute(idx);
+	}
+
+	/**
+	 * 根据属性名称设置类属性<br>
+	 * <b><i>NOTICE:</b></i> 此方法不保证能设置成功，也就是说，如果表中不存在名称为 {@code name}
+	 * 的属性，那么方法将不做任何处理返回，类属性依旧保持上一次的设置
+	 * 
+	 * @param name
+	 *            指定属性的名称
+	 * @see #setClassAttribute(int)
+	 */
+	public void setClassAttribute(String name) {
+		for (Attribute att : attributes) {
+			if (att.getName().equals(name))
+				classAttribute = att;
+		}
+	}
+
+	/**
+	 * 得到类属性<br>
+	 * <b><i>NOTICE:</b></i> 如果没有设置类属性，将返回{@code null}
+	 * 
+	 * @return 返回指定的类属性
+	 */
+	public Attribute classAttribute() {
+		if (!hasClass())
+			return null;
+		return classAttribute;
+	}
+
 	/**
 	 * 创建表中属性的迭代器
+	 * 
 	 * @return
 	 */
 	public Iterator<Attribute> attributes() {
 		return attributes.iterator();
 	}
-	
+
 	/**
 	 * 创建一个行
 	 * 
@@ -262,8 +563,9 @@ public class Table implements Serializable {
 	 *            待附加的表
 	 */
 	public void append(Table table) {
-		if (!comptible(table))
-			throw new IllegalArgumentException("Table append, attribute type not compatiable.");
+		if (!compatible(table))
+			throw new IllegalArgumentException(
+					"Table append, attribute type not compatiable.");
 		for (int i = 0; i < table.columns(); i++)
 			attributes.get(i).getVector()
 					.append(table.attributes.get(i).getVector());
@@ -309,6 +611,16 @@ public class Table implements Serializable {
 	 */
 	public Object at(int i, int j) {
 		return attributes.get(j).getVector().at(index.at(i));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Iterable#iterator()
+	 */
+	@Override
+	public Iterator<TableRow> iterator() {
+		return new TableIterator(this);
 	}
 
 	/**
@@ -357,6 +669,7 @@ public class Table implements Serializable {
 		}
 		return tables;
 	}
+
 	/**
 	 * 随机（均匀分布）重采样表数据 <br>
 	 * <b><i>NOTICE:</i></b> 重采样后形成的表和原来的表共享属性向量的数据，也就是说， 重采样后的表并不会开辟新的存储空间。
@@ -412,44 +725,50 @@ public class Table implements Serializable {
 		}
 		return t;
 	}
+
 	/**
 	 * 表中是否有缺失值
+	 * 
 	 * @return 如果有缺失值则返回{@code true}
 	 */
 	public boolean hasMissing() {
-		for (int i=0; i<rows(); i++)
+		for (int i = 0; i < rows(); i++)
 			if (row(i).hasMissing())
 				return true;
 		return false;
 	}
+
 	/**
-	 * 禁用有缺失值的行<p>
+	 * 禁用有缺失值的行
+	 * <p>
 	 * <b><i>NOTICE:</b></i>与方法{@link #deleteMissing()}不同，此方法禁用有缺失值的行，
-	 * 而不是删除。因此，在新形成的表中，表的索引将不再引用缺失值的行。</p>
+	 * 而不是删除。因此，在新形成的表中，表的索引将不再引用缺失值的行。
+	 * </p>
+	 * 
 	 * @return 禁用缺失值后的表
 	 */
-	public Table disableMissing(){
+	public Table disableMissing() {
 		Table t = new Table();
 		t.attributes = this.attributes;
 		t.name = this.name;
-		//new index
+		// new index
 		t.index = new IncrementIndex(this.index.size());
-		for (int i=0; i<rows(); i++){
+		for (int i = 0; i < rows(); i++) {
 			if (!row(i).hasMissing())
 				t.index.push(this.index.at(i));
 		}
 		t.rows = t.index.size();
 		return t;
 	}
-	
+
 	/**
 	 * 删除表中缺失的数据，并重置表
 	 */
-	public void deleteMissing(){
-		for (int i=0; i<rows(); i++){
+	public void deleteMissing() {
+		for (int i = 0; i < rows(); i++) {
 			TableRow row = row(i);
-			if (row.hasMissing()){
-				for (int j=0; j<columns(); j++)
+			if (row.hasMissing()) {
+				for (int j = 0; j < columns(); j++)
 					attribute(j).getVector().remove(i);
 				i--;
 				rows--;
@@ -457,17 +776,20 @@ public class Table implements Serializable {
 			}
 		}
 	}
+
 	/**
 	 * 获取非缺失行数
+	 * 
 	 * @return
 	 */
-	public int noneMissingRows(){
+	public int noneMissingRows() {
 		int count = Integer.MAX_VALUE;
-		for (int i=0; i<columns(); i++)
+		for (int i = 0; i < columns(); i++)
 			if (count > attribute(i).countNoneMissing())
 				count = attribute(i).countNoneMissing();
 		return count;
 	}
+
 	/**
 	 * 将表转换为矩阵
 	 * 
@@ -487,14 +809,16 @@ public class Table implements Serializable {
 				matrix.set(i, j, (double) at(i, j));
 		return matrix;
 	}
+
 	/**
 	 * 将表转换为二维数组
+	 * 
 	 * @return
 	 */
-	public Object[][] to2DArray(){
+	public Object[][] to2DArray() {
 		Object[][] objects = new Object[rows][columns()];
-		for (int i=0; i<rows; i++){
-			for (int j=0; j<columns(); j++){
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < columns(); j++) {
 				objects[i][j] = attributes.get(j).get(i);
 				if (objects[i][j].equals(Attribute.MISSING_VALUE))
 					objects[i][j] = "?";
@@ -502,6 +826,7 @@ public class Table implements Serializable {
 		}
 		return objects;
 	}
+
 	/**
 	 * 获取表在下标i处的行
 	 * 
@@ -521,7 +846,7 @@ public class Table implements Serializable {
 	 */
 	public void print() {
 		// print header
-		System.out.println("Name: "+getName());
+		System.out.println("Name: " + getName());
 		System.out.print("No.\t\t");
 		for (int i = 0; i < columns(); i++)
 			System.out.print(attributes.get(i).getType() + "\t\t");
@@ -532,94 +857,14 @@ public class Table implements Serializable {
 		System.out.println();
 		int r = 1;
 		for (int i = 0; i < rows; i++) {
-			System.out.print((r++)+"\t\t");
-			for (int j = 0; j < columns(); j++){
-				if (at(i, j).equals(Attribute.MISSING_VALUE)){
-					System.out.print("?"+"\t\t");
+			System.out.print((r++) + "\t\t");
+			for (int j = 0; j < columns(); j++) {
+				if (at(i, j).equals(Attribute.MISSING_VALUE)) {
+					System.out.print("?" + "\t\t");
 					continue;
 				}
 				System.out.print(at(i, j) + "\t\t");
 			}
-			System.out.println();
-		}
-	}
-
-	/**
-	 * <p>
-	 * 表的一行，作为临时对象使用
-	 * </p>
-	 * 
-	 * @author Nano.Michael
-	 * @version 1.0.0
-	 * @date 2013-10-30
-	 * @author (latest modification by Nano.Michael)
-	 * @since 1.0.0
-	 */
-	public class TableRow {
-		/** 表的一行 */
-		Object[] row = new Object[columns()];
-
-		/** 只能在Table中构造行 */
-		public TableRow() {
-		}
-
-		/**
-		 * 获取行的大小
-		 * 
-		 * @return
-		 */
-		public int size() {
-			return columns();
-		}
-
-		/**
-		 * 获取行在下标i处的值
-		 * 
-		 * @param i
-		 *            声明的下标
-		 * @return 行在下标i处的值
-		 */
-		public Object at(int i) {
-			return row[i];
-		}
-		/**
-		 * 行中是否缺失数据
-		 * @return
-		 */
-		public boolean hasMissing(){
-			for (int i=0; i<columns(); i++)
-				if (at(i).equals(Attribute.MISSING_VALUE)) return true;
-			return false;
-		}
-		/**
-		 * 设置行在下标i处的值
-		 * 
-		 * @param i
-		 *            声明的下标
-		 * @param value
-		 *            待设置的值
-		 */
-		public void set(int i, Object value) {
-			row[i] = value;
-		}
-
-		/**
-		 * 设置一行的值
-		 * 
-		 * @param objects
-		 *            待设置的值
-		 */
-		public void set(Object... objects) {
-			for (int i = 0; i < columns(); i++)
-				row[i] = objects[i];
-		}
-
-		/**
-		 * 辅助方法，将行打印到控制台
-		 */
-		public void print() {
-			for (int i = 0; i < columns(); i++)
-				System.out.print(at(i) + " ");
 			System.out.println();
 		}
 	}
@@ -664,7 +909,7 @@ public class Table implements Serializable {
 		// resample
 		table.addAttribute(attribute);
 		Random r = new Random();
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 10; i++) {
 			table.push(r.nextInt(200), r.nextInt(400));
 		}
 		System.out.println("random generated attributes--------------");
@@ -693,14 +938,14 @@ public class Table implements Serializable {
 		Matrix x = table.toMatrix();
 		System.out.println("to matrix:");
 		x.print();
-		//add
+		// add
 		Attribute[] att = new Attribute[2];
 		att[0] = table.removeAttribute(0);
 		att[1] = table.removeAttribute(0);
 		table.addAttributes(att);
 		System.out.println("remove & add: ");
 		table.print();
-		//push missing
+		// push missing
 		table.push(Attribute.MISSING_VALUE, Attribute.MISSING_VALUE);
 		System.out.println("after push ?--------------");
 		table.print();
@@ -710,14 +955,21 @@ public class Table implements Serializable {
 		System.out.println("after delete missing-------------");
 		table.deleteMissing();
 		table.print();
+
+		// set class
+		System.out.println("test class---------------------");
+		System.out
+				.println("class is set (should be false):" + table.hasClass());
+		table.setClassAttribute("Length");
+		System.out.println("class is set (should be true):" + table.hasClass());
+		System.out.println("class attribute name (should be 'Length'):"
+				+ table.classAttribute().getName());
+		System.out.println("class attribute index (should be '1'):"
+				+ table.classIndex());
+		System.out.println("remove attribute 'Length'----------");
+		table.removeAttribute("Length");
+		System.out
+				.println("class is set (should be false):" + table.hasClass());
 	}
-	
+
 }
-
-
-
-
-
-
-
-

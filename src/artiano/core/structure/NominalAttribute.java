@@ -62,14 +62,41 @@ public class NominalAttribute extends Attribute {
 	}
 
 	/**
-	 * 获取属性中的符号取值
+	 * 获取属性中的符号取值的迭代器
 	 * 
 	 * @return
 	 */
-	public List<Object> getNominals() {
-		return this.nominals;
+	public Iterator<Object> nominalsIterator() {
+		refreshNominals();
+		return this.nominals.iterator();
+	}
+	
+	/**
+	 * 获取属性向量中符号取值的数组
+	 * @return
+	 */
+	public Object[] nominalsArray() {
+		refreshNominals();
+		return this.nominals.toArray();
 	}
 
+	/**
+	 * 获取向量中符号取值的列表
+	 * @return
+	 */
+	public List<Object> nominals() {
+		refreshNominals();
+		return new ArrayList<Object>(nominals);
+	}
+	
+	/**
+	 * 根据向量中的元素刷新符号取值（可选操作）
+	 */
+	public void refreshNominals() {
+		for (int i=0; i<vector.size(); i++) 
+			addNominal(vector.at(i));
+	}
+	
 	/**
 	 * 获取符号取值为nominal的个数
 	 * 
@@ -181,18 +208,18 @@ public class NominalAttribute extends Attribute {
 		att.addNominal("tuesday");
 
 		// get value range
-		List<Object> value = att.getNominals();
+		Iterator<?> value = att.nominalsIterator();
 		System.out.println("value range:");
-		for (int i = 0; i < value.size(); i++)
-			System.out.print(value.get(i) + " ");
+		while (value.hasNext())
+			System.out.println(value.next() + " ");
 		System.out.println();
 
 		// random generate
 		Random r = new Random();
-		List<Object> strings = att.getNominals();
+		Object[] strings = att.nominalsArray();
 		for (int i = 0; i < 10; i++) {
 			int idx = r.nextInt(3);
-			att.getVector().push(strings.get(idx));
+			att.getVector().push(strings[idx]);
 		}
 		System.out.println("random generated:");
 		att.getVector().print();

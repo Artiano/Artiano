@@ -195,7 +195,7 @@ public abstract class Attribute implements Serializable {
 	 * 
 	 * @return
 	 */
-	public boolean isValueCompatible() {
+	public boolean valueCompatible() {
 		if (size() == 0)
 			return true;
 		Class<?> t = get(0).getClass();

@@ -51,9 +51,9 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 	private NominalAttribute deepCloneTrainLabel(NominalAttribute trainLabel) {
 		NominalAttribute copyOfTrainLabel =
 			new NominalAttribute(trainLabel.getName(), trainLabel.getVector().copy());
-		List<Object> nominals = trainLabel.getNominals();
-		for(int i=0; i<nominals.size(); i++) {
-			copyOfTrainLabel.addNominal(nominals.get(i));
+		Object[] nominals = trainLabel.nominalsArray();
+		for(int i=0; i<nominals.length; i++) {
+			copyOfTrainLabel.addNominal(nominals[i]);
 		}
 		return copyOfTrainLabel;
 	}				
@@ -463,7 +463,7 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 				continue;
 			}
 			
-			List<Object> nominals = remainingTrainLabel.getNominals();
+			List<Object> nominals = remainingTrainLabel.nominals();
 			double leftInfoGain = 0;
 			double[] leftEachLabelCount = new double[nominals.size()]; 
 					//new double[remainingLabelValues.size()];
@@ -735,7 +735,7 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 				continue;
 			}
 			
-			List<Object> nominals = remainingTrainLabel.getNominals();
+			List<Object> nominals = remainingTrainLabel.nominals();
 			double leftInfoGain = 0;
 			double[] leftEachLabelCount = new double[nominals.size()]; 
 					//new double[remainingLabelValues.size()];
