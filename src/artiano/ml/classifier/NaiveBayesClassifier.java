@@ -24,30 +24,50 @@ public class NaiveBayesClassifier extends Classifier {
 	private static final long serialVersionUID = -1923319469209965644L;
 	
 	private Matrix trainData;				//训练集
-	private NominalAttribute trainLabel;	//训练集类标号
+	private Attribute classAttribute;	//训练集类标号
 	private Table trainResult;				//训练结果
 	private Map<Object, Integer> eachlabelCount = 
 		new LinkedHashMap<Object, Integer>();	 //对每个类标号计数
 	
 	/** 训练数据
 	 * @param trainSet 训练集
-	 * @param trainLabel 训练集对应的类标号
 	 * @return 训练是否成功，true表示训练成功，false表示训练失败
 	 */
-	public boolean train(Table trainSet, NominalAttribute trainLabel) {		
+	public boolean train(Table trainSet) {		
 		try {
 			// 检查输入的训练数据的有效性
-			isTrainingDataValid(trainSet, trainLabel);
+			isTrainingDataValid(trainSet);
 		} catch (Exception e) {
 			return false; 	// 训练数据不合法，训练失败，退出 
 		}
-		this.trainData = trainSet.toMatrix();
-		this.trainLabel = trainLabel;
+		//this.trainData = trainSet.toMatrix();
+		//获取训练集去掉类标那一列之后的数据
+		this.trainData = generateTrainDataWithoutLabel(trainSet);
+		classAttribute = trainSet.classAttribute();
 
 		// 将训练集按照类标号聚集
 		Map<Object, Matrix> labelMap = groupTraningDataByLabel();	
 		generateTrainingResult(labelMap);  //训练数据，产生训练结果
 		return true;
+	}		
+
+	//获取训练集去掉类标那一列之后的数据
+	private Matrix generateTrainDataWithoutLabel(Table trainSet) {
+		int rows = trainSet.rows();
+		int columns = trainSet.columns();
+		int classAttrIndex = trainSet.classIndex();		//类标属性的下标
+		Matrix data = new Matrix(rows, columns-1);
+		for(int i=0; i<rows; i++) {
+			TableRow singleData = trainSet.row(i);
+			for(int j=0; j<columns; j++) {
+				if(j < classAttrIndex) {
+					data.set(i, j, (Double)singleData.at(j));
+				} else if(j > classAttrIndex) {
+					data.set(i, j-1, (Double)singleData.at(j));
+				}
+			}
+		}
+		return data;
 	}
 	
 	/**
@@ -100,6 +120,7 @@ public class NaiveBayesClassifier extends Classifier {
 	private List<Double> computeEachLabelProbabilityOfData(Matrix sample,
 			List<Object> labelList) {
 		List<Double> probabilityList = new ArrayList<Double>();		
+		System.out.println("label size: " + labelList.size() + ", columns: " + sample.columns());
 		for (int j = 0; j < labelList.size(); j++) {
 			double probabilitiy = 1;
 			for (int k = 0; k < sample.columns(); k++) {				
@@ -169,7 +190,7 @@ public class NaiveBayesClassifier extends Classifier {
 			
 			Matrix reverse = dataWithSameLabel.t();  // 获取矩阵的转置
 			//计算训练集数据的平均值，标准差,以及对应类标号，用于后面数据类标号预测
-			for (int i = 0; i < reverse.rows(); i++) {
+			for (int i = 0; i < reverse.rows(); i++) {				
 				TableRow tableRow = trainResult.new TableRow(); 
 				double aver = computeAverage(reverse.at(new Range(i, i + 1),
 						new Range(0, reverse.columns())));
@@ -191,7 +212,7 @@ public class NaiveBayesClassifier extends Classifier {
 	private Map<Object, Matrix> groupTraningDataByLabel() {
 		Map<Object, Matrix> labelMap = new HashMap<Object, Matrix>();
 		for (int i = 0; i < trainData.rows(); i++) {
-			Object label = trainLabel.get(i);    // 获取该条数据的类标号
+			Object label = classAttribute.get(i);  // 获取该条数据的类标号
 			if(!labelMap.containsKey(label)) {
 				labelMap.put(label, trainData.row(i));
 			} else {
@@ -204,18 +225,18 @@ public class NaiveBayesClassifier extends Classifier {
 	}
 
 	/**
-	 * Check the validation of training data inputed.
+	 * 检查输入的训练集的合法性
 	 * 
 	 * @throws IllegalArgumentException
-	 *      trainData or trainLabel is null,  data in parameter trainingLabel 
-	 *      does not match with data in parameter trainingData
+	 *      trainData is null, or class Attribute is not appointed 
+	 *      in trainData
 	 */
-	private void isTrainingDataValid(Table trainData, NominalAttribute trainLabel) {
+	private void isTrainingDataValid(Table trainData) {
 		// 检查训练集和对应的类标号是否为空
 		if (trainData == null) {
 			throw new IllegalArgumentException("训练集为空!");
 		}
-		if(trainLabel == null) {
+		if(trainData.classAttribute() == null) {
 			throw new IllegalArgumentException("训练集对应的类标号为空!");			
 		}
 
@@ -230,11 +251,6 @@ public class NaiveBayesClassifier extends Classifier {
 					throw new IllegalArgumentException("训练集只能为数值型!");
 				}
 			}
-		}
-		
-		//检查训练集的数目是否与对应的类标号的数目相同
-		if(trainData.rows() != trainLabel.size()) {
-			throw new IllegalArgumentException("训练集的大小与类标号集合的大小不一致!");
 		}
 	}
 

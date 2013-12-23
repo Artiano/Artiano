@@ -18,36 +18,33 @@ import artiano.ml.classifier.*;
 public class Test {
 	
 	//Training data
-	static double[] trainDataArr_1 = { 					
-		14.1,2.02,2.4,18.8,103,2.75,2.92,.32,2.38,6.2,1.07,2.75,1060,
-		13.94,1.73,2.27,17.4,108,2.88,3.54,.32,2.08,8.90,1.12,3.1,1260,
-		13.05,1.73,2.04,12.4,92,2.72,3.27,.17,2.91,7.2,1.12,2.91,1150,				
-		12.85,3.27,2.58,22,106,1.65,.6,.6,.96,5.58,.87,2.11,570,
-		13.62,4.95,2.35,20,92,2,.8,.47,1.02,4.4,.91,2.05,550,
-		13.56,1.71,2.31,16.2,117,3.15,3.29,.34,2.34,6.13,.95,3.38,795,			
-		14.1,2.02,2.4,18.8,103,2.75,2.92,.32,2.38,6.2,1.07,2.75,1060,
-		13.56,1.73,2.46,20.5,116,2.96,2.78,.2,2.45,6.25,.98,3.03,1120,
-		12.6,1.34,1.9,18.5,88,1.45,1.36,.29,1.35,2.45,1.04,2.77,562,
-		14.83,1.64,2.17,14,97,2.8,2.98,.29,1.98,5.2,1.08,2.85,1045,
-		13.49,1.66,2.24,24,87,1.88,1.84,.27,1.03,3.74,.98,2.78,472,
-		13.86,1.35,2.27,16,98,2.98,3.15,.22,1.85,7.22,1.01,3.55,1045,
-		13.48,1.67,2.64,22.5,89,2.6,1.1,.52,2.29,11.75,.57,1.78,620,			
-		12.64,1.36,2.02,16.8,100,2.02,1.41,.53,.62,5.75,.98,1.59,450,
-		13.67,1.25,1.92,18,94,2.1,1.79,.32,.73,3.8,1.23,2.46,630,
-		12.37,1.13,2.16,19,87,3.5,3.1,.19,1.87,4.45,1.22,2.87,420,
-		12.77,3.43,1.98,16,80,1.63,1.25,.43,.83,3.4,.7,2.12,372,				
-		12.2,3.03,2.32,19,96,1.25,.49,.4,.73,5.5,.66,1.83,510,				
-		13.32,3.24,2.38,21.5,92,1.93,.76,.45,1.25,8.42,.55,1.62,650,
-		13.08,3.9,2.36,21.5,113,1.41,1.39,.34,1.14,9.40,.57,1.33,550,
-		13.5,3.12,2.62,24,123,1.4,1.57,.22,1.25,8.60,.59,1.3,500,
-		12.79,2.67,2.48,22,112,1.48,1.36,.24,1.26,10.8,.48,1.47,480,
-		13.27,4.28,2.26,20,120,1.59,.69,.43,1.35,10.2,.59,1.56,835,
-		12.69,1.53,2.26,20.7,80,1.38,1.46,.58,1.62,3.05,.96,2.06,495,								
-	};
-
-	static double[] trainLabelArr_1 = {
-		1, 1, 1, 3, 3, 1, 1, 1, 2, 1, 2, 1, 3, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 2
-	};
+	static double[] trainDataArr_1 = { 	
+		//1, 1, 1, 3, 3, 1, 1, 1, 2, 1, 2, 1, 3, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 2
+		1,14.1,2.02,2.4,18.8,103,2.75,2.92,.32,2.38,6.2,1.07,2.75,1060,
+		1,13.94,1.73,2.27,17.4,108,2.88,3.54,.32,2.08,8.90,1.12,3.1,1260,
+		1,13.05,1.73,2.04,12.4,92,2.72,3.27,.17,2.91,7.2,1.12,2.91,1150,				
+		3,12.85,3.27,2.58,22,106,1.65,.6,.6,.96,5.58,.87,2.11,570,
+		3,13.62,4.95,2.35,20,92,2,.8,.47,1.02,4.4,.91,2.05,550,
+		1,13.56,1.71,2.31,16.2,117,3.15,3.29,.34,2.34,6.13,.95,3.38,795,			
+		1,14.1,2.02,2.4,18.8,103,2.75,2.92,.32,2.38,6.2,1.07,2.75,1060,
+		1,13.56,1.73,2.46,20.5,116,2.96,2.78,.2,2.45,6.25,.98,3.03,1120,
+		2,12.6,1.34,1.9,18.5,88,1.45,1.36,.29,1.35,2.45,1.04,2.77,562,
+		1,14.83,1.64,2.17,14,97,2.8,2.98,.29,1.98,5.2,1.08,2.85,1045,
+		2,13.49,1.66,2.24,24,87,1.88,1.84,.27,1.03,3.74,.98,2.78,472,
+		1,13.86,1.35,2.27,16,98,2.98,3.15,.22,1.85,7.22,1.01,3.55,1045,
+		2,13.48,1.67,2.64,22.5,89,2.6,1.1,.52,2.29,11.75,.57,1.78,620,			
+		1,12.64,1.36,2.02,16.8,100,2.02,1.41,.53,.62,5.75,.98,1.59,450,
+		3,13.67,1.25,1.92,18,94,2.1,1.79,.32,.73,3.8,1.23,2.46,630,
+		2,12.37,1.13,2.16,19,87,3.5,3.1,.19,1.87,4.45,1.22,2.87,420,
+		2,12.77,3.43,1.98,16,80,1.63,1.25,.43,.83,3.4,.7,2.12,372,				
+		2,12.2,3.03,2.32,19,96,1.25,.49,.4,.73,5.5,.66,1.83,510,				
+		2,13.32,3.24,2.38,21.5,92,1.93,.76,.45,1.25,8.42,.55,1.62,650,
+		3,13.08,3.9,2.36,21.5,113,1.41,1.39,.34,1.14,9.40,.57,1.33,550,
+		3,13.5,3.12,2.62,24,123,1.4,1.57,.22,1.25,8.60,.59,1.3,500,
+		3,12.79,2.67,2.48,22,112,1.48,1.36,.24,1.26,10.8,.48,1.47,480,
+		3,13.27,4.28,2.26,20,120,1.59,.69,.43,1.35,10.2,.59,1.56,835,
+		2,12.69,1.53,2.26,20.7,80,1.38,1.46,.58,1.62,3.05,.96,2.06,495,								
+	};	
 	
 	//Classification test samples
 	static double testArr[] = { 										
@@ -63,33 +60,25 @@ public class Test {
 	}; // 1 2 1 1 2 2 3 3 3		
 	
 	static double[] trainDataArr_2 = {			
-		2, 10,
-		2, 5,
-		8, 4,
-		5, 8,
-		7, 5,
-		6, 4, 
-		1, 2,
-		4, 9
-	};
-	
-	static double[] trainLabelArr_2 = {		
-		1, 3, 2, 1, 2, 2, 3, 1
-	};
+		1, 2, 10,
+		3, 2, 5,
+		2, 8, 4,
+		1, 5, 8,
+		2, 7, 5,
+		2, 6, 4, 
+		3, 1, 2,
+		1, 4, 9
+	};  //第一列为类标号
 	
 	public static void testNaiveBayesClassifier() {		
-		int attrNum = 13;
+		int attrNum = 14;
 		Matrix trainDataMat = 
 			new Matrix(trainDataArr_1.length/attrNum, attrNum, trainDataArr_1);
 		Table trainingData = new Table(trainDataMat);		
-		IncrementVector vector = new IncrementVector(trainLabelArr_1.length);
-		NominalAttribute trainingLabel = new NominalAttribute("label", vector);
-		for(int i=0; i<trainLabelArr_1.length; i++) {
-			trainingLabel.push(trainLabelArr_1[i]);
-		}
+		trainingData.setClassAttribute(0);   //设置类标属性
 		NaiveBayesClassifier classifier = new NaiveBayesClassifier();														
 		//----------------------  Classify -------------------------
-		classifier.train(trainingData, trainingLabel);		
+		classifier.train(trainingData);		
 		
 		//----------------------   Save the training model -------------
 		try {
@@ -110,7 +99,7 @@ public class Test {
 		}
 		
 		//----------------------- Predict -------------------------
-		Matrix samplesMat = new Matrix(testArr.length/attrNum, attrNum, testArr);
+		Matrix samplesMat = new Matrix(testArr.length/(attrNum-1), attrNum-1, testArr);
 		Table samples = new Table(samplesMat);
 		NominalAttribute result = loadedClassifier.predict(samples);   // Predict
 		for(int i=0; i<result.size(); i++) {
@@ -121,14 +110,13 @@ public class Test {
 	 
 	public static void testDTreeClasifier() {										
 		Table dataSet = new Table();
-		NominalAttribute trainLabel = new NominalAttribute("label");
 		//Load training data
 		//File that store the training data
 		String dataFilePath = "src\\artiano\\ml\\classifier\\test\\data.txt";
-		loadTrainingData(dataSet, trainLabel, dataFilePath); 										
+		loadTrainingData(dataSet, dataFilePath); 										
 		
 		DTreeClassifier classifier = new DTreeClassifier();
-		classifier.train(dataSet, trainLabel); //Train data
+		classifier.train(dataSet); //Train data
 		try {
 			classifier.save("D:\\decisionTree.txt");
 		} catch (IOException e) {
@@ -146,20 +134,9 @@ public class Test {
 		}
 		 		 
 		//-------------------------predict-------------------------------//
-		String[] sampleArr = {"sunny", "cool", "normal", "FALSE"};
-		Attribute attr1 = new NominalAttribute("outlook");
-		Attribute attr2 = new NominalAttribute("temperature");
-		Attribute attr3 = new NominalAttribute("humidity");
-		Attribute attr4 = new NominalAttribute("windy");
-		Attribute[] attributes = new Attribute[]{attr1, attr2, attr3, attr4};
 		Table samples = new Table();
-		samples.addAttributes(attributes);
-		TableRow row = samples.new TableRow();
-		row.set(0, sampleArr[0]);
-		row.set(1, sampleArr[1]);
-		row.set(2, sampleArr[2]);
-		row.set(3, sampleArr[3]);
-		samples.push(row);
+		loadTrainingData(samples, dataFilePath);
+		samples.removeAttribute(samples.classIndex());
 		NominalAttribute classificationList = classifier.predict(samples);
 		for(int i=0; i<classificationList.size(); i++) {
 			System.out.println("Classification: " + classificationList.get(i));
@@ -172,11 +149,10 @@ public class Test {
 		String dataFilePath = 
 			"src\\artiano\\ml\\classifier\\test\\data3.txt";		
 		Table dataSet = new Table();
-		NominalAttribute trainLabel = new NominalAttribute();
 		//Load training data
-		loadTrainingData(dataSet, trainLabel, dataFilePath); 								
+		loadTrainingData(dataSet, dataFilePath); 								
 		DTreeClassifierUsingC4_5 dtree = new DTreeClassifierUsingC4_5();
-		dtree.train(dataSet, trainLabel);		
+		dtree.train(dataSet);		
 		try {
 			dtree.save("D:\\decisionTree.txt");
 		} catch (IOException e) {
@@ -208,8 +184,7 @@ public class Test {
 
 	//Load the training data
 	//Return index of the target attribute	
-	private static void loadTrainingData(Table dataSet, NominalAttribute trainLabel,
-			String dataFilePath) {
+	private static void loadTrainingData(Table dataSet,String dataFilePath) {
 		BufferedReader input = null;
 		try {
 			input = new BufferedReader(new FileReader(dataFilePath));
@@ -224,84 +199,53 @@ public class Test {
 			String targetAttrIdxStr = 
 					(input.readLine().trim()).split("[\t]")[1];
 			targetAttrIdx = Integer.parseInt(targetAttrIdxStr);
+			System.out.println("traget index: " + targetAttrIdx);
 			//Attributes
 			String[] attributes = 
-					(input.readLine().trim()).split("[\t]");  //Attributes
-		/*	for(int i=0; i<attributes.length; i++) {				
-				if(i == targetAttrIdx) {  //Train label
-					trainLabel.setName(attributes[i]);
-				} else {
-					Attribute attr ;
-					if(attributes[i].matches("//d+"))
-					{						
-						attr = new NumericAttribute(attributes[i]);
-					} else {
-						attr = new NominalAttribute(attributes[i]);
-					}					
-					dataSet.addAttribute(attr);
-				}								
-			}						
-		*/	
+					(input.readLine().trim()).split("[\t]");  //Attributes			
 			//Training data
 			String item = input.readLine();
 			String[] firstRowAttrValues = (item.trim()).split("[\t]");
-			for(int i=0; i<firstRowAttrValues.length; i++) {
-				if(i == targetAttrIdx) {
-					trainLabel.setName(attributes[i]);
-					trainLabel.setVector(new IncrementVector());
-					continue;
+			for(int i=0; i<firstRowAttrValues.length; i++) {		
+				String value = firstRowAttrValues[i].trim();
+				Attribute attr;
+				if(value.matches("\\d+")) {
+					attr = new NumericAttribute(attributes[i]);
 				} else {
-					String value = firstRowAttrValues[i].trim();
-					Attribute attr;
-					if(value.matches("\\d+")) {
-						attr = new NumericAttribute(attributes[i]);
-					} else {
-						attr = new NominalAttribute(attributes[i]);
-					}
-					dataSet.addAttribute(attr);
+					attr = new NominalAttribute(attributes[i]);
 				}
+				dataSet.addAttribute(attr);				
 			}
 			while(! "".equals(item) && ! (null == item) ) {
 				String[] attrValues = (item.trim()).split("[\t]");				
 				TableRow tableRow = dataSet.new TableRow();				
 				for(int i=0; i<attrValues.length; i++) {
 					String value = attrValues[i].trim();
-					if(i < targetAttrIdx) {
-						tableRow.set(i, value);
-					} else if(i == targetAttrIdx) {
-						trainLabel.push(value);
-						trainLabel.addNominal(value);
-					} else {
-						tableRow.set(i-1, value);
-					}					 
+					tableRow.set(i, value);								
 				}
 				dataSet.push(tableRow);
 				item = input.readLine();
 			}								
 			input.close();						
-			
+			dataSet.setClassAttribute(targetAttrIdx);
 		} catch (IOException e) {			
 			e.printStackTrace();
 		}		
 	}	
-
+	
 	public static void testKDTree() {				
-		int dimension = 2;
+		int dimension = 3;
 		Matrix trainData = 
 				new Matrix(trainDataArr_2.length / dimension, dimension, trainDataArr_2);
 		Table trainSet = new Table(trainData);
-		NominalAttribute trainLabel = 
-			new NominalAttribute("label", new IncrementVector());
-		for(int i=0; i<trainLabelArr_2.length; i++) {
-			trainLabel.push(trainLabelArr_2[i]);
-		}
-		KDTree tree = new KDTree(trainSet, trainLabel);
+		trainSet.setClassAttribute(0);    //设置类标号属性的下标
+		KDTree tree = new KDTree(trainSet);
 		System.out.println("bfs: ");
 		tree.bfs();
 						
 		/*------------------  Find nearest of a specified data point -----*/
 		double[] point = {-1, 0};
-		Matrix target = new Matrix(1, dimension, point);
+		Matrix target = new Matrix(1, dimension-1, point);
 		List<KDTree.KDNode> kNearest = tree.findKNearest(target, 3);  //Find 3-nearest point of point target
 		System.out.println("\n3 Nearest data point is:");
 		for(int i=0; i<kNearest.size(); i++) {
@@ -319,19 +263,14 @@ public class Test {
 	}
 	
 	public static void testKNearest() {
-		int attrNum = 2;
+		int attrNum = 3;
 		//Train data
 		Matrix trainData = 
 			new Matrix(trainDataArr_2.length / attrNum, attrNum, trainDataArr_2);
 		Table trainSet = new Table(trainData);
-		//Train labels
-		NominalAttribute trainLabel = 
-			new NominalAttribute("label", new IncrementVector());
-		for(int i=0; i<trainLabelArr_2.length; i++) {
-			trainLabel.push(trainLabelArr_2[i]);
-		}
+		trainSet.setClassAttribute(0);    //指定类标号属性的下标
 		KNearest kNearest = new KNearest();
-		kNearest.train(trainSet, trainLabel);  //Train data
+		kNearest.train(trainSet);  //Train data
 		
 		double[] sampleArr = {		
 				2, 8,
@@ -339,9 +278,9 @@ public class Test {
 				2, 4,
 				4, 8,
 				4, 5
-		};	
+		};	//1, 1, 3, 1, 2 
 		Matrix samplesMat = 
-			new Matrix(sampleArr.length / attrNum, attrNum, sampleArr);
+			new Matrix(sampleArr.length / (attrNum-1), attrNum-1, sampleArr);
 		Table samples = new Table(samplesMat);
 		//Find k-nearest		
 		kNearest.setK(4);
@@ -356,7 +295,7 @@ public class Test {
 	public static void main(String[] args) {											
 		//testNaiveBayesClassifier();
 		//testDTreeClasifier();
-		testKDTree();
+		//testKDTree();
 		//testKNearest();
 		//testDTreeClassifierUsingC4_5();
 	}

@@ -32,16 +32,16 @@ public class KNearest extends Classifier {
 	 * @param trainLabel - 类标
 	 * @return - 训练是否成功
 	 */
-	public boolean train(Table trainData, NominalAttribute trainLabel) {
+	public boolean train(Table trainData) {
 		try {
-			isTrainingDataValid(trainData, trainLabel);						
+			isTrainingDataValid(trainData);						
 		} catch(NullPointerException e) {
 			return false;
 		} catch(IllegalArgumentException e) {
 			e.printStackTrace();
 			return false;
 		}						
-		kdTree = new KDTree(trainData, trainLabel);  //构造KD-Tree 		
+		kdTree = new KDTree(trainData);  //构造KD-Tree 		
 		return true;
 	}
 
@@ -105,15 +105,15 @@ public class KNearest extends Classifier {
 	 * 检查输入的训练数据是否合法
 	 * 
 	 * @throws IllegalArgumentException
-	 *      trainData or trainLabel is null,  data in parameter trainingLabel 
-	 *      does not match with data in parameter trainingData
+	 *      trainData is null, or class attribute in parameter 
+	 *      trainData is not appointed
 	 */
-	private void isTrainingDataValid(Table trainData, NominalAttribute trainLabel) {
+	private void isTrainingDataValid(Table trainData) {
 		if (trainData == null) {
 			throw new IllegalArgumentException("训练集为空!");
 		}
-		if(trainLabel == null) {
-			throw new IllegalArgumentException("类标为空!");
+		if(trainData.classAttribute() == null) {
+			throw new IllegalArgumentException("还未在trainData中指定类标!");
 		}
 
 		/* 检查训练数据是否全为数值型  */
@@ -127,11 +127,7 @@ public class KNearest extends Classifier {
 					throw new IllegalArgumentException("训练数据只能为数值型!");
 				}
 			}
-		}
-		
-		if(trainData.rows() != trainLabel.size()) {
-			throw new IllegalArgumentException("训练集与类标的大小不一致!");
-		}
+		}				
 	}
 	
 }

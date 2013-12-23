@@ -8,11 +8,10 @@ public abstract class Classifier extends Preservable {
 
 	/**
 	 * Train data
-	 * @param trainSet data to train
-	 * @param trainLabel labels of training data	 
+	 * @param trainSet data to train	 
 	 * @return whether the training successes or not
 	 */
-	public abstract boolean train(Table trainSet, NominalAttribute trainLabel);
+	public abstract boolean train(Table trainSet);
 	
 	/**
 	 * Predict label of each sample case
