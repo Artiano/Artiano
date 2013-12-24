@@ -1,7 +1,9 @@
 package artiano.ml.classifier;
 
 import java.util.*;
+
 import artiano.core.structure.*;
+import artiano.core.structure.Table.TableRow;
 import artiano.ml.BaseKDTree;
 
 /**
@@ -17,9 +19,31 @@ public class KDTree extends BaseKDTree {
 	public KDTree() {		
 	}
 	
-	public KDTree(Table dataSet, NominalAttribute dataLabel) {
-		Matrix dataSetMat = dataSet.toMatrix(); 
-		root = buildKDTree(dataSetMat, dataLabel);
+	public KDTree(Table trainSet) {
+		//获取训练集去掉类标那一列之后剩下的数据
+		Matrix dataSetMat = 
+			generateTrainDataWithoutLabel(trainSet); 
+		Attribute classAttribute = trainSet.classAttribute(); //类标属性
+		root = buildKDTree(dataSetMat, classAttribute);
+	}
+	
+	//获取训练集去掉类标那一列之后剩下的数据
+	private Matrix generateTrainDataWithoutLabel(Table trainSet) {
+		int rows = trainSet.rows();
+		int columns = trainSet.columns();
+		int classAttrIndex = trainSet.classIndex();		//类标属性的下标
+		Matrix data = new Matrix(rows, columns-1);
+		for(int i=0; i<rows; i++) {
+			TableRow singleData = trainSet.row(i);
+			for(int j=0; j<columns; j++) {
+				if(j < classAttrIndex) {
+					data.set(i, j, (Double)singleData.at(j));
+				} else if(j > classAttrIndex) {
+					data.set(i, j-1, (Double)singleData.at(j));
+				}
+			}
+		}
+		return data;
 	}
 	
 	/**
@@ -27,7 +51,7 @@ public class KDTree extends BaseKDTree {
 	 * @param dataSet - 数据集 
 	 * @return 构造的决策树的根节点
 	 */
-	public KDNode buildKDTree(Matrix dataSet, NominalAttribute dataLabel) {
+	public KDNode buildKDTree(Matrix dataSet, Attribute dataLabel) {
 		if(dataSet.rows() < 1) {
 			throw new IllegalArgumentException("Empty data set!");
 		}						
@@ -179,7 +203,7 @@ public class KDTree extends BaseKDTree {
 		
 		/* Assign data to left child and right child of kdNode. */
 		Matrix data = kdNode.treeData;
-		NominalAttribute labels = kdNode.treeLabel;
+		Attribute labels = kdNode.treeLabel;
 		kdNode.nodeData = data.row(data.rows() / 2);		
 		kdNode.nodeLabel = labels.get(data.rows()/2);
 		kdNode.partitionValue = 
@@ -233,7 +257,7 @@ public class KDTree extends BaseKDTree {
 	 */
 	private void sortFeatureByIndex(KDNode node, final int featureIndex) {
 		Matrix dataSet = node.treeData;
-		NominalAttribute dataLabel = node.treeLabel;		
+		Attribute dataLabel = node.treeLabel;		
 		
 		List<Matrix> dataList = new ArrayList<Matrix>();
 		List<Object> labelList =  new ArrayList<Object>();
@@ -297,7 +321,7 @@ public class KDTree extends BaseKDTree {
 										
 		KDTree tree = new KDTree();
 		Matrix copyData = root.treeData.clone();
-		NominalAttribute copyLabel = (((KDNode)root).treeLabel) ;
+		Attribute copyLabel = (((KDNode)root).treeLabel) ;
 		tree.root = tree.buildKDTree(copyData, copyLabel);
 						
 		//依次寻找1,2,...., k近邻
@@ -312,10 +336,10 @@ public class KDTree extends BaseKDTree {
 	
 	//KD-Tree节点	
 	public static class KDNode extends BaseKDNode {		
-		public NominalAttribute treeLabel;	//子树的类标
+		public Attribute treeLabel;	//子树的类标
 		Object nodeLabel;		//该节点的类标
 		
-		KDNode(Matrix data, NominalAttribute treeLabel) {
+		KDNode(Matrix data, Attribute treeLabel) {
 			super(data);
 			this.treeLabel = treeLabel;
 		}

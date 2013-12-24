@@ -32,16 +32,17 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 	 * 决策树分类
 	 * @return 数据训练是否成功，成功则返回true;否则,返回false
 	 */
-	public boolean train(Table trainSet, NominalAttribute trainLabel) {		
+	public boolean train(Table trainSet) {		
 		//检查输入的训练集及类标是否合法
 		try {
 			isTrainDataInputedValid();
 		} catch(Exception e) {			
 			return false;
 		}
-		intitialize(trainSet, trainLabel);  //初始化
+		intitialize(trainSet);  //初始化
 		//深度复制trainLabel
-		NominalAttribute copyOfTrainLabel = deepCloneTrainLabel(trainLabel);
+		NominalAttribute copyOfTrainLabel = 
+			deepCloneTrainLabel((NominalAttribute)trainSet.classAttribute());
 		//构造决策树		
 		root = constructDecisionTree(root, data, attributeList, copyOfTrainLabel);		
 		return true;   //数据训练成功
@@ -58,14 +59,18 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 		return copyOfTrainLabel;
 	}				
 		
-	private void intitialize(Table trainSet, NominalAttribute trainLabel) {
+	private void intitialize(Table trainSet) {
 		//初始化targetAttribute
 	//	this.targetAttribute = trainLabel.getName();
 		int columns = trainSet.columns();
 		//初始化data
-		this.data = tableToArrayList(trainSet);
+		this.data = tableToArrayList(trainSet);		
 		//初始化 attributeList
+		int classAttrIndex = trainSet.classIndex();	 //类标号属性的下标
 		for(int j=0; j<columns; j++) {
+			if(j == classAttrIndex) {  //如果是类标号属性，则不添加
+				continue;
+			}
 			Attribute attr = trainSet.attribute(j);
 			String attrName = attr.getName();
 			attributeList.add(attrName);			
@@ -185,27 +190,12 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 		if(p == null) {
 			p = new DTreeNode();
 		}
-		
-				
-/*		ArrayList<ArrayList<String>> attributeValueList = 
-				constructAttributeValueList(remainingData, remainingAttribute);
-		int targetAttrIndex = remainingAttribute.indexOf(targetAttribute);
-		if(targetAttrIndex == -1) {
-			return p;
-		}
-		
-		ArrayList<String> targetAttributeValues = 
-			attributeValueList.get(targetAttrIndex);
-		
-		for(int i=0; i<targetAttributeValues.size(); i++) {
-			String label = targetAttributeValues.get(i);
-			
-*/		// 检查是不是剩下的数据的类标都相同，如果是，则决策树构造完成
+					
+		// 检查是不是剩下的数据的类标都相同，如果是，则决策树构造完成
 		if(allTheSameLabel(remainingTrainLabel)) {
 			p.label = remainingTrainLabel.get(0).toString();
 			return p;
-		}
-//		}		
+		}		
 				
 		//All the attributes has been considered ,yet not complete the classification
 		if(remainingAttribute.size() == 0 
@@ -258,15 +248,7 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 					return -1;
 				}
 			}
-		});	
-				
-//		int targetAttrIndex = remainingAttribute.indexOf(targetAttribute);
-//		ArrayList<ArrayList<String>> newAttributeValueList = 
-//				constructAttributeValueList(remainingData, remainingAttribute);
-//		Set<String> labelValuesSet = 
-//			new HashSet<String>(newAttributeValueList.get(targetAttrIndex));
-//		ArrayList<String> remainingLabelValues = 
-//			new ArrayList<String>(labelValuesSet);
+		});				
 		
 		int maxInfoGainIndex = 
 			getMaxAttributeInfoGainIndex(copyOfData, remainingTrainLabel);										
@@ -380,85 +362,15 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 			p.nextNodes.add(new_node);    //Add root of the sub tree to the node			
 		}
 	}
-/*	
-	private int getMaxAttributeInfoGainIndex(
-			ArrayList<ArrayList<String>> copyOfData,
-			ArrayList<String> remainingLabelValues) {		
-		int maxInfoGainIndex = 0;
-		double maxInfoGain = 0;
-		 int targetAttrIndex = this.attributeList.indexOf(targetAttribute);
-		for(int i=0; i<copyOfData.size()-1; i++) {
-			ArrayList<String> leftData = copyOfData.get(i);
-			ArrayList<String> rightData = copyOfData.get(i+1);				
-			String leftLabel = leftData.get(targetAttrIndex);
-			String rightLabel = rightData.get(targetAttrIndex);
-			if(leftLabel.equals(rightLabel)) {
-				continue;
-			}
-			
-			double leftInfoGain = 0;
-			double[] leftEachLabelCount = new double[remainingLabelValues.size()];
-			Arrays.fill(leftEachLabelCount, 0);
-			for(int j=0; j<=i; j++) {
-				ArrayList<String> currentData = copyOfData.get(j);
-				int labelValueIndex = 
-					remainingLabelValues.indexOf(currentData.get(targetAttrIndex));
-				leftEachLabelCount[labelValueIndex]++;
-			}
-						
-			for(int j=0; j<remainingLabelValues.size(); j++) {
-				if(leftEachLabelCount[j] == 0) {
-					continue;
-				}
-				double refactor = ((double)leftEachLabelCount[j]) / (i+1);
-				leftInfoGain += -1 * refactor * Math.log(refactor) / Math.log(2);
-			}
-			
-			double[] rightEachLabelCount = new double[remainingLabelValues.size()];
-			Arrays.fill(rightEachLabelCount, 0);
-			for(int j=i+1; j<copyOfData.size(); j++) {
-				ArrayList<String> currentData = copyOfData.get(j);
-				int labelValueIndex = 
-					remainingLabelValues.indexOf(currentData.get(targetAttrIndex));
-				rightEachLabelCount[labelValueIndex]++;
-			}
-			
-			double rightInfoGain = 0;
-			int rightTotalCount = (copyOfData.size()-i-1);
-			for(int j=0; j<remainingLabelValues.size(); j++) {
-				if(rightEachLabelCount[j] == 0) {
-					continue;
-				}
-				double refactor = 
-					((double)rightEachLabelCount[j]) / rightTotalCount;
-				rightInfoGain += -1 * refactor * Math.log(refactor) / Math.log(2);
-			}
-			
-			double infoGain = ((double)(i+1)) / copyOfData.size() * leftInfoGain + 
-					((double)rightTotalCount) / copyOfData.size() * rightInfoGain;
-			if(infoGain > maxInfoGain) {
-				maxInfoGain = infoGain;
-				maxInfoGainIndex = i;
-			}
-		}
-		
-		
-		return maxInfoGainIndex;
-	}
-*/	
+
 	private int getMaxAttributeInfoGainIndex(
 			ArrayList<ArrayList<String>> remainingData,
 			NominalAttribute remainingTrainLabel) {		
 		int maxInfoGainIndex = 0;
 		double maxInfoGain = 0;
-//		 int targetAttrIndex = this.attributeList.indexOf(targetAttribute);
-		for(int i=0; i<remainingData.size()-1; i++) {
-			//ArrayList<String> leftData = copyOfData.get(i);
-			//ArrayList<String> rightData = copyOfData.get(i+1);				
+		for(int i=0; i<remainingData.size()-1; i++) {				
 			String leftLabel = remainingTrainLabel.get(i).toString(); 
-					//leftData.get(targetAttrIndex);
 			String rightLabel = remainingTrainLabel.get(i+1).toString(); 
-					//rightData.get(targetAttrIndex);
 			if(leftLabel.equals(rightLabel)) {
 				continue;
 			}
@@ -466,12 +378,9 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 			List<Object> nominals = remainingTrainLabel.nominals();
 			double leftInfoGain = 0;
 			double[] leftEachLabelCount = new double[nominals.size()]; 
-					//new double[remainingLabelValues.size()];
 			Arrays.fill(leftEachLabelCount, 0);
 			for(int j=0; j<=i; j++) {
-				//ArrayList<String> currentData = copyOfData.get(j);
 				int labelValueIndex = nominals.indexOf(remainingTrainLabel.get(i)); 
-					//remainingLabelValues.indexOf(currentData.get(targetAttrIndex));
 				leftEachLabelCount[labelValueIndex]++;
 			}
 						
@@ -546,14 +455,9 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 		double max_gain = 0;
 		int max_index = 0;	//Attribute index where the attribute information gain max  
 		for(int i=0; i<remainingAttribute.size(); i++) {
-		/*	if(remainingAttribute.get(i).equals(targetAttribute)) {
-				continue;
-			}
-		*/	
 			//Get information gain of the attribute
 			double temp_gain;
 			if(isAttributeContinuous[i]) {
-				//getMaxAttributeInfoGainIndex(remainingData, remainingTrainLabel);
 				int attrIndex = this.attributeList.indexOf(remainingAttribute.get(i));
 				temp_gain = 
 					getGainRatioForContinuousAttribute(remainingData,
@@ -623,17 +527,8 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 			String attribute, NominalAttribute remainingTrainLabel) {		
 		double inforGain = 0;								
 		//Add entropy(S);
-//		int targetIndex = attributeList.indexOf(targetAttribute);
-//		ArrayList<Integer> labelCounts = 
-//			countAttributeValuesApperances(remainingData, targetIndex);
 		Map<Object, Integer> countMap = countEachLabelValue(remainingTrainLabel);
-		//Integer[] counts = (Integer[]) countMap.values().toArray();
 		List<Integer> countList = new ArrayList<Integer>(countMap.values());
-	/*	for(int i=0; i<counts.length; i++) {
-			double temp = counts[i] * 1.0 / remainingData.size();
-			inforGain += -1 * temp * Math.log10(temp) / Math.log10(2);
-		}
-	*/
 		for(int i=0; i<countList.size(); i++) {
 			double temp = countList.get(i) * 1.0 / remainingData.size();
 			inforGain += -1 * temp * Math.log10(temp) / Math.log10(2);
@@ -673,15 +568,10 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 	 * @return entropy of the attribute
 	 */
 	private double getEntropy(ArrayList<ArrayList<String>> remainingData, 
-			int attrIndex, String attrValue, NominalAttribute remainingTrainLabel) {
-//		int targetAttrIndex = attributeList.indexOf(targetAttribute);
-//		ArrayList<Integer> labelValueCounts =
-//			countAttributeValuesApperances(remainingData, targetAttrIndex);		
+			int attrIndex, String attrValue, NominalAttribute remainingTrainLabel) {	
 		Map<Object, Integer> countMap =
 			countEachLabelValue(remainingData, attrIndex, 
 					attrValue, remainingTrainLabel);
-				//countEachLabelValue(remainingTrainLabel);
-		//Integer[] counts = (Integer[]) countMap.values().toArray();
 		List<Integer> countList = new ArrayList<Integer>(countMap.values());
 		int attributeValueCount = 0;
 		/*If one label value count is 0, the entropy is 0.   */
@@ -724,13 +614,9 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 			
 		int maxInfoGainIndex = 0;
 		double maxInfoGain = 0;
-		for(int i=0; i<remainingData.size()-1; i++) {
-			//ArrayList<String> leftData = copyOfData.get(i);
-			//ArrayList<String> rightData = copyOfData.get(i+1);				
+		for(int i=0; i<remainingData.size()-1; i++) {				
 			String leftLabel = remainingTrainLabel.get(i).toString(); 
-					//leftData.get(targetAttrIndex);
 			String rightLabel = remainingTrainLabel.get(i+1).toString(); 
-					//rightData.get(targetAttrIndex);
 			if(leftLabel.equals(rightLabel)) {
 				continue;
 			}
@@ -738,12 +624,9 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 			List<Object> nominals = remainingTrainLabel.nominals();
 			double leftInfoGain = 0;
 			double[] leftEachLabelCount = new double[nominals.size()]; 
-					//new double[remainingLabelValues.size()];
 			Arrays.fill(leftEachLabelCount, 0);
 			for(int j=0; j<=i; j++) {
-				//ArrayList<String> currentData = copyOfData.get(j);
 				int labelValueIndex = nominals.indexOf(remainingTrainLabel.get(j)); 
-					//remainingLabelValues.indexOf(currentData.get(targetAttrIndex));
 				leftEachLabelCount[labelValueIndex]++;
 			}
 						
@@ -758,9 +641,7 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 			double[] rightEachLabelCount = new double[nominals.size()];
 			Arrays.fill(rightEachLabelCount, 0);
 			for(int j=i+1; j<remainingData.size(); j++) {
-				//ArrayList<String> currentData = copyOfData.get(j);
 				int labelValueIndex = nominals.indexOf(remainingTrainLabel.get(j));
-					//remainingLabelValues.indexOf(currentData.get(targetAttrIndex));
 				rightEachLabelCount[labelValueIndex]++;
 			}
 			
@@ -783,12 +664,6 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 			}
 		}		
 
-/*		double leftMaxValue = 
-			Double.parseDouble(copyOfData.get(maxInfoGainIndex).get(attrIndex));
-		double rightMinValue = 
-				Double.parseDouble(copyOfData.get(maxInfoGainIndex+1).get(attrIndex));
-		double middle = (leftMaxValue + rightMinValue) / 2;
-*/		
 		double splitInfo = 0;	
 		double refactor_1 = 
 			((double)(maxInfoGainIndex+1)) / remainingData.size();
@@ -800,25 +675,7 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 		double gainRatio = maxInfoGain / splitInfo;   //增益率
 		return gainRatio;				
 	}
-	
-	/**
-	 * Check whether all the labels in the data is the same.
-	 * @param remainingData - remaining data to be classified.
-	 * @param label - value that indicate the value of label
-	 * @return whether all the label has the same value isYesStr
-	 */
-/*	private boolean allTheSameLabel(ArrayList<ArrayList<String>> remainingData, 
-			String label) {
-		for(int i=0; i<remainingData.size(); i++) {
-			ArrayList<String> singleData = remainingData.get(i);   //a single test sample
-			int targetAttrIndex = attributeList.indexOf(targetAttribute);
-			if(!label.equals(singleData.get(targetAttrIndex))) {
-				return false;				
-		    } 	
-		}		
-		return true;
-	}
-*/	
+		
 	/**
 	 * 检查剩下的数据集对应的类标是不是完全相同
 	 * @param remainingTrainLabel 剩下的类标
@@ -834,35 +691,6 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 		return true;
 	}
 	
-	/**
-	 *  Find the most common label in training data.
-	 * @param remainingData - remaining data to be classified.
-	 * @return The most common label in remaining data
-	 */
-/*	private String mostCommonLabel(ArrayList<ArrayList<String>> remainingData) {
-		int targetAttrIndex = attributeList.indexOf(targetAttribute);
-		Map<String, Integer> labelMap = new HashMap<String, Integer>();
-		for(int i=0; i<remainingData.size(); i++) {
-			ArrayList<String> singleData = remainingData.get(i);
-			String label = singleData.get(targetAttrIndex);
-			if(!labelMap.containsKey(label)) {
-				labelMap.put(label, 1);
-			} else {
-				labelMap.put(label, labelMap.get(label) + 1);
-			}
-		}
-
-		String comomLabel = "";
-		int maxCount = 0;
-		for(Map.Entry<String, Integer> entry : labelMap.entrySet()) {
-			if(entry.getValue().intValue() > maxCount) {
-				maxCount = entry.getValue().intValue();
-				comomLabel = entry.getKey();				
-			}
-		}
-		return comomLabel;
-	}
-*/
 	/**
 	 *  找出剩下的数据中出现次数最多的类标
 	 * @param remainingTrainLabel - 剩下的数据对应的类标
@@ -938,12 +766,7 @@ public class DTreeClassifierUsingC4_5 extends Classifier{
 	}
 		
 	/* Check whether the data inputed is valid. */
-	private void isTrainDataInputedValid() {		
-		//Check whether the parameters inputed is valid		
-	/*	if(attributeList.indexOf(targetAttribute) < 0) {
-			throw new IllegalArgumentException("Parameter targetAttrIndex out of range.");
-		}
-	*/	
+	private void isTrainDataInputedValid() {			
 		if(data == null || attributeList == null) {
 			throw new IllegalArgumentException("Parameter inputed can not be null.");
 		}
