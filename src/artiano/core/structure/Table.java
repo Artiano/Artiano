@@ -28,7 +28,7 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 	private int rows = 0;
 	/** 行索引，用于快速访问以及重采样共享数据 */
 	private IncrementIndex index = new IncrementIndex();
-	/** 类属性在表中的下标 */
+	/** 类属性 */
 	private Attribute classAttribute = null;
 
 	/**
@@ -228,10 +228,11 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 			for (int i = 0; i < rows; i++) {
 				vector.push(data.at(i, j));
 			}
-			Attribute attr = new NumericAttribute("", vector);
+			Attribute attr = new NumericAttribute(String.valueOf(j), vector);
 			attributes.set(j, attr);
 		}
 		this.rows = rows;
+		this.name = "@Matrix";
 		// initialize row index (full reference)
 		for (int i = 0; i < rows; i++)
 			index.push(i);
@@ -489,6 +490,8 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 	 * <b><i>NOTICE:</b></i> 如果没有设置，将返回-1
 	 * 
 	 * @return 类属性的下标
+	 * @throws UnsupportedOperationException
+	 *             当类属性没有设置时抛出
 	 */
 	public int classIndex() {
 		if (!hasClass())
@@ -671,6 +674,38 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 	}
 
 	/**
+	 * 按照类属性将表中实例聚集<br>
+	 * e.g. 设有表 {@code table} ，其类属性值在表中的顺序为：<code>
+	 * 1,2,3,2,1,3</code> 在对表执行方法 {@code orderByClass()} 后类属性值（以及对应实例）在表中的顺序为：
+	 * <code>
+	 * 1,1,2,2,3,3 </code><br>
+	 * <b><i>NOTICE:</b></i> 在进行聚集时，实际上是对索引表进行排序，并不真正对实例排序
+	 * 
+	 * @throws UnsupportedOperationException
+	 *             如果没有设置类属性将抛出此异常
+	 */
+	public void orderByClass() {
+		if (!hasClass())
+			throw new UnsupportedOperationException("class is not set!");
+		// make distinct
+		Object[] distinct = classAttribute.distinct();
+		// position of the distinct class value
+		int[] positions = new int[distinct.length];
+		// new indices
+		IncrementIndex newIndex = new IncrementIndex(rows());
+		for (int i = 0; i < rows(); i++) {
+			
+		}
+	}
+
+	/**
+	 * 将表中实例顺序打乱，使得各个实例无序排列
+	 */
+	public void randomize() {
+		this.index.randomize();
+	}
+
+	/**
 	 * 随机（均匀分布）重采样表数据 <br>
 	 * <b><i>NOTICE:</i></b> 重采样后形成的表和原来的表共享属性向量的数据，也就是说， 重采样后的表并不会开辟新的存储空间。
 	 * 
@@ -762,7 +797,8 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 	}
 
 	/**
-	 * 删除表中缺失的数据，并重置表
+	 * 删除表中缺失的数据，并重置表<br>
+	 * <b><i>NOTICE:</b></i> 在删除缺失值后，表索引将被重置
 	 */
 	public void deleteMissing() {
 		for (int i = 0; i < rows(); i++) {
@@ -772,9 +808,9 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 					attribute(j).getVector().remove(i);
 				i--;
 				rows--;
-				index.pop();
 			}
 		}
+		this.index = IncrementIndex.increment(0, 1, rows());
 	}
 
 	/**

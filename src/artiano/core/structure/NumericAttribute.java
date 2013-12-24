@@ -17,6 +17,7 @@ import java.util.Random;
  * @since 1.0.0
  */
 public class NumericAttribute extends Attribute {
+	private static final long serialVersionUID = 5881525711605655997L;
 	/** 属性值缺失替换 */
 	public static final double MISSING_VALUE_REPLACE = 0.;
 	/** 归一化到[-1,1] */
@@ -140,22 +141,29 @@ public class NumericAttribute extends Attribute {
 	}
 
 	/**
+	 * 计算向量的方差
+	 * @return 当前向量的方差
+	 */
+	public double variance() {
+		double var = 0;
+		double mean = this.mean();
+		for (int i=0; i<size(); i++) {
+			if (!isMissing(i)) {
+				double t = get(i) - mean;
+				var += t * t;
+			}
+		}
+		var /= countNoneMissing() - 1;
+		return var;
+	}
+	
+	/**
 	 * 标准差
 	 * 
 	 * @return
 	 */
 	public double standardDeviation() {
-		double stdDev = 0.;
-		double mean = this.mean();
-		for (int i = 0; i < this.vector.size(); i++) {
-			if (!isMissing(i)) {
-				double t = get(i) - mean;
-				stdDev += t * t;
-			}
-		}
-		stdDev /= countNoneMissing() - 1;
-		stdDev = Math.sqrt(stdDev);
-		return stdDev;
+		return Math.sqrt(variance());
 	}
 
 	/**
@@ -221,6 +229,7 @@ public class NumericAttribute extends Attribute {
 		System.out.println("mean: " + att.mean());
 		System.out.println("max: " + att.max());
 		System.out.println("min: " + att.min());
+		System.out.println("variance: " + att.variance());
 		//standard deviation
 		System.out.println("standard deviation: "+att.standardDeviation());
 	}

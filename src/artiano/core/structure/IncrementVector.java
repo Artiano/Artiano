@@ -165,7 +165,7 @@ public class IncrementVector implements Serializable, Iterable<Object> {
 	 * @param value 待插入的值
 	 */
 	public void insert(int i, Object value) {
-		if (size < data.length) {
+		if (size + 1 < data.length) {
 			System.arraycopy(data, i, data, i + 1, size - i);
 			data[i] = (Object) value;
 		} else {
@@ -243,6 +243,16 @@ public class IncrementVector implements Serializable, Iterable<Object> {
 			if (data[i].equals(value))
 				return i;
 		return -1;
+	}
+	
+	/**
+	 * 将向量转换为对象数组
+	 * @return 转换后的对象数组
+	 */
+	public Object[] toArray() {
+		Object[] obj = new Object[size()];
+		System.arraycopy(data, 0, obj, 0, size());
+		return obj;
 	}
 	
 	/* (non-Javadoc)

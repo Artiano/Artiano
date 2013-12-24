@@ -4,6 +4,7 @@
 package artiano.core.structure;
 
 import java.io.Serializable;
+import java.util.HashSet;
 
 /**
  * <p>
@@ -206,13 +207,26 @@ public abstract class Attribute implements Serializable {
 	}
 
 	/**
+	 * 对属性值去重（仅包含唯一值），并将值转换为对象数组形式
+	 * @return 去重后的对象数组
+	 */
+	public Object[] distinct() {
+		HashSet<Object> set = new HashSet<>();
+		for (int i=0; i<size(); i++) 
+			set.add(get(i));
+		return set.toArray();
+	}
+	
+	/**
 	 * 获取属性值向量在i处的值
 	 * 
 	 * @param i
 	 *            指定下标
 	 * @return
 	 */
-	public abstract Object get(int i);
+	public Object get(int i) {
+		return vector.at(i);
+	}
 
 	/**
 	 * 将属性向量转换为数组
