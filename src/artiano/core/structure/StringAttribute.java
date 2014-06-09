@@ -65,11 +65,6 @@ public class StringAttribute extends Attribute {
 		return (String) this.vector.at(i);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see artiano.core.structure.Attribute#toArray()
-	 */
 	@Override
 	public String[] toArray() {
 		String[] array = new String[this.vector.size()];
@@ -82,15 +77,50 @@ public class StringAttribute extends Attribute {
 		return array;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see artiano.core.structure.Attribute#replaceMissing()
-	 */
 	@Override
 	public void replaceMissing() {
 		for (int i = 0; i < vector.size(); i++)
 			if (isMissing(i))
 				vector.set(i, "?");
+	}
+
+	public class StringConverter extends AttributeConverter {
+
+		StringConverter() {}
+
+		@Override
+		public String descriptionOfOptions() {
+			return "<no options needed>";
+		}
+
+		@Override
+		public Options supportedOptions() {
+			return null;
+		}
+
+		@Override
+		public boolean applyOptions(Options options) {
+			return true;
+		}
+
+		@Override
+		public Attribute[] convert(AttributeConvertion convertion) {
+			if (!isConvertionSupported(convertion))
+				return null;
+			return new Attribute[] { toNominal() };
+		}
+
+		@Override
+		public AttributeConvertion[] supportedConvertion() {
+			AttributeConvertion[] convertions = { new AttributeConvertion(
+					NominalAttribute.class, "convert to Nominal") };
+			return convertions;
+		}
+
+	}
+
+	@Override
+	public AttributeConverter getConverter() {
+		return new StringConverter();
 	}
 }

@@ -1,12 +1,12 @@
 package artiano.ml.clustering.structure;
 
-import artiano.core.structure.Matrix;
+import artiano.core.structure.Table;
 
 public class Vertex {
 	private int indexInDataPoints;   //在数据点列表dataPoints中的下标
-	private Matrix data;			 //该顶点的数据
+	private Table data;			 //该顶点的数据
 	
-	public Vertex(int indexInDataPoints, Matrix data) {
+	public Vertex(int indexInDataPoints, Table data) {
 		super();
 		this.indexInDataPoints = indexInDataPoints;
 		this.data = data;
@@ -20,11 +20,11 @@ public class Vertex {
 		this.indexInDataPoints = indexInDataPoints;
 	}
 
-	public Matrix getData() {
+	public Table getData() {
 		return data;
 	}
 
-	public void setData(Matrix data) {
+	public void setData(Table data) {
 		this.data = data;
 	}
 	

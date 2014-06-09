@@ -2,9 +2,10 @@ package artiano.ml.association;
 
 import java.util.*;
 
+import artiano.core.structure.Table;
 import artiano.ml.association.structure.*;
 
-public class PrefixSpan<T extends Comparable<T>> {
+public class PrefixSpan<T extends Comparable<T>> extends Associator {
 	private List<Sequence<T>> sequenceList;		//最初的序列模式
 	private int minSupport;			//最小支持度		
 	private List<Sequence<T>> frequentSequence = 
@@ -321,5 +322,11 @@ public class PrefixSpan<T extends Comparable<T>> {
 		for(Sequence<T> seq: emptySequence) {
 			sequenceList.remove(seq);
 		}
+	}
+	
+	@Override
+	public AssociationModel getPattern(Table records) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

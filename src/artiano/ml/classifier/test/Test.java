@@ -141,7 +141,6 @@ public class Test {
 		for(int i=0; i<classificationList.size(); i++) {
 			System.out.println("Classification: " + classificationList.get(i));
 		}
-			
 	}
 	
 	public static void testDTreeClassifierUsingC4_5() {		
@@ -293,7 +292,7 @@ public class Test {
 	}
 	 
 	public static void main(String[] args) {											
-		//testNaiveBayesClassifier();
+		testNaiveBayesClassifier();
 		//testDTreeClasifier();
 		//testKDTree();
 		//testKNearest();

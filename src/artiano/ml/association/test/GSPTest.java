@@ -2,16 +2,13 @@ package artiano.ml.association.test;
 
 import java.util.*;
 
-import org.junit.Test;
-
 import artiano.ml.association.*;
 import artiano.ml.association.structure.Element;
 import artiano.ml.association.structure.Sequence;
 
 public class GSPTest {
-
-	@Test
-	public void testGetSequences() {
+	
+	public static void testGetSequences() {
 		List<Sequence<Integer>> sequenceList = 
 			new ArrayList<Sequence<Integer>>();
 		//<{1 5}{2}{3}{4}>
@@ -55,6 +52,10 @@ public class GSPTest {
 		GSP<Integer> gsp = new GSP<Integer>(sequenceList, minSupport);
 		List<Sequence<Integer>> sequencePattern = gsp.getSequences();
 		System.out.println(sequencePattern.toString());
+	}
+	
+	public static void main(String[] args) {
+		testGetSequences();
 	}
 
 }

@@ -45,11 +45,20 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 	public class TableRow {
 		/** 表的一行 */
 		Object[] row = new Object[columns()];
+		Table mOwner;
 
 		/** 只能在Table中构造行 */
 		public TableRow() {
 		}
+		
+		public void setOwner(Table owner) {
+			mOwner = owner;
+		}
 
+		public Table getOwner() {
+			return mOwner;
+		}
+		
 		/**
 		 * 获取行的大小
 		 * 
@@ -94,6 +103,16 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 		}
 
 		/**
+		 * 行中第i个元素是否缺失
+		 * 
+		 * @param i
+		 * @return
+		 */
+		public boolean isMissing(int i) {
+			return at(i).equals(Attribute.MISSING_VALUE);
+		}
+
+		/**
 		 * 设置行在下标i处的值
 		 * 
 		 * @param i
@@ -115,6 +134,18 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 			for (int i = 0; i < columns(); i++)
 				row[i] = objects[i];
 		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == null || !(obj instanceof TableRow))
+				return false;
+			TableRow row = (TableRow) obj;
+			for (int i = 0; i < size(); i++) {
+				if (!row.at(i).equals(at(i)))
+					return false;
+			}
+			return true;
+		}
 
 		/**
 		 * 辅助方法，将行打印到控制台
@@ -124,6 +155,47 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 				System.out.print(at(i) + " ");
 			System.out.println();
 		}
+	}
+
+	/**
+	 * 两个实例之间的距离
+	 * 
+	 * @param i
+	 *            实例i
+	 * @param j
+	 *            实例j
+	 * @return
+	 */
+	public double distanceOf(int i, int j) {
+		TableRow rowI = row(i);
+		TableRow rowJ = row(j);
+		return distanceOf(rowI, rowJ);
+	}
+	
+	public static double distanceOf(TableRow r1, TableRow r2) {
+		double d = 0, a = 0, b = 0;
+		TableRow rowI = r1;
+		TableRow rowJ = r2;
+		Table owner = r1.getOwner();
+		for (int k = 0; k < rowI.size(); k++) {
+			if (!rowI.isMissing(k) && !rowJ.isMissing(k)) {
+				b += 1;
+				Attribute att = owner.attribute(k);
+				if (att instanceof NumericAttribute) {
+					d = ((double) rowI.at(k) - (double) rowJ.at(k));
+					d = Math.abs(d);
+					NumericAttribute nAtt = (NumericAttribute) att;
+					d /= nAtt.max() - nAtt.min();
+				} else {
+					if (rowI.at(k).equals(rowJ.at(k)))
+						d = 1;
+					else
+						d = 0;
+				}
+				a += d;
+			}
+		}
+		return 1.d - (a / b);
 	}
 
 	public class TableIterator implements Iterator<TableRow> {
@@ -142,31 +214,16 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 			t = table;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.util.Iterator#hasNext()
-		 */
 		@Override
 		public boolean hasNext() {
 			return counter < t.rows();
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.util.Iterator#next()
-		 */
 		@Override
 		public TableRow next() {
 			return t.row(counter++);
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.util.Iterator#remove()
-		 */
 		@Override
 		public void remove() {
 			throw new UnsupportedOperationException();
@@ -204,7 +261,6 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 				minSize = attributes.get(i).getVector().size();
 		}
 		this.rows = minSize;
-		// add referenced
 		// initialize row index (full reference)
 		for (int i = 0; i < rows; i++)
 			index.push(i);
@@ -236,8 +292,15 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 		// initialize row index (full reference)
 		for (int i = 0; i < rows; i++)
 			index.push(i);
+		// trim
+		trim();
 	}
-
+	
+	public void trim() {
+		for (int i = 0; i < columns(); i++)
+			attribute(i).getVector().trim();
+	}
+	
 	/**
 	 * 判断与指定表{@code t}是否兼容。所谓兼容，指的是两个表的属性向量的类型依次是否相同
 	 * 
@@ -280,6 +343,10 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 	public IncrementIndex indices() {
 		return this.index;
 	}
+	
+	public int rowRelativeOriginal(int i) {
+		return index.at(i);
+	}
 
 	/**
 	 * 获取表的行数
@@ -307,7 +374,7 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 	public boolean isEmpty() {
 		return rows == 0;
 	}
-
+	
 	/**
 	 * 在表中增加一个属性
 	 * 
@@ -353,6 +420,13 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 		if (rows > minSize)
 			this.rows = minSize;
 	}
+	
+	public void addAttributes(Collection<Attribute> attrs) {
+		for (Iterator<Attribute> iterator = attrs.iterator(); iterator.hasNext();) {
+			Attribute attribute = (Attribute) iterator.next();
+			addAttribute(attribute);
+		}
+	}
 
 	/**
 	 * 从表中移除属性
@@ -363,12 +437,8 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 	 */
 	public Attribute removeAttribute(int j) {
 		Attribute att = attributes.remove(j);
-		int minSize = Integer.MAX_VALUE;
-		for (int i = 0; i < columns(); i++)
-			if (minSize > this.attributes.get(i).getVector().size())
-				minSize = this.attributes.get(i).getVector().size();
-		// update rows & index
-		rows = minSize;
+		if (columns() == 0)
+			rows = 0;
 		return att;
 	}
 
@@ -380,13 +450,53 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 	 * @return 被移除的属性
 	 */
 	public Attribute removeAttribute(String name) {
-		for (Attribute att : attributes) {
+		for (int i = 0; i < columns(); i++) {
+			Attribute att = attribute(i);
 			if (att.getName().equals(name)) {
-				attributes.remove(att);
+				removeAttribute(i);
 				return att;
 			}
+
 		}
 		return null;
+	}
+
+	/**
+	 * 移除多个属性
+	 * 
+	 * @param names
+	 *            待移除的属性名称
+	 * @return
+	 */
+	public ArrayList<Attribute> removeAttributes(String[] names) {
+		ArrayList<Attribute> attrs = new ArrayList<>();
+		for (int i = 0; i < names.length; i++) {
+			Attribute att = removeAttribute(names[i]);
+			if (null != att)
+				attrs.add(att);
+		}
+		return attrs;
+	}
+
+	/**
+	 * 移除多个属性
+	 * 
+	 * @param idxs
+	 *            待移除的属性下标
+	 * @return
+	 */
+	public ArrayList<Attribute> removeAttributes(int[] idxs) {
+		ArrayList<Attribute> attrs = new ArrayList<>();
+		Arrays.sort(idxs);
+		for (int i = 0; i < idxs.length; i++) {
+			Attribute att = removeAttribute(idxs[i]);
+			if (null != att)
+				attrs.add(att);
+			for (int j = 0; j < idxs.length; j++)
+				// decrease
+				idxs[j]--;
+		}
+		return attrs;
 	}
 
 	/**
@@ -413,7 +523,7 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 	 * @return 指定属性
 	 */
 	public Attribute attribute(String name) {
-		for (Iterator<Attribute> it = attributes(); it.hasNext();) {
+		for (Iterator<Attribute> it = attributesIterator(); it.hasNext();) {
 			Attribute att = it.next();
 			if (att.getName().equals(name))
 				return att;
@@ -455,6 +565,14 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 				return i;
 		return -1;
 	}
+	
+	public int indexOfRow(TableRow row) {
+		for (int i = 0; i < rows(); i++) {
+			if (row.equals(row(i)))
+				return i;
+		}
+		return -1;
+	}
 
 	/**
 	 * 判断表是否设置了类属性<br>
@@ -490,12 +608,8 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 	 * <b><i>NOTICE:</b></i> 如果没有设置，将返回-1
 	 * 
 	 * @return 类属性的下标
-	 * @throws UnsupportedOperationException
-	 *             当类属性没有设置时抛出
 	 */
 	public int classIndex() {
-		if (!hasClass())
-			throw new UnsupportedOperationException("class attribute not set!");
 		return attributes.indexOf(classAttribute);
 	}
 
@@ -545,8 +659,17 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 	 * 
 	 * @return
 	 */
-	public Iterator<Attribute> attributes() {
+	public Iterator<Attribute> attributesIterator() {
 		return attributes.iterator();
+	}
+
+	/**
+	 * 获取所有属性
+	 * 
+	 * @return
+	 */
+	public ArrayList<Attribute> attributes() {
+		return new ArrayList<>(attributes);
 	}
 
 	/**
@@ -556,6 +679,7 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 	 */
 	public TableRow createRow() {
 		TableRow row = new TableRow();
+		row.setOwner(this);
 		return row;
 	}
 
@@ -705,21 +829,9 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 		this.index.randomize();
 	}
 
-	/**
-	 * 随机（均匀分布）重采样表数据 <br>
-	 * <b><i>NOTICE:</i></b> 重采样后形成的表和原来的表共享属性向量的数据，也就是说， 重采样后的表并不会开辟新的存储空间。
-	 * 
-	 * @param percent
-	 *            重采样数据的百分比
-	 * @return
-	 */
 	public Table[] resample(double percent) {
-		// create a new table, share the attribute values
-		Table t[] = new Table[2];
-		t[0] = new Table();
-		t[1] = new Table();
-		t[0].attributes = this.attributes;
-		t[1].attributes = this.attributes;
+		// new
+		Table t[] = new Table[] { new Table(), new Table() };
 		// new indices-table & new rows to set
 		int newRows = (int) ((double) rows * percent);
 		newRows = newRows == 0 ? 1 : newRows;
@@ -748,16 +860,51 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 		}
 		t[0].rows = newRows;
 		t[1].rows = newRows2;
-		// reset the indices
+		t[0].name = getName();
+		t[1].name = getName();
+		// attributes
+		t[0].attributes = new ArrayList<>();
+		t[1].attributes = new ArrayList<>();
+		for (int i = 0; i < columns(); i++) {
+			try {
+				Attribute att = attribute(i).getClass().newInstance();
+				att.setName(attribute(i).getName());
+				t[0].attributes.add(att);
+				att = attribute(i).getClass().newInstance();
+				att.setName(attribute(i).getName());
+				t[1].attributes.add(att);
+			} catch (InstantiationException | IllegalAccessException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		// copy elements
+		t[0].index = IncrementIndex.increment(0, 1, newRows);
+		t[1].index = IncrementIndex.increment(0, 1, newRows2);
+		for (int i = 0; i < newRows; i++) {
+			for (int j = 0; j < columns(); j++) {
+				t[0].attribute(j).push(at(newIndex.at(i), j));
+			}
+		}
+		for (int i = 0; i < newRows2; i++) {
+			for (int j = 0; j < columns(); j++) {
+				t[1].attribute(j).push(at(newIndex2.at(i), j));
+			}
+		}
+		if (-1 != classIndex()) {
+			t[0].setClassAttribute(classIndex());
+			t[1].setClassAttribute(classIndex());
+		}
+		// swap
 		if (newRows > count) {
 			// set t & t1
-			t[0].index = newIndex2;
-			t[1].index = newIndex;
-		} else {
-			// set t & t1;
-			t[0].index = newIndex;
-			t[1].index = newIndex2;
+			List<Attribute> attrs = t[0].attributes;
+			t[0].attributes = t[1].attributes;
+			t[1].attributes = attrs;
 		}
+		// trim
+		t[0].trim();
+		t[1].trim();
 		return t;
 	}
 
@@ -832,18 +979,63 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 	 * @return
 	 */
 	public Matrix toMatrix() {
+		return toMatrix((int[])null);
+	}
+
+	/**
+	 * 将表转换为矩阵
+	 * @param ingnores 在表中被忽略的属性下标
+	 * @return
+	 */
+	public Matrix toMatrix(int[] ingnores) {
+		int[] ing = ingnores;
 		// check valid
 		for (int i = 0; i < attributes.size(); i++)
-			if (!(attributes.get(i) instanceof NumericAttribute))
+			if (!(attributes.get(i) instanceof NumericAttribute)
+					&& !isIn(i, ing))
 				throw new UnsupportedOperationException(
 						"only numeric attribute supported where convert "
 								+ "table to matrix.");
 		// convert to matrix
-		Matrix matrix = new Matrix(rows, columns());
-		for (int i = 0; i < rows; i++)
-			for (int j = 0; j < columns(); j++)
-				matrix.set(i, j, (double) at(i, j));
+		int x = ing == null ? 0 : ing.length;
+		Matrix matrix = new Matrix(rows, columns() - x);
+		int c = 0;
+		for (int i = 0; i < rows; i++) {
+			c = 0;
+			for (int j = 0; j < columns(); j++) {
+				if (!isIn(j, ing)) {
+					matrix.set(i, c, (double) at(i, j));
+					c++;
+				}
+			}
+		}
 		return matrix;
+	}
+
+	/**
+	 * 将表转换为矩阵
+	 * 
+	 * @param ingnores
+	 *            忽略的属性
+	 * @return
+	 */
+	public Matrix toMatrix(Attribute[] ingnores) {
+		int[] ing;
+		if (null == ingnores)
+			ing = new int[0];
+		else
+			ing = new int[ingnores.length];
+		for (int i = 0; i < ing.length; i++)
+			ing[i] = indexOf(ingnores[i]);
+		return toMatrix(ing);
+	}
+
+	private boolean isIn(int x, int[] y) {
+		if (null == y) return false;
+		for (int i = 0; i < y.length; i++)
+			if (x == y[i])
+				return true;
+		return false;
 	}
 
 	/**
@@ -876,7 +1068,43 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 			tableRow.set(j, at(i, j));
 		return tableRow;
 	}
-
+	
+	public Table cloneWithHeader() {
+		Table table = new Table();
+		table.setName(getName());
+		for (int i = 0; i < columns(); i++) {
+			try {
+				Attribute att = attribute(i).getClass().newInstance();
+				att.setName(attribute(i).getName());
+				table.attributes.add(att);
+			} catch (InstantiationException | IllegalAccessException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return table;
+	}
+	
+	public Table clone() {
+		Table table = cloneWithHeader();
+		for (int i = 0; i < rows(); i++)
+			table.push(row(i));
+		table.trim();
+		return table;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null || !(obj instanceof Table))
+			return false;
+		Table t = (Table) obj;
+		for (int i = 0; i < rows(); i++) {
+			if (!row(i).equals(t.row(i)))
+				return false;
+		}
+		return true;
+	}
+	
 	/**
 	 * 辅助方法，将表中所有元素打印到控制台
 	 */
@@ -1003,9 +1231,14 @@ public class Table implements Serializable, Iterable<Table.TableRow> {
 		System.out.println("class attribute index (should be '1'):"
 				+ table.classIndex());
 		System.out.println("remove attribute 'Length'----------");
-		table.removeAttribute("Length");
+		//table.removeAttribute("Length");
 		System.out
 				.println("class is set (should be false):" + table.hasClass());
+		// remove multi
+		System.out.println("test remove------------------------");
+		table.removeAttributes(new int[] { 0, 1 });
+		System.out.println("remove 2 columns:");
+		table.print();
 	}
 
 }

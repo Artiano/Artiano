@@ -83,8 +83,7 @@ public class FPGrowthTest {
 	}
 */
 	
-	@org.junit.Test
-	public void testFPTree() {
+	public static void main(String[] args) {
 		FPGrowth fptree = new FPGrowth();
         fptree.setMinSupport(3);
         List<List<String>> transRecords = 

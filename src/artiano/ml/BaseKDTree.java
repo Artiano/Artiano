@@ -75,7 +75,7 @@ public abstract class BaseKDTree {
 			variances[j] = computeVariance(singlFeature);
 		}
 		
-		/* 获取拥有最大方差的属性的下标 */
+		/** 获取拥有最大方差的属性的下标 */
 		double maxVariance = variances[0];
 		int maxIndex = 0;
 		for(int i=1; i<variances.length; i++) {
@@ -97,7 +97,7 @@ public abstract class BaseKDTree {
 		if(point1.columns() != point2.columns() || 
 				point1.rows() != 1 || point2.rows() != 1) {
 			throw new IllegalArgumentException(
-				"两个数据点列的维数应该一致且行行为1!");
+				"两个数据点列的维数应该一致且行为1!");
 		}
 		
 		double distance = 0;

@@ -1,9 +1,11 @@
 package artiano.ml.association;
 
 import java.util.*;
+
+import artiano.core.structure.Table;
 import artiano.ml.association.structure.*;
 
-public class GSP<T extends Comparable<T>> {
+public class GSP<T extends Comparable<T>> extends Associator {
 	private List<Sequence<T>> sequenceList;   //最初的序列模式
 	private List<Sequence<T>> candidatePattern;		//长度为i的候选序列模式
 	private List<Sequence<T>> sequencePattern;		//长度为i的序列模式
@@ -210,4 +212,10 @@ public class GSP<T extends Comparable<T>> {
             this.result.add(seq.get(i));
         }
     }
+	
+	@Override
+	public AssociationModel getPattern(Table records) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

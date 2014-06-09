@@ -150,6 +150,13 @@ public class Matrix implements Serializable{
 	public static Matrix ones(int rows, int cols){
 		return ones(rows, cols, 1.);
 	}
+	
+	public static Matrix rowVector(double...x) {
+		Matrix mat = new Matrix(1, x.length);
+		for (int i = 0; i < x.length; i++)
+			mat.set(0, x[i]);
+		return mat;
+	}
 
 	/**
 	 * 判断矩阵是否对称
@@ -212,6 +219,28 @@ public class Matrix implements Serializable{
 	 */
 	public int size(){
 		return rows*cols;
+	}
+	
+	/**
+	 * 向量在矩阵中的下标
+	 * @param vector 向量
+	 * @return
+	 */
+	public int indexOf(Matrix vector) {
+		if (vector.rows() == 1) { // row vector
+			for (int i = 0; i < rows(); i++) {
+				if (row(i).equals(vector))
+					return i;
+			}
+			return -1;
+		} else if (vector.columns() == 1) { // column vector
+			for (int i = 0; i < columns(); i++) {
+				if (column(i).equals(vector))
+					return i;
+			}
+			return -1;
+		} else
+			return -1;
 	}
 	
 	/**
@@ -1069,6 +1098,8 @@ public class Matrix implements Serializable{
 	 */
 	@Override
 	public boolean equals(Object obj) {
+		if (!(obj instanceof Matrix))
+			return false;
 		Matrix anotherMat = (Matrix)obj;
 		if(this.rows() != anotherMat.rows() || this.columns() != anotherMat.columns()) {
 			return false;

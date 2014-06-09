@@ -62,10 +62,7 @@ public class SOMLearning implements UnsupervisedNeuralLearning {
 			error += run(inputs.row(i));
 		return error;
 	}
-
-	/* (non-Javadoc)
-	 * @see artiano.neural.learning.UnsupervisedNeuralLearning#run(artiano.core.structure.Matrix)
-	 */
+	
 	@Override
 	public double run(Matrix inputs) {
 		double error = 0.;

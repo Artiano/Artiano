@@ -2,6 +2,7 @@
 package artiano.neural.actfun;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * <p>Description: interface of every activation function</p>
@@ -15,6 +16,13 @@ import java.io.Serializable;
 public abstract class ActivationFunction implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
+	
+	public static ArrayList<Class<?>> listAllFunctions() {
+		ArrayList<Class<?>> functions = new ArrayList<>();
+		functions.add(Sigmoid.class);
+		return functions;
+	}
+	
 	/**
 	 * 
 	 * @param x the input value

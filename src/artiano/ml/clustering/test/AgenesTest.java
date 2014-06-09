@@ -2,9 +2,8 @@ package artiano.ml.clustering.test;
 
 import java.util.List;
 
-import org.junit.Test;
-
 import artiano.core.structure.Matrix;
+import artiano.core.structure.Table;
 import artiano.ml.clustering.*;
 import artiano.ml.clustering.structure.Cluster;
 
@@ -38,12 +37,11 @@ public class AgenesTest {
 		12.69,1.53,2.26,20.7,80,1.38,1.46,.58,1.62,3.05,.96,2.06,495												
 	};  //1, 1, 1, 3, 3, 1, 1, 1, 2, 1, 2, 1, 3, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 2
 	
-	@Test
-	public void testAgens() {
+	public static void main(String[] args) {
 		int attrNum = 13;
 		Matrix data = new Matrix(inputArr.length / attrNum, attrNum, inputArr );
 		//使用层次聚类算法Agenes进行聚类
-		List<Cluster> clusters = Agenes.cluster(data, 3);
+		List<Cluster> clusters = Agenes.cluster(new Table(data), 4);
 		System.out.println("聚类的结果如下:");
 		for(int i=0; i<clusters.size(); i++) {
 			System.out.println("Cluster " + (i+1) + ":");

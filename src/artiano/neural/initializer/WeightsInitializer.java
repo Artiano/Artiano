@@ -3,6 +3,8 @@
  */
 package artiano.neural.initializer;
 
+import java.util.ArrayList;
+
 import artiano.neural.network.Network;
 
 /**
@@ -13,9 +15,16 @@ import artiano.neural.network.Network;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public interface WeightsInitializer {
+public abstract class WeightsInitializer {
+	
+	public static ArrayList<Class<?>> listAll() {
+		ArrayList<Class<?>> w = new ArrayList<>();
+		w.add(NguyenWidrow.class);
+		return w;
+	}
+	
 	/**
 	 * initialize the weight
 	 */
-	public void initialize(Network network);
+	public abstract void initialize(Network network);
 }

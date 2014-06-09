@@ -1,6 +1,9 @@
 package artiano.ml.association;
 
 import java.util.*;
+
+import artiano.core.structure.Table;
+import artiano.ml.association.structure.AssociationModel;
 import artiano.ml.association.structure.FPTreeNode;
 
 /**
@@ -12,7 +15,7 @@ import artiano.ml.association.structure.FPTreeNode;
  * @function 
  * @since 1.0.0
  */
-public class FPGrowth {
+public class FPGrowth extends Associator {
 	
 	private int minSupport;		//最小支持度计数
 	private Map<String, Integer> frequentPatterns = 
@@ -197,4 +200,13 @@ public class FPGrowth {
     		addNodes(child, record, F1);
     	}
     }
+
+	/* (non-Javadoc)
+	 * @see artiano.ml.association.Associator#getPattern(artiano.core.structure.Table)
+	 */
+	@Override
+	public AssociationModel getPattern(Table records) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

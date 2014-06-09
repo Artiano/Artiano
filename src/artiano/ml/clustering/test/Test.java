@@ -41,7 +41,7 @@ public class Test {
 		Matrix data = new Matrix(inputArr.length / attrNum, attrNum, inputArr );	
 		
 		KMeans kMeans = new KMeans();
-		Map<Matrix, Matrix> clusterMap = kMeans.kmeans(data, 3);  //k-means
+		Map<Matrix, Matrix> clusterMap = kMeans.kmeans(data, 2);  //k-means
 		Set<Entry<Matrix, Matrix>> entrySet = clusterMap.entrySet();
 		int count = 1;
 		for(Entry<Matrix, Matrix> entry: entrySet) {

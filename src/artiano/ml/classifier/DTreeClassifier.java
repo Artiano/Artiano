@@ -28,11 +28,6 @@ public class DTreeClassifier extends Classifier {
 	public DTreeClassifier() {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see artiano.ml.classifier.Classifier#capability()
-	 */
 	@Override
 	public Capability capability() {
 		Capability cap = new Capability();
@@ -47,7 +42,7 @@ public class DTreeClassifier extends Classifier {
 		// missing value in class is not allowed
 		cap.allowClassMissing(false);
 		// minimum instances
-		cap.setMinimumInstances(0);
+		cap.setMinimumInstances(1);
 		return cap;
 	}
 
@@ -63,7 +58,7 @@ public class DTreeClassifier extends Classifier {
 		Capability capability = capability();
 		if (!capability.handles(trainSet)) {
 			String why = capability.failReason();
-			throw new UnsupportedOperationException("<" + getClass() + ">:"
+			throw new UnsupportedOperationException("[" + getClass() + "]:"
 					+ why);
 		}
 		initialize(trainSet);
@@ -77,7 +72,12 @@ public class DTreeClassifier extends Classifier {
 		return true;
 	}
 
-	// 初始化属性列表及训练集
+	/**
+	 * 初始化
+	 * 
+	 * @param trainSet
+	 *            训练集合
+	 */
 	private void initialize(Table trainSet) {
 		int columns = trainSet.columns();
 		// 初始化属性列表
@@ -178,15 +178,16 @@ public class DTreeClassifier extends Classifier {
 			return p;
 		}
 
-		/*
-		 * 所有的属性都已经进行匹配，但还没有完成分类，则将剩下的数据中出现次数最多的类标号 作为当前节点的类标号，并且停止构造决策树
+		/**
+		 * 所有的属性都已经进行匹配，但还没有完成分类，则将剩下的数据中出现次数最多的类标号 作为当前节点的类标号，
+		 * 并且停止构造决策树
 		 */
 		if (remainingAttribute.size() == 0) {
 			p.label = mostCommonLabel(classAttr);
 			return p;
 		}
 
-		/* 根据最大信息增益来决定哪个属性作为分裂属性 */
+		/** 根据最大信息增益来决定哪个属性作为分裂属性 */
 		int max_index = getMaxInformationGainAttribute(remainingTrainSet,
 				remainingAttribute);
 		p.attribute = remainingAttribute.get(max_index);
@@ -195,7 +196,9 @@ public class DTreeClassifier extends Classifier {
 		return p;
 	}
 
-	// 构造子决策树
+	/** 
+	 * 构造子决策树
+	 */
 	private void constructSubTree(DTreeNode p, Table remainingTrainSet,
 			ArrayList<String> remainingAttribute) {
 		int indexOfAttr = remainingAttribute.indexOf(p.attribute);
@@ -239,7 +242,7 @@ public class DTreeClassifier extends Classifier {
 			Object attrValue) {
 		Table newRemainingData = new Table();
 		// 添加属性
-		Iterator<Attribute> attrIter = remainingTrainSet.attributes();
+		Iterator<Attribute> attrIter = remainingTrainSet.attributesIterator();
 		while (attrIter.hasNext()) {
 			Attribute attr = attrIter.next();
 			if (attr instanceof NumericAttribute) {
@@ -494,7 +497,7 @@ public class DTreeClassifier extends Classifier {
 		return attributeValueList;
 	}
 
-	/* 决策树节点类 */
+	/** 决策树节点类 */
 	private static class DTreeNode implements Serializable {
 		private static final long serialVersionUID = 1L;
 
@@ -502,6 +505,21 @@ public class DTreeClassifier extends Classifier {
 		Object previousDecision = null; // 前一个属性决策的值
 		String label = ""; // 类标(对于叶子节点)
 		ArrayList<DTreeNode> nextNodes; // 子决策树的引用
+	}
+
+	@Override
+	public String descriptionOfOptions() {
+		return "<no options needed>";
+	}
+
+	@Override
+	public Options supportedOptions() {
+		return null;
+	}
+
+	@Override
+	public boolean applyOptions(Options options) {
+		return true;
 	}
 
 }

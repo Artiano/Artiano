@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PackageAnalysis>
+    <Package name="artiano.core.operation" x="168" y="444">
+        <DependencyLink destination="artiano.core.structure"/>
+    </Package>
+    <Package name="artiano.core.structure" x="302" y="203">
+        <DependencyLink destination="artiano.core.operation">
+            <Point x="339" y="241"/>
+        </DependencyLink>
+    </Package>
+    <Package name="artiano.ml" x="547" y="214">
+        <DependencyLink destination="artiano.core.structure"/>
+    </Package>
+    <Package name="artiano.ml.classifier" x="500" y="336">
+        <DependencyLink destination="artiano.core.structure"/>
+        <DependencyLink destination="artiano.ml"/>
+        <DependencyLink destination="artiano.neural.network"/>
+        <DependencyLink destination="artiano.core.operation"/>
+        <DependencyLink destination="artiano.neural.learning"/>
+    </Package>
+    <Package name="artiano.ml.clustering" x="123" y="156">
+        <DependencyLink destination="artiano.core.structure"/>
+        <DependencyLink destination="artiano.ml.clustering.structure"/>
+        <DependencyLink destination="artiano.core.operation"/>
+    </Package>
+    <Package name="artiano.ml.clustering.structure" x="290" y="76">
+        <DependencyLink destination="artiano.core.structure"/>
+        <DependencyLink destination="artiano.ml"/>
+    </Package>
+    <Package name="artiano.neural.learning" x="458" y="443">
+        <DependencyLink destination="artiano.core.structure"/>
+        <DependencyLink destination="artiano.neural.network"/>
+        <DependencyLink destination="artiano.core.operation"/>
+    </Package>
+    <Package name="artiano.neural.network" x="37" y="312">
+        <DependencyLink destination="artiano.core.structure"/>
+        <DependencyLink destination="artiano.core.operation"/>
+    </Package>
+    <Package name="artiano.ml.association" x="511" y="123">
+        <DependencyLink destination="artiano.core.structure"/>
+    </Package>
+</PackageAnalysis>

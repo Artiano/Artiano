@@ -4,6 +4,8 @@
 package artiano.neural.learning;
 
 import artiano.core.structure.Matrix;
+import artiano.core.structure.Option;
+import artiano.core.structure.Options;
 import artiano.math.algebra.CholeskyDecomposition;
 import artiano.neural.actfun.ActivationFunction;
 import artiano.neural.layer.ActivationLayer;
@@ -20,7 +22,7 @@ import artiano.neural.neuron.Neuron;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class LevenbergMarquardtLearning implements SupervisedNeuralLearning {
+public class LevenbergMarquardtLearning extends SupervisedNeuralLearning {
 
 	protected ActivationNetwork network = null;
 	protected Matrix jacobian = null;
@@ -34,6 +36,8 @@ public class LevenbergMarquardtLearning implements SupervisedNeuralLearning {
 	protected double sumSquaredError = 0.;
 	
 	protected boolean isAllocate = false;
+	
+	public LevenbergMarquardtLearning() { }
 	
 	/**
 	 * constructor
@@ -51,6 +55,11 @@ public class LevenbergMarquardtLearning implements SupervisedNeuralLearning {
 	public LevenbergMarquardtLearning(ActivationNetwork network, int blockSize){
 		this.network = network;
 		this.blockSize = blockSize >= 1? blockSize: 1;
+	}
+	
+	@Override
+	public void setNetwork(ActivationNetwork network) {
+		this.network = network;
 		numberWeights();
 		allocateMemory();
 	}
@@ -256,9 +265,6 @@ public class LevenbergMarquardtLearning implements SupervisedNeuralLearning {
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see artiano.neural.learning.SupervisedNeuralLearning#runEpoch(artiano.core.structure.Matrix[], artiano.core.structure.Matrix[])
-	 */
 	@Override
 	public double runEpoch(Matrix inputs, Matrix targetOutputs) {
 		finalBlockSize = inputs.rows() % blockSize;
@@ -292,12 +298,46 @@ public class LevenbergMarquardtLearning implements SupervisedNeuralLearning {
 		return sumSquaredError;
 	}
 
-	/* (non-Javadoc)
-	 * @see artiano.neural.learning.SupervisedNeuralLearning#run(artiano.core.structure.Matrix, artiano.core.structure.Matrix)
-	 */
 	@Override
 	public double run(Matrix input, Matrix targetOutput) {
 		throw new UnsupportedOperationException("LenvenbergMarquartLearning, running in batch mode only.");
+	}
+
+	private static final String KEY_LEARNING_RATE = "learning rate";
+	private static final String KEY_BLOCK_SIZE = "block size";
+	private static final String KEY_REG_FACTOR = "reg factor";
+	
+	private Options options = null;
+	@Override
+	public String descriptionOfOptions() {
+		return "设置来文伯格-马夸特学习方法参数";
+	}
+
+	@Override
+	public Options supportedOptions() {
+		if (null != options)
+			return options;
+		options = new Options();
+		Option option = new Option(KEY_LEARNING_RATE, "学习率参数(0,1)", Double.class, 0.5, false);
+		options.put(KEY_LEARNING_RATE, option);
+		option = new Option(KEY_BLOCK_SIZE, "每次学习的块大小", Integer.class, 1, false);
+		options.put(KEY_BLOCK_SIZE, option);
+		option = new Option(KEY_REG_FACTOR, "正则化因子(0,1)", Double.class, 0.01, false);
+		options.put(KEY_REG_FACTOR, option);
+		return options;
+	}
+
+	@Override
+	public boolean applyOptions(Options options) {
+		double lr = (double) options.get(KEY_LEARNING_RATE).value();
+		if (lr <= 0 || lr > 1)
+			return false;
+		blockSize = (int) options.get(KEY_BLOCK_SIZE).value();
+		double rf = (double) options.get(KEY_REG_FACTOR).value();
+		if (rf <=0 || rf > 1)
+			return false;
+		regularizationFactor = rf;
+		return true;
 	}
 	
 }

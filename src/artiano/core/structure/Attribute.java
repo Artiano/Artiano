@@ -227,13 +227,24 @@ public abstract class Attribute implements Serializable {
 	public Object get(int i) {
 		return vector.at(i);
 	}
-
+	
+	/**
+	 * 获取属性转换器
+	 * @return 特定属性转换器
+	 */
+	public abstract AttributeConverter getConverter();
+	
 	/**
 	 * 将属性向量转换为数组
 	 * 
 	 * @return
 	 */
-	public abstract Object toArray();
+	public Object toArray() {
+		Object[] array = new Object[this.vector.size()];
+		for (int i = 0; i < array.length; i++)
+			array[i] = get(i);
+		return array;
+	}
 
 	/**
 	 * 替换缺失值

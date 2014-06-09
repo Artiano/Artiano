@@ -15,7 +15,7 @@ import artiano.randomizer.GuassianRandomizer;
  * @author (latest modification by Nano.Michael)
  * @since 1.0.0
  */
-public class NguyenWidrow implements WeightsInitializer {
+public class NguyenWidrow extends WeightsInitializer {
 	
 	public NguyenWidrow(){ }
 	

@@ -23,24 +23,42 @@ import artiano.core.structure.Table.TableRow;
 public class NaiveBayesClassifier extends Classifier {
 	private static final long serialVersionUID = -1923319469209965644L;
 	
+	private int classIndex;
 	private Matrix trainData;				//训练集
 	private Attribute classAttribute;	//训练集类标号
 	private Table trainResult;				//训练结果
 	private Map<Object, Integer> eachlabelCount = 
 		new LinkedHashMap<Object, Integer>();	 //对每个类标号计数
 	
+	@Override
+	public Capability capability() {
+		Capability cap = new Capability();
+		// disable all
+		cap.disableAll();
+		// attribute capabilities
+		cap.enableAttribute(NumericAttribute.class);
+		// missing value in attribute is not allowed
+		cap.allowAttributeMissing(false);
+		// class capabilities
+		cap.enableClass(NominalAttribute.class);
+		// missing value in class is not allowed
+		cap.allowClassMissing(false);
+		// minimum instances
+		cap.setMinimumInstances(1);
+		return cap;
+	}
+	
 	/** 训练数据
 	 * @param trainSet 训练集
 	 * @return 训练是否成功，true表示训练成功，false表示训练失败
 	 */
-	public boolean train(Table trainSet) {		
-		try {
-			// 检查输入的训练数据的有效性
-			isTrainingDataValid(trainSet);
-		} catch (Exception e) {
-			return false; 	// 训练数据不合法，训练失败，退出 
+	public boolean train(Table trainSet) {
+		Capability capability = capability();
+		if (!capability.handles(trainSet)) {
+			String why = capability.failReason();
+			throw new UnsupportedOperationException("[" + getClass() + "]:"
+					+ why);
 		}
-		//this.trainData = trainSet.toMatrix();
 		//获取训练集去掉类标那一列之后的数据
 		this.trainData = generateTrainDataWithoutLabel(trainSet);
 		classAttribute = trainSet.classAttribute();
@@ -49,24 +67,12 @@ public class NaiveBayesClassifier extends Classifier {
 		Map<Object, Matrix> labelMap = groupTraningDataByLabel();	
 		generateTrainingResult(labelMap);  //训练数据，产生训练结果
 		return true;
-	}		
+	}
 
 	//获取训练集去掉类标那一列之后的数据
 	private Matrix generateTrainDataWithoutLabel(Table trainSet) {
-		int rows = trainSet.rows();
-		int columns = trainSet.columns();
-		int classAttrIndex = trainSet.classIndex();		//类标属性的下标
-		Matrix data = new Matrix(rows, columns-1);
-		for(int i=0; i<rows; i++) {
-			TableRow singleData = trainSet.row(i);
-			for(int j=0; j<columns; j++) {
-				if(j < classAttrIndex) {
-					data.set(i, j, (Double)singleData.at(j));
-				} else if(j > classAttrIndex) {
-					data.set(i, j-1, (Double)singleData.at(j));
-				}
-			}
-		}
+		classIndex = trainSet.classIndex();
+		Matrix data = trainSet.toMatrix(new Attribute[]{trainSet.classAttribute()});
 		return data;
 	}
 	
@@ -76,8 +82,9 @@ public class NaiveBayesClassifier extends Classifier {
 	 * @param samples - 待分类数据集
 	 * @return 分类的结果
 	 */
-	public NominalAttribute predict(Table samples) {		
-		Matrix samplesMat = samples.toMatrix();
+	public NominalAttribute predict(Table samples) {
+		Attribute att = samples.attribute(classIndex);
+		Matrix samplesMat = samples.toMatrix(new Attribute[]{att});
 		NominalAttribute result = new NominalAttribute("label");
 		for (int i = 0; i < samples.rows(); i++) {			
 			Object predictResult = classifySingleData(samplesMat.row(i));
@@ -100,7 +107,7 @@ public class NaiveBayesClassifier extends Classifier {
 				+ " multiple rows, please use method predict(Matrix sample, Matrix result)");
 		}
 
-		/* 通过数据属于某个类标号的可能性大小来将该数据归到该类 */
+		/** 通过数据属于某个类标号的可能性大小来将该数据归到该类 */
 		List<Object> labelList = 
 			new ArrayList<Object>(eachlabelCount.keySet());						
 		List<Double> probabilityList = 
@@ -223,35 +230,20 @@ public class NaiveBayesClassifier extends Classifier {
 		}
 		return labelMap;
 	}
+	
+	@Override
+	public String descriptionOfOptions() {
+		return null;
+	}
 
-	/**
-	 * 检查输入的训练集的合法性
-	 * 
-	 * @throws IllegalArgumentException
-	 *      trainData is null, or class Attribute is not appointed 
-	 *      in trainData
-	 */
-	private void isTrainingDataValid(Table trainData) {
-		// 检查训练集和对应的类标号是否为空
-		if (trainData == null) {
-			throw new IllegalArgumentException("训练集为空!");
-		}
-		if(trainData.classAttribute() == null) {
-			throw new IllegalArgumentException("训练集对应的类标号为空!");			
-		}
-
-		/* 检查训练集是否为数值型 */
-		int rows = trainData.rows();
-		int columns = trainData.columns();
-		for(int i=0; i<rows; i++) {
-			TableRow tableRow = trainData.row(i);
-			for(int j=0; j<columns; j++) {
-				Object obj = tableRow.at(j);
-				if(! (obj instanceof Double)) {
-					throw new IllegalArgumentException("训练集只能为数值型!");
-				}
-			}
-		}
+	@Override
+	public Options supportedOptions() {
+		return null;
+	}
+	
+	@Override
+	public boolean applyOptions(Options options) {
+		return true;
 	}
 
 }

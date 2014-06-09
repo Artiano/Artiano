@@ -5,16 +5,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import artiano.core.operation.Preservable;
+import artiano.core.structure.Capability;
 import artiano.core.structure.Domain;
 import artiano.core.structure.Matrix;
+import artiano.core.structure.NominalAttribute;
+import artiano.core.structure.Options;
+import artiano.core.structure.Table;
 
 /***
  * 
  * @author BreezeDust
  * 
  */
-public class NaiveBayesDiscreteClassifier extends Preservable{
+public class NaiveBayesDiscreteClassifier extends Classifier{
+	
+	private static final long serialVersionUID = 1L;
 	public String[] domainStr;
 	public Map<Integer, Matrix> labelMap = new LinkedHashMap<Integer, Matrix>();
 	public List<Integer> labeList = new LinkedList<Integer>();
@@ -77,7 +82,6 @@ public class NaiveBayesDiscreteClassifier extends Preservable{
 		for(int i=0;i<labeList.size();i++){
 			Matrix rowMx=new Matrix(1,domains.length+1);
 			Matrix tmpMx=labelMap.get(labeList.get(i));
-//			tmpMx.print();
 			if(plabel[i]==0)plabel[i]=(double)tmpMx.rows()/(double)rows;
 			rowMx.set(0,0,plabel[i]);
 			
@@ -91,7 +95,6 @@ public class NaiveBayesDiscreteClassifier extends Preservable{
 				rowMx.set(0,j+1,pA_Y);
 			}
 			rowMx=laPlace(rowMx,rows);
-//			rowMx.print();
 			if(i==0) result=rowMx;
 			if(i>0) result.mergeAfterRow(rowMx);
 		}
@@ -180,6 +183,36 @@ public class NaiveBayesDiscreteClassifier extends Preservable{
 			}
 		}
 		return max;
+	}
+	
+	@Override
+	public Capability capability() {
+		return null;
+	}
+
+	@Override
+	public String descriptionOfOptions() {
+		return null;
+	}
+	
+	@Override
+	public Options supportedOptions() {
+		return null;
+	}
+	
+	@Override
+	public boolean applyOptions(Options options) {
+		return true;
+	}
+	
+	@Override
+	public boolean train(Table trainSet) {
+		return false;
+	}
+	
+	@Override
+	public NominalAttribute predict(Table samples) {
+		return null;
 	}
 	
 }

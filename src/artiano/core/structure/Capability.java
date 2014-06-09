@@ -235,14 +235,14 @@ public class Capability {
 			return false;
 		}
 		// attributes capabilities
-		for (Iterator<Attribute> it = t.attributes(); it.hasNext();) {
+		for (Iterator<Attribute> it = t.attributesIterator(); it.hasNext();) {
 			Attribute att = it.next();
 			// not the class attribute
 			if (!t.isClassAttribute(att)) {
 				// can handle ?
 				if (!handlesAttribute(att.getClass())) {
-					failReason = "Can't handle <" + att.getType()
-							+ "> attributes" + " in the table " + t.getName()
+					failReason = "Can't handle [" + att.getName() + ":" + att.getType()
+							+ "] attributes" + " in the table " + t.getName()
 							+ ".";
 					return false;
 				}
@@ -255,15 +255,15 @@ public class Capability {
 			}
 		}
 		// class capabilities
-		if (t.hasClass()) {
+		if (!classCapabilities.isEmpty() && t.hasClass()) {
 			Attribute att = t.classAttribute();
 			// can handle the class attribute ?
 			if (!handlesClass(att.getClass())) {
-				failReason = "Can't handle <" + att.getType() + "> class.\n";
+				failReason = "Can't handle [" + att.getType() + "] class.\n";
 				return false;
 			}
 			// allow class value missing ?
-			if (!allowClsMissing & att.hasMissing()) {
+			if (!allowClsMissing && att.hasMissing()) {
 				failReason = "Missing value in class attribute "
 						+ att.getName() + " is not allowed.";
 				return false;

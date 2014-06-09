@@ -5,12 +5,13 @@ import java.util.List;
 import org.junit.Test;
 
 import artiano.core.structure.Matrix;
+import artiano.core.structure.Table;
 import artiano.ml.clustering.DBSCAN;
 
 public class DBSCANTest {
 
 	@Test
-	public void testCluster() {
+	public static void main(String[] args) {
 		int dimension = 2;
 		double[] dataPointsArr = new double[]{
 			-1, 0,   1, 2,   2, 0,   2, 2,
@@ -20,22 +21,23 @@ public class DBSCANTest {
 		}; 
 		Matrix dataPoints = 
 			new Matrix(dataPointsArr.length/dimension, dimension, dataPointsArr);
-		double eps = 2.0;
-		int minNeighborsNum = 4;
-		DBSCAN dbscan = new DBSCAN(eps, minNeighborsNum, dataPoints);
-		List<Matrix> clusterList = dbscan.cluster();
+		dataPoints.print();
+		double eps = 0.7;
+		int minNeighborsNum = 3;
+		DBSCAN dbscan = new DBSCAN(eps, minNeighborsNum, new Table(dataPoints));
+		List<Table> clusterList = dbscan.cluster();
 		System.out.println("所有的簇如下所示:");
 		int i = 0;
-		for(Matrix cluster: clusterList) {
+		for(Table cluster: clusterList) {
 			System.out.println("簇 " + (i+1));
 			cluster.print();
 			i++;
 		}
 		
-		List<Matrix> noisePointList = dbscan.getNoisePoints();
+		List<Table> noisePointList = dbscan.getNoisePoints();
 		System.out.println("被划分为噪声点的点如下:");
-		for(Matrix noisePoint: noisePointList) {
-			noisePoint.printAll();
+		for(Table noisePoint: noisePointList) {
+			noisePoint.print();
 		}
 	}
 
